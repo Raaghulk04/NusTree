@@ -6,4 +6,3 @@ export function MajorTemplatePicker() {
     </section>
   );
 }
-

@@ -3,4 +3,3 @@ export async function GET() {
     message: "Return module data here.",
   });
 }
-

@@ -1,6 +1,6 @@
+import { MajorTemplatePicker } from "../../components/major-template-picker";
 import { ModuleTracker } from "../../components/module-tracker";
 import { ModuleGraph } from "../../components/module-graph";
-import { MajorTemplatePicker } from "../../components/major-template-picker";
 
 export default function PlannerPage() {
   return (
@@ -12,4 +12,3 @@ export default function PlannerPage() {
     </main>
   );
 }
-

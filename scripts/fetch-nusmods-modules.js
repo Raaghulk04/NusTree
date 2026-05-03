@@ -1,6 +1,6 @@
-import axios from "axios";
-import fs from "fs";
-import path from "path";
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 
 const BASE = "https://api.nusmods.com/v2/2025-2026";
 const OUTPUT_PATH = path.join(process.cwd(), "src/data/modules.json");
@@ -8,7 +8,7 @@ const OUTPUT_PATH = path.join(process.cwd(), "src/data/modules.json");
 async function main() {
   const listRes = await axios.get(`${BASE}/moduleList.json`);
   const modules = listRes.data;
-  const result: Record<string, unknown> = {};
+  const result = {};
 
   for (const mod of modules) {
     const code = mod.moduleCode;
@@ -27,4 +27,3 @@ async function main() {
 }
 
 main();
-
