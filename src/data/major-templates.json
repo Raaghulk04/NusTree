@@ -1,0 +1,7 @@
+{
+  "computer-science": {
+    "majorName": "Computer Science",
+    "coreModules": ["CS1101S", "CS1231S", "CS2030S", "CS2040S"]
+  }
+}
+

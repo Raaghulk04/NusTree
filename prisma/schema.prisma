@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  moduleCode  String   @unique
+  title       String
+  description String?
+  department  String?
+  workload    Float?
+}
+
+model MajorTemplate {
+  id        String   @id @default(cuid())
+  majorCode String   @unique
+  majorName String
+}
+
+model UserPlanModule {
+  id          String  @id @default(cuid())
+  moduleCode  String
+  semesterTag String?
+  colorTag    String?
+  completed   Boolean @default(false)
+}
+
