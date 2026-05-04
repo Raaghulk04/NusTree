@@ -4,12 +4,10 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
 model Module {
-  id          String   @id @default(cuid())
-  moduleCode  String   @unique
+  id          String   @id 
   title       String
   description String?
   department  String?
@@ -24,7 +22,6 @@ model MajorTemplate {
 
 model UserPlanModule {
   id          String  @id @default(cuid())
-  moduleCode  String
   semesterTag String?
   colorTag    String?
   completed   Boolean @default(false)
