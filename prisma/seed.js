@@ -29,7 +29,7 @@ async function main() {
 				id: code,
 				title: details.title || "No Title Provided",
 				description: details.description,
-				department: details.department,
+				prereqTree: details.prereqTree,
 				// Add other fields here if they exist in your schema
 			}
 		});

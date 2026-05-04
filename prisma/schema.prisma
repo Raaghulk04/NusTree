@@ -12,6 +12,8 @@ model Module {
   description String?
   department  String?
   workload    Float?
+  prereqTree  Json?
+  userPlanModules UserPlanModule[]
 }
 
 model MajorTemplate {
@@ -22,8 +24,12 @@ model MajorTemplate {
 
 model UserPlanModule {
   id          String  @id @default(cuid())
+  userId      String
+  moduleId    String
   semesterTag String?
   colorTag    String?
+  module      Module  @relation(fields: [moduleId], references: [id])
   completed   Boolean @default(false)
+
 }
 
