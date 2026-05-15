@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output = "../src/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Module {
-  id          String   @id 
-  title       String
-  description String?
-  department  String?
-  workload    Float?
-  prereqTree  Json?
+  id              String           @id
+  title           String
+  description     String?
+  department      String?
+  workload        Float?
+  prereqTree      Json?
   userPlanModules UserPlanModule[]
 }
 
 model MajorTemplate {
-  id        String   @id @default(cuid())
-  majorCode String   @unique
+  id        String @id @default(cuid())
+  majorCode String @unique
   majorName String
 }
 
@@ -31,6 +31,4 @@ model UserPlanModule {
   colorTag    String?
   module      Module  @relation(fields: [moduleId], references: [id])
   completed   Boolean @default(false)
-
 }
-

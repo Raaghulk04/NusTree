@@ -1,5 +1,6 @@
-function noop() {
-  return null;
-}
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge"
 
-export { noop };
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}

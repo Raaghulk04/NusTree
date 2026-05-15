@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg'); // You need this for Postgres
+const { PrismaPg } = require('@prisma/adapter-pg'); 
 const pg = require('pg');
 const fs = require('fs');
 const path = require('path');
