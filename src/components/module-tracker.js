@@ -21,7 +21,7 @@ export default function ModuleTracker({ mods }) {
   const handleOnChange = (event) => {
     setMod(event.target.value);
   }
-  const handleAddMod = () => {
+  const handleAddMod = (event) => {
     event.preventDefault();
     if(!mods.find(m => m.id=== mod)) {
       alert("not a valid mod");
@@ -47,8 +47,7 @@ export default function ModuleTracker({ mods }) {
       <p>Track completed modules and semester grouping here.</p>
       <Completed mods={completedMods} />
       <Link href={{
-        pathname: "../eligibleMods",
-        query: {completedMods}
+        pathname: "../eligibleMods"
       }}>check ur eligible mods</Link>
     </section>
   );
