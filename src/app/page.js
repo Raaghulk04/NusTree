@@ -14,6 +14,7 @@ export default async function HomePage() {
       <p><i>Plan your academic pathway in ONE place</i></p>
       <Link href="/signup">Sign Up</Link>
       <Link href="/signin">Sign In</Link>
+      <Link href="/homePage">test</Link>
       <ModuleTracker mods={mods}/>
     </main>
   );
