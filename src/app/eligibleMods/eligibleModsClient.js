@@ -1,5 +1,5 @@
 'use client'
-import { useModuleStore } from '@/store/useModuleStore'
+import { useModuleStore } from '../../store/useModuleStore'
 
 export default function EligibleModClient({ mods }) {
 

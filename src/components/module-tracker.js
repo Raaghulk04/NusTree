@@ -1,14 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group"
-import { useModuleStore } from '@/store/useModuleStore'
+import { useModuleStore } from '../store/useModuleStore'
 
 
 export default function ModuleTracker({ mods }) {
@@ -36,9 +29,6 @@ export default function ModuleTracker({ mods }) {
 
   return (
     <section>
-      {/* <InputGroup>
-        <InputGroupInput placeholder="Add the mods you have taken"></InputGroupInput> 
-      </InputGroup> */}
       <h2>Module Tracker</h2>
       <form onSubmit={handleAddMod}>
         Add a Mod: <input value={mod} onInput={handleOnChange}/>
