@@ -17,6 +17,7 @@ export default function ModuleTracker({ mods }) {
   const handleAddMod = (event) => {
     event.preventDefault();
     if(!mods.find(m => m.id=== mod)) {
+      console.log(mod);
       alert("not a valid mod");
     } else {
       setCompletedMods(completedMods.concat(mod));

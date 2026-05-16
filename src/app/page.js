@@ -5,6 +5,8 @@ import getAllMods from "./getAllMods";
 
 export default async function HomePage() {
   const mods = await getAllMods();
+  console.log(mods[0]);
+  console.log("hello")
   
   return (
     <main>
