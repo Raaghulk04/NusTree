@@ -2,12 +2,14 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useModuleStore } from '../store/useModuleStore'
+import { authClient } from '@/lib/auth-client'
 
 
 export default function ModuleTracker({ mods }) {
   console.log(mods[0]);
   const [completedMods, setCompletedMods] = useState([]);
   const [mod, setMod] = useState('');
+  const { data: session, isPending } = authClient.useSession()
 
   const addModule = useModuleStore((state) => state.addModule)
 
@@ -26,10 +28,18 @@ export default function ModuleTracker({ mods }) {
     }
   }
 
+  if(isPending) {
+    return <p>loading...</p>
+  }
+  if (!session) {
+    return <p> not logged in</p>
+  }
+
   
 
   return (
     <section>
+      <p>Welcome Back {session.user.name}</p>
       <h2>Module Tracker</h2>
       <form onSubmit={handleAddMod}>
         Add a Mod: <input value={mod} onInput={handleOnChange}/>

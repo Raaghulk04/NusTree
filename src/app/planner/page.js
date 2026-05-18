@@ -1,5 +1,5 @@
 import { MajorTemplatePicker } from "../../components/major-template-picker";
-import { ModuleTracker } from "../../components/module-tracker";
+import ModuleTracker from "../../components/module-tracker";
 import { ModuleGraph } from "../../components/module-graph";
 
 export default function PlannerPage() {
@@ -7,7 +7,7 @@ export default function PlannerPage() {
     <main>
       <h1>Planner</h1>
       <MajorTemplatePicker />
-      <ModuleTracker />
+      <ModuleTracker mods={[]}/>
       <ModuleGraph />
     </main>
   );

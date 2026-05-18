@@ -15,7 +15,6 @@ export default async function HomePage() {
       <Link href="/signup">Sign Up</Link>
       <Link href="/signin">Sign In</Link>
       <Link href="/homePage">test</Link>
-      <ModuleTracker mods={mods}/>
     </main>
   );
 }
