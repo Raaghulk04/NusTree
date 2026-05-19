@@ -3,9 +3,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useModuleStore } from '../store/useModuleStore'
 import { authClient } from '@/lib/auth-client'
+import addCompletedModule from './addCompletedModule'
+import Completed from './Completed'
 
 
 export default function ModuleTracker({ mods }) {
+
   console.log(mods[0]);
   const [completedMods, setCompletedMods] = useState([]);
   const [mod, setMod] = useState('');
@@ -23,6 +26,7 @@ export default function ModuleTracker({ mods }) {
       alert("not a valid mod");
     } else {
       setCompletedMods(completedMods.concat(mod));
+      addCompletedModule(mod);
       setMod('');
       addModule(mod);
     }
@@ -46,16 +50,10 @@ export default function ModuleTracker({ mods }) {
         <button onClick={handleAddMod} type="submit">Add</button>
       </form>
       <p>Track completed modules and semester grouping here.</p>
-      <Completed mods={completedMods} />
+      <Completed completed={mods}/>
       <Link href={{
         pathname: "../eligibleMods"
       }}>check ur eligible mods</Link>
     </section>
   );
-}
-
-const Completed = ({ mods }) => {
-  return (<div>
-      {mods.map(mod => <p key={mod}>{mod}</p>)}
-    </div>)
 }
