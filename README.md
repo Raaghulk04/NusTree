@@ -22,6 +22,26 @@ Milestone 1 scaffold for an NUS academic pathway planner.
 
 The seed script only upserts `Module` rows. It does not seed auth tables, users, or planner rows.
 
+## Daily Prisma Workflow
+
+Minimal daily restart:
+
+```bash
+cd /home/kopiosiewdai/projects/NusTree
+sudo systemctl start postgresql
+npx prisma studio
+```
+
+End-of-day close-down:
+
+1. Stop Prisma Studio with `Ctrl+C` in the terminal where it is running.
+2. Stop the Next.js dev server with `Ctrl+C` if it is running.
+3. Optionally stop local Postgres if you do not want it left running:
+
+```bash
+sudo systemctl stop postgresql
+```
+
 ## Current Prisma Audit
 
 - The checked-in migration history currently contains one migration: `prisma/migrations/20260504094745_added_prereq_tree/migration.sql`.
