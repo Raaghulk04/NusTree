@@ -1,0 +1,85 @@
+Table MajorTemplate {
+  id text [pk]
+  majorCode text [not null, unique]
+  majorName text [not null]
+}
+
+Table Module {
+  id text [pk]
+  title text [not null]
+  description text
+  department text
+  workload double precision
+  prereqTree jsonb
+}
+
+Table UserPlanModule {
+  id text [pk]
+  userId text [not null]
+  moduleId text [not null]
+  semesterTag text
+  colorTag text
+  completed boolean [not null, default: false]
+}
+
+Table "user" {
+  id text [pk]
+  name text [not null]
+  email text [not null, unique]
+  emailVerified boolean [not null, default: false]
+  image text
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt timestamp [not null]
+}
+
+Table session {
+  id text [pk]
+  expiresAt timestamp [not null]
+  token text [not null, unique]
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt timestamp [not null]
+  ipAddress text
+  userAgent text
+  userId text [not null]
+
+  indexes {
+    userId
+  }
+}
+
+Table account {
+  id text [pk]
+  accountId text [not null]
+  providerId text [not null]
+  userId text [not null]
+  accessToken text
+  refreshToken text
+  idToken text
+  accessTokenExpiresAt timestamp
+  refreshTokenExpiresAt timestamp
+  scope text
+  password text
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt timestamp [not null]
+
+  indexes {
+    userId
+  }
+}
+
+Table verification {
+  id text [pk]
+  identifier text [not null]
+  value text [not null]
+  expiresAt timestamp [not null]
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt timestamp [not null]
+
+  indexes {
+    identifier
+  }
+}
+
+Ref: UserPlanModule.moduleId > Module.id
+Ref: session.userId > "user".id [delete: cascade, update: cascade]
+Ref: account.userId > "user".id [delete: cascade, update: cascade]
