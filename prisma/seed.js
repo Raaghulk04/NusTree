@@ -1,52 +1,60 @@
-require('dotenv').config({ path: '../.env' })
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg'); 
-const pg = require('pg');
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const pg = require('pg');
 
-// 1. Setup the connection pool
+const repoRoot = path.resolve(__dirname, '..');
+const { PrismaClient } = require(path.join(repoRoot, 'src', 'generated', 'prisma'));
+
+dotenv.config({ path: path.join(repoRoot, '.env') });
+
 const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+	throw new Error('DATABASE_URL is required to run prisma/seed.js');
+}
+
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
-
-// 2. Initialize the client with the adapter
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-	const dataPath = path.join(__dirname, 'data.json');
+	const dataPath = path.join(repoRoot, 'src', 'data', 'modules.json');
 	const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-
-	// This turns { "ABM5001": {...} } into [ ["ABM5001", {...}] ]
 	const entries = Object.entries(rawData);
 
 	console.log(`Start seeding ${entries.length} modules...`);
 
 	for (const [code, details] of entries) {
+		const moduleData = {
+			title: details.title || 'No Title Provided',
+			description: details.description,
+			department: details.department ?? null,
+			workload: Array.isArray(details.workload)
+				? details.workload.reduce((sum, value) => sum + Number(value || 0), 0)
+				: null,
+			prereqTree: details.prereqTree,
+		};
+
 		await prisma.module.upsert({
-			where: { id: code }, // 'code' is the key from your JSON (e.g., "ABM5001")
-			update: {},
+			where: { id: code },
+			update: moduleData,
 			create: {
 				id: code,
-				title: details.title || "No Title Provided",
-				description: details.description,
-				prereqTree: details.prereqTree,
-				// Add other fields here if they exist in your schema
-			}
+				...moduleData,
+			},
 		});
 	}
 
-	console.log("Seeding finished successfully!");
+	console.log('Seeding finished successfully!');
 }
+
 main()
-	.catch(e => {
-		console.error(e);
+	.catch((error) => {
+		console.error(error);
 		process.exit(1);
 	})
 	.finally(async () => {
 		await prisma.$disconnect();
 	});
-
-
-
-
