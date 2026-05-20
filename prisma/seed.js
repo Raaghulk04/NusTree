@@ -22,7 +22,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
 	const dataPath = path.join(repoRoot, 'src', 'data', 'modules.json');
 	const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-
+	
 
 	// Clean up invisible/ambiguous unicode characters from the entries
     const entries = Object.entries(rawData).map(([code, details]) => {

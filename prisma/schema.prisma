@@ -16,12 +16,15 @@ model Module {
   workload        Float?
   prereqTree      Json?
   userPlanModules UserPlanModule[]
+  majorreq        MajorTemplate[]
 }
 
 model MajorTemplate {
   id        String @id @default(cuid())
   majorCode String @unique
   majorName String
+  users     User[]
+  modules   Module[]
 }
 
 model UserPlanModule {
@@ -45,6 +48,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  majors        MajorTemplate[]
 
   @@unique([email])
   @@map("user")

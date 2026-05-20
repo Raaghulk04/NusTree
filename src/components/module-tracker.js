@@ -21,7 +21,7 @@ export default function ModuleTracker({ mods }) {
             console.log('API response:', d)
             if (Array.isArray(d)) setCompletedMods(d)
         })
-}, [data?.user?.id, refresh])
+  }, [data?.user?.id, refresh])
 
   useEffect(() => {
     authClient.getSession().then(s => console.log('manual session:', s))
