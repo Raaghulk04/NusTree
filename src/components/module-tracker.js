@@ -52,6 +52,7 @@ export default function ModuleTracker({ mods }) {
       <p>Welcome Back {data.user.name}</p>
       <h2>Module Planner</h2>
       <form onSubmit={handleAddMod}>
+<<<<<<< HEAD
         Add a Mod: <input value={mod} onInput={handleOnChange}/>
         <button type="submit">Add</button>
       </form>
@@ -61,3 +62,15 @@ export default function ModuleTracker({ mods }) {
     </section>
   )
 }
+=======
+        Add a Mod: <input value={mod} onInput={handleOnChange}/>
+        <button type="submit">Add</button>
+      </form>
+      <br></br>
+      <p>Track completed modules and semester grouping here.</p>
+      <Completed completed={completedMods}/>
+      <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
+    </section>
+  )
+}
+>>>>>>> a143150 (feat: working on major input features)
