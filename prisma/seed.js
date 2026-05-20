@@ -22,7 +22,18 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
 	const dataPath = path.join(repoRoot, 'src', 'data', 'modules.json');
 	const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-	const entries = Object.entries(rawData);
+
+
+	// Clean up invisible/ambiguous unicode characters from the entries
+    const entries = Object.entries(rawData).map(([code, details]) => {
+        const cleanedDetails = {};
+        for (const [key, value] of Object.entries(details)) {
+            // This regex strips out hidden non-printable unicode control characters
+            const cleanKey = key.replace(/[^\x20-\x7E]/g, '').trim(); 
+            cleanedDetails[cleanKey] = value;
+        }
+        return [code.trim(), cleanedDetails];
+    });
 
 	console.log(`Start seeding ${entries.length} modules...`);
 
@@ -38,13 +49,20 @@ async function main() {
 		};
 
 		await prisma.module.upsert({
-			where: { id: code },
-			update: moduleData,
-			create: {
-				id: code,
-				...moduleData,
-			},
-		});
+        where: { id: code },
+        update: {
+            title: moduleData.title,
+            description: moduleData.description,
+            prereqTree: moduleData.prereqTree,
+            workload: moduleData.workload,
+            // ONLY overwrite the department if the JSON actually has a new value for it
+            ...(moduleData.department && { department: moduleData.department })
+        },
+        create: {
+            id: code,
+            ...moduleData,
+        },
+    });
 	}
 
 	console.log('Seeding finished successfully!');
