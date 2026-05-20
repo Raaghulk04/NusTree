@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useModuleStore } from '../store/useModuleStore'
 import { authClient } from '@/lib/auth-client'
-import addCompletedModule from './addCompletedModule'
-import Completed from './Completed'
+import addPlannedModule from './add-planned-module'
+import PlannedModulesList from './planned-modules-list'
 
 export default function ModuleTracker({ mods }) {
-  const [completedMods, setCompletedMods] = useState([])
+  const [plannedModules, setPlannedModules] = useState([])
   const [mod, setMod] = useState('')
   const [refresh, setRefresh] = useState(0)
   const { data, isPending } = authClient.useSession()
@@ -15,11 +15,11 @@ export default function ModuleTracker({ mods }) {
 
   useEffect(() => {
     if (!data?.user?.id) return
-    fetch('/api/completed-mods')
+    fetch('/api/planner-modules')
         .then(res => res.json())
         .then(d => {
             console.log('API response:', d)
-            if (Array.isArray(d)) setCompletedMods(d)
+            if (Array.isArray(d)) setPlannedModules(d)
         })
   }, [data?.user?.id, refresh])
 
@@ -40,7 +40,7 @@ export default function ModuleTracker({ mods }) {
     if (!mods.find(m => m.id === mod)) {
       alert("not a valid mod")
     } else {
-      await addCompletedModule(mod)
+      await addPlannedModule(mod)
       setMod('')
       addModule(mod)
       setRefresh(r => r + 1)
@@ -50,13 +50,13 @@ export default function ModuleTracker({ mods }) {
   return (
     <section>
       <p>Welcome Back {data.user.name}</p>
-      <h2>Module Tracker</h2>
+      <h2>Module Planner</h2>
       <form onSubmit={handleAddMod}>
         Add a Mod: <input value={mod} onInput={handleOnChange}/>
         <button type="submit">Add</button>
       </form>
-      <p>Track completed modules and semester grouping here.</p>
-      <Completed completed={completedMods}/>
+      <p>Track your current planner rows and semester placement here.</p>
+      <PlannedModulesList plannedModules={plannedModules}/>
       <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
     </section>
   )

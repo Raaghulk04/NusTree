@@ -1,0 +1,6 @@
+{
+  "computer-science": {
+    "degreeName": "Computer Science",
+    "compulsoryModules": ["CS1101S", "CS1231S", "CS2030S", "CS2040S"]
+  }
+}

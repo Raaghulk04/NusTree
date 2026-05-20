@@ -1,4 +1,4 @@
-import { MajorTemplatePicker } from "../../components/major-template-picker";
+import { DegreePresetPicker } from "../../components/degree-preset-picker";
 import ModuleTracker from "../../components/module-tracker";
 import { ModuleGraph } from "../../components/module-graph";
 import getAllMods from '../getAllMods'
@@ -8,7 +8,7 @@ export default async function PlannerPage() {
   return (
     <main>
       <h1>Planner</h1>
-      <MajorTemplatePicker />
+      <DegreePresetPicker />
       <ModuleTracker mods={mods}/>
       <ModuleGraph />
     </main>

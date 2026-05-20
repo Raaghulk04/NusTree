@@ -57,16 +57,17 @@ sudo systemctl stop postgresql
 
 ## Current Prisma Audit
 
-- The checked-in migration history contains `prisma/migrations/20260504094745_added_prereq_tree/migration.sql` for domain tables and `prisma/migrations/20260519120000_add_better_auth_tables/migration.sql` for Better Auth tables.
-- The domain migration creates `Module`, `MajorTemplate`, and `UserPlanModule`, including `department`, `workload`, and `prereqTree` on `Module`.
+- The checked-in migration history contains `prisma/migrations/20260504094745_added_prereq_tree/migration.sql` for domain tables, `prisma/migrations/20260519120000_add_better_auth_tables/migration.sql` for Better Auth tables, and `prisma/migrations/20260520120000_planner_schema_revision/migration.sql` for the planner-state revision.
+- The current domain schema models `Module`, `DegreePreset`, `DegreePresetModule`, `UserPreset`, and `UserPlanModule`, including `department`, `workload`, and `prereqTree` on `Module`.
 - The Better Auth migration creates `user`, `session`, `account`, and `verification`, plus their indexes and foreign keys.
 - `src/data/modules.json` contains `department` for modules and a five-number `workload` array. The seed script currently stores `department` directly and stores `workload` as the numeric sum of that array so it fits the current `Float?` schema field.
+- `src/data/degree-presets.json` contains local degree preset definitions and compulsory module lists used by `prisma/seed.js`.
 - `prisma/schema.prisma` declares `User`, `Session`, `Account`, and `Verification` for Better Auth, and runtime auth code depends on them via `src/lib/db.js` and `src/lib/auth.ts`.
-- `MajorTemplate` is still present in schema and migration history. It is only referenced by placeholder UI in `src/components/major-template-picker.js` and `src/app/planner/page.js`.
+- `UserPlanModule` now stores the current mutable planner state per user and module, with `planYear`, `planSemester`, optional preset tagging, and a unique constraint on `(userId, moduleId)`.
 
 ## Next Manual Prisma Pass
 
-- The next schema pass should decide whether `MajorTemplate` remains necessary.
+- Revisit whether `Module.workload` should remain a single numeric summary or move to a structured breakdown once planner UX needs the original five-part source data.
 
 ## Next Steps
 

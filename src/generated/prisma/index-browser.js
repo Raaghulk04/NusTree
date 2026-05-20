@@ -129,19 +129,31 @@ exports.Prisma.ModuleScalarFieldEnum = {
   prereqTree: 'prereqTree'
 };
 
-exports.Prisma.MajorTemplateScalarFieldEnum = {
+exports.Prisma.DegreePresetScalarFieldEnum = {
   id: 'id',
-  majorCode: 'majorCode',
-  majorName: 'majorName'
+  degreeCode: 'degreeCode',
+  degreeName: 'degreeName'
+};
+
+exports.Prisma.DegreePresetModuleScalarFieldEnum = {
+  degreePresetId: 'degreePresetId',
+  moduleId: 'moduleId'
 };
 
 exports.Prisma.UserPlanModuleScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   moduleId: 'moduleId',
-  semesterTag: 'semesterTag',
-  colorTag: 'colorTag',
-  completed: 'completed'
+  planYear: 'planYear',
+  planSemester: 'planSemester',
+  isPresetModule: 'isPresetModule',
+  degreePresetId: 'degreePresetId'
+};
+
+exports.Prisma.UserPresetScalarFieldEnum = {
+  userId: 'userId',
+  degreePresetId: 'degreePresetId',
+  importedAt: 'importedAt'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -219,8 +231,10 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   Module: 'Module',
-  MajorTemplate: 'MajorTemplate',
+  DegreePreset: 'DegreePreset',
+  DegreePresetModule: 'DegreePresetModule',
   UserPlanModule: 'UserPlanModule',
+  UserPreset: 'UserPreset',
   User: 'User',
   Session: 'Session',
   Account: 'Account',

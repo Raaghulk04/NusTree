@@ -8,41 +8,73 @@ datasource db {
 }
 
 model Module {
-  id              String           @id
-  title           String
-  description     String?
-  department      String?
-  workload        Float?
-  prereqTree      Json?
-  userPlanModules UserPlanModule[]
+  id                String               @id
+  title             String
+  description       String?
+  department        String?
+  workload          Float?
+  prereqTree        Json?
+  userPlanModules   UserPlanModule[]
+  degreePresetLinks DegreePresetModule[]
 }
 
-model MajorTemplate {
-  id        String @id @default(cuid())
-  majorCode String @unique
-  majorName String
+model DegreePreset {
+  id              String               @id @default(cuid())
+  degreeCode      String               @unique
+  degreeName      String
+  userPlanModules UserPlanModule[]
+  moduleLinks     DegreePresetModule[]
+  userPresets     UserPreset[]
+}
+
+model DegreePresetModule {
+  degreePresetId String
+  moduleId       String
+  degreePreset   DegreePreset @relation(fields: [degreePresetId], references: [id], onDelete: Cascade)
+  module         Module       @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+
+  @@id([degreePresetId, moduleId])
 }
 
 model UserPlanModule {
-  id          String  @id @default(cuid())
-  userId      String
-  moduleId    String
-  semesterTag String?
-  colorTag    String?
-  module      Module  @relation(fields: [moduleId], references: [id])
-  completed   Boolean @default(false)
+  id             String        @id @default(cuid())
+  userId         String
+  moduleId       String
+  planYear       Int
+  planSemester   Int
+  isPresetModule Boolean       @default(false)
+  degreePresetId String?
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module         Module        @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  degreePreset   DegreePreset? @relation(fields: [degreePresetId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, moduleId])
+  @@index([userId, planYear, planSemester])
+  @@index([degreePresetId])
+}
+
+model UserPreset {
+  userId         String
+  degreePresetId String
+  importedAt     DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  degreePreset   DegreePreset @relation(fields: [degreePresetId], references: [id], onDelete: Cascade)
+
+  @@id([userId, degreePresetId])
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id              String           @id
+  name            String
+  email           String
+  emailVerified   Boolean          @default(false)
+  image           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  userPlanModules UserPlanModule[]
+  userPresets     UserPreset[]
 
   @@unique([email])
   @@map("user")

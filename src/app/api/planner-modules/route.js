@@ -11,7 +11,12 @@ export async function GET() {
     if (!session) return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
 
     const mods = await prisma.userPlanModule.findMany({
-        where: { userId: session.user.id }
+        where: { userId: session.user.id },
+        orderBy: [
+            { planYear: 'asc' },
+            { planSemester: 'asc' },
+            { moduleId: 'asc' },
+        ],
     })
 
     return NextResponse.json(mods)

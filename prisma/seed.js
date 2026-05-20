@@ -21,8 +21,9 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
 	const dataPath = path.join(repoRoot, 'src', 'data', 'modules.json');
+	const presetPath = path.join(repoRoot, 'src', 'data', 'degree-presets.json');
 	const rawData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-	
+	const presetData = JSON.parse(fs.readFileSync(presetPath, 'utf8'));
 
 	// Clean up invisible/ambiguous unicode characters from the entries
     const entries = Object.entries(rawData).map(([code, details]) => {
@@ -63,6 +64,40 @@ async function main() {
             ...moduleData,
         },
     });
+	}
+
+	const presetEntries = Object.entries(presetData);
+	console.log(`Start seeding ${presetEntries.length} degree presets...`);
+
+	for (const [degreeCode, details] of presetEntries) {
+		const degreePreset = await prisma.degreePreset.upsert({
+			where: { degreeCode },
+			update: {
+				degreeName: details.degreeName,
+			},
+			create: {
+				degreeCode,
+				degreeName: details.degreeName,
+			},
+		});
+
+		const compulsoryModules = Array.isArray(details.compulsoryModules)
+			? details.compulsoryModules
+			: [];
+
+		await prisma.degreePresetModule.deleteMany({
+			where: { degreePresetId: degreePreset.id },
+		});
+
+		if (compulsoryModules.length > 0) {
+			await prisma.degreePresetModule.createMany({
+				data: compulsoryModules.map((moduleId) => ({
+					degreePresetId: degreePreset.id,
+					moduleId,
+				})),
+				skipDuplicates: true,
+			});
+		}
 	}
 
 	console.log('Seeding finished successfully!');
