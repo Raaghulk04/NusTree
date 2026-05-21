@@ -76,15 +76,11 @@ export default function ModuleTracker({ mods }) {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>
-        <div>
-           Add a Mod: <input value={mod} onInput={handleOnChange}/>
-        </div>
-        <button type="submit">Add</button>
       </form>
-      <p>Track your current planner rows and semester placement here.</p>
-      <PlannedModulesList plannedModules={plannedModules}/>
-      <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
       <ModuleSearchDropdown mods={mods} sem={planSemester} year={planYear} onAdd={() => setRefresh(r => r + 1)}/>
+      <PlannedModulesList plannedModules={plannedModules}/>
+      <p>Track your current planner rows and semester placement here.</p>
+      <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
     </section>
   )
 }
