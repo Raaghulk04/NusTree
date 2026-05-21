@@ -12,7 +12,10 @@ export default function MajorTracker() {
     }, [])
 
     return (
-        <div>       
+        <div> 
+            <form>
+                
+            </form>     
         </div>
     )
 }
