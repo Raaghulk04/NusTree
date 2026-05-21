@@ -5,6 +5,7 @@ import { useModuleStore } from '../store/useModuleStore'
 import { authClient } from '@/lib/auth-client'
 import addPlannedModule from './add-planned-module'
 import PlannedModulesList from './planned-modules-list'
+import { SearchDropdown } from '@/components/ui/search-dropdown'
 
 export default function ModuleTracker({ mods }) {
   const [plannedModules, setPlannedModules] = useState([])
@@ -81,6 +82,7 @@ export default function ModuleTracker({ mods }) {
       <p>Track your current planner rows and semester placement here.</p>
       <PlannedModulesList plannedModules={plannedModules}/>
       <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
+      <SearchDropdown dataOptions={mods}/>
     </section>
   )
 }

@@ -1,87 +1,96 @@
- "use client"
+"use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, Search } from "lucide-react"
-
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 
-// Mock data structure - replace with your actual majors or modules list
-const dataOptions = [
-  { value: "computer-science", label: "Computer Science" },
-  { value: "data-science", label: "Data Science & Analytics" },
-  { value: "information-systems", label: "Information Systems" },
-  { value: "computer-engineering", label: "Computer Engineering" },
-  { value: "business-analytics", label: "Business Analytics" },
-]
-
-export function SearchDropdown() {
+export function SearchDropdown({ dataOptions = [], onSelect, onSubmit }) {
   const [open, setOpen] = React.useState(false)
+  const [search, setSearch] = React.useState("")
   const [value, setValue] = React.useState("")
 
+  const safeOptions = Array.isArray(dataOptions) ? dataOptions : []
+
+  // filter by id, limit to 20
+  const filteredOptions = safeOptions
+    .filter(opt => opt.id.toLowerCase().includes(search.toLowerCase()))
+    .slice(0, 20)
+
+  const handleSelect = (opt) => {
+    setValue(opt.id)
+    setSearch(opt.id)
+    setOpen(false)
+    if (onSelect) onSelect(opt)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault()
+        const selectedId = value || filteredOptions[0]?.id
+        if (!selectedId) return
+        if (onSubmit) onSubmit(selectedId)
+        setSearch('')
+        setValue('')
+        setOpen(false)
+    }
+    } 
+
+  const handleSubmit = () => {
+    const selected = value || filteredOptions[0]?.id
+    if (!selected) return 
+    if (onSubmit) onSubmit(selected)
+    setValue('')
+    setSearch('')
+    setOpen(false)
+  }
+
   return (
-    <div className="w-full max-w-md mx-auto pt-10">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between h-12 text-left font-normal border-muted-foreground/20 shadow-sm hover:bg-background"
-          >
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Search className="h-4 w-4 shrink-0 opacity-50" />
-              <span>
-                {value
-                  ? dataOptions.find((opt) => opt.value === value)?.label
-                  : "Search majors..."}
-              </span>
+    <div className="relative w-full max-w-md">
+      <input
+        className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+        placeholder="Search by module code..."
+        value={search}
+        onChange={e => {
+          setSearch(e.target.value)
+          setOpen(true)
+          if (e.target.value === "") setValue("")
+        }}
+        onKeyDown = {handleKeyDown}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)} // delay so click registers
+      />
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault()  // prevents input from losing focus
+          handleSubmit()
+        }}
+        className="px-4 py-2 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
+      >
+        Add
+      </button>
+      {open && filteredOptions.length > 0 && (
+        <div className="absolute z-50 w-full border rounded shadow bg-background max-h-60 overflow-y-auto mt-1">
+          {filteredOptions.map(opt => (
+            <div
+              key={opt.id}
+              onMouseDown={() => handleSelect(opt)} // use mousedown not click to fire before onBlur
+              className={cn(
+                "px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
+                value === opt.id && "bg-accent text-accent-foreground"
+              )}
+            >
+              <span className="font-medium">{opt.id}</span>
+              <span className="text-muted-foreground ml-2">{opt.title}</span>
             </div>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Type to look up..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {dataOptions.map((opt) => (
-                  <CommandItem
-                    key={opt.value}
-                    value={opt.value}
-                    onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue)
-                      setOpen(false)
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === opt.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {opt.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          ))}
+        </div>
+      )}
+
+      {open && search.length > 0 && filteredOptions.length === 0 && (
+        <div className="absolute z-50 w-full border rounded shadow bg-background mt-1 px-3 py-2 text-sm text-muted-foreground">
+          No modules found
+        </div>
+      )}
     </div>
   )
 }
