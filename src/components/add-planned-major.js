@@ -24,7 +24,7 @@ export default async function addPlannedMajor(degree) {
             }
         },
 
-        update: {}, // nothing to update
+        update: {},
         create: {
             userId,
             degreePresetId: degreePreset.id

@@ -1,20 +1,22 @@
 import { SearchDropdown } from '@/components/ui/search-dropdown'
-import addPlannedMajor from '@/components/add-planned-module'
+import addPlannedMajor from '@/components/add-planned-major'
 
-export function ModuleSearchDropdown({ mods, sem, year, onAdd}) {
-
-    const handleAddMods = (mods) => async (moduleId) => {
-        if (!mods.find(m => m.id === moduleId)) {
-              alert("not a valid mod")
+export function MajorSearchDropdown({ degreePresets, onAdd}) {
+    console.log("majors in searchbox", degreePresets)
+    const handleAddMods = (degrees) => async (degree) => {
+        if (!degrees.find(m => m.id === degree)) {
+              alert("not a valid degree")
         } else {
-              await addPlannedModule(moduleId, Number(year), Number(sem))
+              await addPlannedMajor(degree)
               if (onAdd) onAdd()
         }
     }
+    degreePresets = degreePresets.map(str => ({id: str}))
+    console.log(degreePresets)
 
     return (
         <div>
-            <SearchDropdown dataOptions ={mods} onSubmit={handleAddMods(mods)}/>
+            <SearchDropdown dataOptions ={degreePresets} onSubmit={handleAddMods(degreePresets)}/>
         </div>
     )
 }
