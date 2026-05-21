@@ -5,7 +5,7 @@ import { useModuleStore } from '../store/useModuleStore'
 import { authClient } from '@/lib/auth-client'
 import addPlannedModule from './add-planned-module'
 import PlannedModulesList from './planned-modules-list'
-import { SearchDropdown } from '@/components/ui/search-dropdown'
+import { ModuleSearchDropdown } from '@/components/module-search-dropdown'
 
 export default function ModuleTracker({ mods }) {
   const [plannedModules, setPlannedModules] = useState([])
@@ -63,7 +63,6 @@ export default function ModuleTracker({ mods }) {
       <p>Welcome Back {data.user.name}</p>
       <h2>Module Planner</h2>
       <form onSubmit={handleAddMod}>
-        Add a Mod: <input value={mod} onInput={handleOnChange}/>
         <label htmlFor="plan-year"> Year: </label>
         <select id="plan-year" value={planYear} onChange={handlePlanYearChange}>
           <option value="1">1</option>
@@ -77,12 +76,15 @@ export default function ModuleTracker({ mods }) {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>
+        <div>
+           Add a Mod: <input value={mod} onInput={handleOnChange}/>
+        </div>
         <button type="submit">Add</button>
       </form>
       <p>Track your current planner rows and semester placement here.</p>
       <PlannedModulesList plannedModules={plannedModules}/>
       <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
-      <SearchDropdown dataOptions={mods}/>
+      <ModuleSearchDropdown mods={mods} sem={planSemester} year={planYear} onAdd={() => setRefresh(r => r + 1)}/>
     </section>
   )
 }

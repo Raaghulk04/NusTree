@@ -4,6 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 export function SearchDropdown({ dataOptions = [], onSelect, onSubmit }) {
+  console.log(onSubmit)
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const [value, setValue] = React.useState("")
