@@ -57,7 +57,6 @@ export default function ModuleTracker({ mods }) {
       setRefresh(r => r + 1)
     }
   }
-
   return (
     <section>
       <p>Welcome Back {data.user.name}</p>

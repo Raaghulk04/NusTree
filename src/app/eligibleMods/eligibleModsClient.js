@@ -1,9 +1,9 @@
 'use client'
 import { useModuleStore } from '../../store/useModuleStore'
 
-export default function EligibleModClient({ mods }) {
+export default function EligibleModClient({ mods, degree, userMods }) {
 
-    const completedMods = useModuleStore((state) => state.completedMods)
+    const completedMods = userMods
     console.log(completedMods[0])
     console.log(mods[0].id)
     const dsa = mods.find(module => module.id === 'CS2040S')
@@ -19,9 +19,17 @@ export default function EligibleModClient({ mods }) {
         return true
     }
 
-    const eligibleMods = mods.filter(module => isSatisfied(module.prereqTree, completedMods))   
-    console.log("hello", eligibleMods);
+    const slugify = (str) => 
+        str.toLowerCase().trim()
+           .replace(/\s+/g, '-')
+           .replace(/[^a-z0-9-]/g, '')
+
+    const inDegree = (dept) => degree.find(d => d.degreeName == dept)
+    let eligibleMods = mods.filter(module => isSatisfied(module.prereqTree, completedMods))   
+    eligibleMods = eligibleMods.filter(module => inDegree(module.department))
     eligibleMods.forEach(module => console.log(module))
+    console.log(degree)
+    console.log(userMods)
     return (
         <div>
             {eligibleMods.map(module => <p key={module.id}>{module.id}</p>)}

@@ -1,13 +1,14 @@
+'use client'
 import prisma from "../lib/db"
 import { authClient } from '@/lib/auth-client'
 
 export default async function getAllMods() {
     const { data, isPending } = authClient.useSession()
 
-    const mods = await prisma.userPlanModule.findMany({
+    const degrees = await prisma.userPreset.findMany({
         where: {
-            id: data.user.id
+            userId: data.user.id
         }
     });
-    return mods;
+    return degrees;
 }
