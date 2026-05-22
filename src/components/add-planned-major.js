@@ -14,14 +14,10 @@ export default async function addPlannedMajor(degree) {
            .replace(/\s+/g, '-')
            .replace(/[^a-z0-9-]/g, '')
 
-    console.log('degree:', degree)
-    console.log('slugified:', slugify(degree))
 
     const degreePreset = await prisma.degreePreset.findUnique({
         where: { degreeCode: slugify(degree) }
     })
-
-    console.log('degreePreset found:', degreePreset)
 
     if (!degreePreset) throw new Error('Degree preset not found')    
 

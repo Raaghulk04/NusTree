@@ -27,12 +27,16 @@ export default function EligibleModClient({ mods, degree, userMods }) {
     const inDegree = (dept) => degree.find(d => d.degreeName == dept)
     let eligibleMods = mods.filter(module => isSatisfied(module.prereqTree, completedMods))   
     eligibleMods = eligibleMods.filter(module => inDegree(module.department))
-    eligibleMods.forEach(module => console.log(module))
+
+    let degreeMods = mods.filter(module => inDegree(module.department))
     console.log(degree)
     console.log(userMods)
     return (
         <div>
             {eligibleMods.map(module => <p key={module.id}>{module.id}</p>)}
+            <br></br>
+            <br></br>
+            {degreeMods.map(module => <p key={module.id}>{module.id}</p>)}
         </div>
     )
 }
