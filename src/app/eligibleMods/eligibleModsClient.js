@@ -4,9 +4,9 @@ import { useModuleStore } from '../../store/useModuleStore'
 export default function EligibleModClient({ mods }) {
 
     const completedMods = useModuleStore((state) => state.completedMods)
-    console.log(completedMods[0]);
+    console.log(completedMods[0])
     console.log(mods[0].id)
-    const dsa = mods.find(module => module.id === 'CS2040S');
+    const dsa = mods.find(module => module.id === 'CS2040S')
     
     const isSatisfied = (tree, completedMods) => {
         if (!tree) return true // no prereqs, always eligible
