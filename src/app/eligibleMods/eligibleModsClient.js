@@ -34,11 +34,7 @@ export default function EligibleModClient({ mods, degree, userMods }) {
     console.log(userMods)
     return (
         <div>
-            {eligibleMods.map(module => <p key={module.id}>{module.id}</p>)}
-            <br></br>
-            <br></br>
-            {degreeMods.map(module => <p key={module.id}>{module.id}</p>)}
-            <Graph />
+            <Graph allMods={degreeMods} takenMods={eligibleMods}/>
         </div>
 
     )
