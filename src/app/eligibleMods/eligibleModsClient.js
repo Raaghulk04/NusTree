@@ -1,5 +1,6 @@
 'use client'
 import { useModuleStore } from '../../store/useModuleStore'
+import Graph from '@/graph/graph'
 
 export default function EligibleModClient({ mods, degree, userMods }) {
 
@@ -37,6 +38,8 @@ export default function EligibleModClient({ mods, degree, userMods }) {
             <br></br>
             <br></br>
             {degreeMods.map(module => <p key={module.id}>{module.id}</p>)}
+            <Graph />
         </div>
+
     )
 }
