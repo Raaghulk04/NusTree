@@ -18,26 +18,21 @@ export default function ModuleTracker({ mods }) {
   useEffect(() => {
     if (!data?.user?.id) return
     fetch('/api/planner-modules')
-        .then(res => res.json())
-        .then(d => {
-            console.log('API response:', d)
-            if (Array.isArray(d)) setPlannedModules(d)
-        })
+      .then(res => res.json())
+      .then(d => {
+        if (Array.isArray(d)) setPlannedModules(d)
+      })
   }, [data?.user?.id, refresh])
-
-  useEffect(() => {
-    authClient.getSession().then(s => console.log('manual session:', s))
-  }, [])
 
 
   if (isPending) return <p>loading...</p>
   if (!data) return <p>not logged in</p>
 
-  const handlePlanYearChange = (event) => {
+  const handlePlanYearChange = event => {
     setPlanYear(event.target.value)
   }
 
-  const handlePlanSemesterChange = (event) => {
+  const handlePlanSemesterChange = event => {
     setPlanSemester(event.target.value)
   }
 
@@ -58,7 +53,7 @@ export default function ModuleTracker({ mods }) {
     <section>
       <p>Welcome Back {data.user.name}</p>
       <h2>Module Planner</h2>
-      <form>
+      <div>
         <label htmlFor="plan-year"> Year: </label>
         <select id="plan-year" value={planYear} onChange={handlePlanYearChange}>
           <option value="1">1</option>
@@ -72,15 +67,15 @@ export default function ModuleTracker({ mods }) {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>
-      </form>
-      <ModuleSearchDropdown mods={mods} sem={planSemester} year={planYear} onAdd={() => setRefresh(r => r + 1)}/>
+      </div>
+      <ModuleSearchDropdown mods={mods} sem={planSemester} year={planYear} onAdd={() => setRefresh(r => r + 1)} />
       <PlannedModulesList
         plannedModules={plannedModules}
         onRemove={handleRemoveMod}
         removingModuleId={removingModuleId}
       />
       <p>Track your current planner rows and semester placement here.</p>
-      <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
+      <Link href={{ pathname: '../eligibleMods' }}>check ur eligible mods</Link>
     </section>
   )
 }

@@ -3,8 +3,12 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-export function SearchDropdown({ dataOptions = [], onSelect, onSubmit }) {
-  console.log(onSubmit) 
+export function SearchDropdown({
+  dataOptions = [],
+  onSelect,
+  onSubmit,
+  submitLabel = "Add"
+}) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const [value, setValue] = React.useState("")
@@ -67,7 +71,7 @@ export function SearchDropdown({ dataOptions = [], onSelect, onSubmit }) {
         }}
         className="px-4 py-2 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        Add
+        {submitLabel}
       </button>
       {open && filteredOptions.length > 0 && (
         <div className="absolute z-50 w-full border rounded shadow bg-background max-h-60 overflow-y-auto mt-1">
