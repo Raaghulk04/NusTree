@@ -1,27 +1,19 @@
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useModuleStore } from '../store/useModuleStore'
 import { authClient } from '@/lib/auth-client'
-import addPlannedModule from './add-planned-module'
 import removePlannedModule from './remove-planned-module'
 import PlannedModulesList from './planned-modules-list'
 import { ModuleSearchDropdown } from '@/components/module-search-dropdown'
 
 export default function ModuleTracker({ mods }) {
-  // States
   const [plannedModules, setPlannedModules] = useState([])
-  const [mod, setMod] = useState('')
   const [planYear, setPlanYear] = useState('1')
   const [planSemester, setPlanSemester] = useState('1')
   const [refresh, setRefresh] = useState(0)
   const [removingModuleId, setRemovingModuleId] = useState(null)
 
-  // Session
   const { data, isPending } = authClient.useSession()
-
-  // Zustand
-  const addModule = useModuleStore((state) => state.addModule)
 
   useEffect(() => {
     if (!data?.user?.id) return
@@ -41,28 +33,12 @@ export default function ModuleTracker({ mods }) {
   if (isPending) return <p>loading...</p>
   if (!data) return <p>not logged in</p>
 
-  const handleOnChange = (event) => {
-    setMod(event.target.value)
-  }
-
   const handlePlanYearChange = (event) => {
     setPlanYear(event.target.value)
   }
 
   const handlePlanSemesterChange = (event) => {
     setPlanSemester(event.target.value)
-  }
-
-  const handleAddMod = async (event) => {
-    event.preventDefault()
-    if (!mods.find(m => m.id === mod)) {
-      alert("not a valid mod")
-    } else {
-      await addPlannedModule(mod, Number(planYear), Number(planSemester))
-      setMod('')
-      addModule(mod)
-      setRefresh(r => r + 1)
-    }
   }
 
   const handleRemoveMod = async (moduleId) => {
@@ -72,8 +48,9 @@ export default function ModuleTracker({ mods }) {
       setRefresh(r => r + 1)
     } catch (error) {
       console.error("Failed to delete module: ", error)
+      alert("Failed to remove module. Please try again.")
     } finally {
-      setRemovingModuleId(null);
+      setRemovingModuleId(null)
     }
   }
 
@@ -81,7 +58,7 @@ export default function ModuleTracker({ mods }) {
     <section>
       <p>Welcome Back {data.user.name}</p>
       <h2>Module Planner</h2>
-      <form onSubmit={handleAddMod}>
+      <form>
         <label htmlFor="plan-year"> Year: </label>
         <select id="plan-year" value={planYear} onChange={handlePlanYearChange}>
           <option value="1">1</option>

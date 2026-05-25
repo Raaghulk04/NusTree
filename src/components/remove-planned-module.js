@@ -10,12 +10,10 @@ export default async function removePlannedModule(moduleId) {
     if (!session) throw new Error("Not Logged in")
 
     const userId = session.user.id
-    await prisma.userPlanModule.delete({
+    await prisma.userPlanModule.deleteMany({
         where: {
-            userId_moduleId: {
-                userId,
-                moduleId,
-            },
+            userId,
+            moduleId,
         }
     })
 }

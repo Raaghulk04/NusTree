@@ -20,7 +20,7 @@ export default function PlannedModulesList({ plannedModules, onRemove, removingM
                     <button
                         type="button"
                         onClick={() => onRemove(mod.moduleId)}
-                        disabled={removingModuleId == mod.moduleId}
+                        disabled={removingModuleId === mod.moduleId}
                         className="ml-4 px-2 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 disabled:opacity-50"
                     >
                         {removingModuleId === mod.moduleId ? 'Removing...' : 'Remove'}
