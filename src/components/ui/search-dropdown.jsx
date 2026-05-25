@@ -37,7 +37,7 @@ export function SearchDropdown({
         setValue('')
         setOpen(false)
     }
-    } 
+    }
 
   const handleSubmit = () => {
     const selected = value || filteredOptions[0]?.id
@@ -50,7 +50,8 @@ export function SearchDropdown({
 
   return (
     <div className="relative w-full max-w-md">
-      <input
+      <div className="flex items-center gap-2">
+        <input
         className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         placeholder="Search by module code..."
         value={search}
@@ -62,19 +63,21 @@ export function SearchDropdown({
         onKeyDown = {handleKeyDown}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)} // delay so click registers
-      />
-      <button
-        type="button"
-        onMouseDown={(e) => {
-          e.preventDefault()  // prevents input from losing focus
-          handleSubmit()
-        }}
-        className="px-4 py-2 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
-      >
-        {submitLabel}
-      </button>
+        />
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault()  // prevents input from losing focus
+            handleSubmit()
+          }}
+          className="px-4 py-2 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {submitLabel}
+        </button>
+      </div>
+      
       {open && filteredOptions.length > 0 && (
-        <div className="absolute z-50 w-full border rounded shadow bg-background max-h-60 overflow-y-auto mt-1">
+        <div className="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
           {filteredOptions.map(opt => (
             <div
               key={opt.id}
@@ -92,7 +95,7 @@ export function SearchDropdown({
       )}
 
       {open && search.length > 0 && filteredOptions.length === 0 && (
-        <div className="absolute z-50 w-full border rounded shadow bg-background mt-1 px-3 py-2 text-sm text-muted-foreground">
+        <div className="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
           No modules found
         </div>
       )}
