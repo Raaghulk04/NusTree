@@ -27,7 +27,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
     }
 
     const nodes = useMemo(() => {
-        // group by year level
+        // 1. Group modules by their primary year level (1000, 2000, etc.)
         const byLevel = {}
         allMods.forEach(m => {
             const level = getYLevel(m.id)
@@ -35,23 +35,49 @@ export default function Graph({ allMods, takenMods, completedMods }) {
             byLevel[level].push(m)
         })
 
-        // sort each level by number of same-level prereqs
-        // fewer prereqs → left, more prereqs → right
+        // 2. Track depth positions for modules within the same level
+        const subLevelMapping = {}
+
         Object.keys(byLevel).forEach(level => {
-            byLevel[level].sort((a, b) => {
-                const aPrereqs = extractMods(a.prereqTree || null)
-                    .filter(p => byLevel[level]?.find(m => m.id === p)).length
-                const bPrereqs = extractMods(b.prereqTree || null)
-                    .filter(p => byLevel[level]?.find(m => m.id === p)).length
-                return aPrereqs - bPrereqs
+            const currentLevelMods = byLevel[level]
+            const levelModIds = new Set(currentLevelMods.map(m => m.id))
+
+            // Helper function to calculate dependency chain depth
+            const getDependencyDepth = (modId, visited = new Set()) => {
+                if (visited.has(modId)) return 0 // Prevent infinite cycles
+                visited.add(modId)
+
+                const modObj = currentLevelMods.find(m => m.id === modId)
+                if (!modObj || !modObj.prereqTree) return 0
+
+                const prereqs = extractMods(modObj.prereqTree)
+                // We ONLY care about prerequisites that live within this same year level
+                const sameLevelPrereqs = prereqs.filter(p => levelModIds.has(p))
+
+                if (sameLevelPrereqs.length === 0) return 0
+
+                // Your depth is 1 + the deepest prerequisite chain beneath you
+                return 1 + Math.max(...sameLevelPrereqs.map(p => getDependencyDepth(p, visited)))
+            };
+
+            // Map every module to its topological sub-level height offset
+            currentLevelMods.forEach(m => {
+                subLevelMapping[m.id] = getDependencyDepth(m.id)
             })
         })
 
+        // 3. Build the ReactFlow structural layout grid
         return allMods.map(module => {
             const level = getYLevel(module.id)
             const levelMods = byLevel[level]
-            const posInLevel = levelMods.findIndex(m => m.id === module.id)
-            const totalInLevel = levelMods.length
+            
+            // Get our calculated depth height offset (Row 0, Row 1, Row 2, etc.)
+            const subLevelRow = subLevelMapping[module.id] || 0
+
+            // To calculate horizontal spacing (x-axis), group items sharing the exact same sub-level row
+            const sameRowMods = levelMods.filter(m => subLevelMapping[m.id] == subLevelRow)
+            const posInRow = sameRowMods.findIndex(m => m.id === module.id)
+            const totalInRow = sameRowMods.length
 
             const isSelected = module.id === selectedNode
             const isConnected = selectedNode && (() => {
@@ -62,8 +88,10 @@ export default function Graph({ allMods, takenMods, completedMods }) {
             return {
                 id: module.id,
                 position: {
-                    x: posInLevel * 160 - (totalInLevel * 80),
-                    y: level * 200
+                    // X positions spread evenly based on how many share that specific dependency row
+                    x: posInRow * 180 - (totalInRow * 90),
+                    // 🔥 CRITICAL FIX: Add the subLevelRow offset to dynamically push dependencies down
+                    y: (level * 350) + (subLevelRow * 90)
                 },
                 data: { label: module.id },
                 style: {
@@ -86,7 +114,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
     }, [allMods, selectedNode, completedIds, takenIds])
 
     const edges = useMemo(() => {
-        if (!selectedNode) return []  // no edges until a node is clicked
+        if (!selectedNode) return []
 
         const result = []
         allMods.forEach(module => {
@@ -110,7 +138,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
             })
         })
         return result
-    }, [selectedNode, allMods])
+    }, [selectedNode, allMods, allModIds])
 
     const handleNodeClick = (_, node) => {
         setSelectedNode(prev => prev === node.id ? null : node.id)

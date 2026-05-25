@@ -34,7 +34,7 @@ export default function EligibleModClient({ mods, degree, userMods }) {
     console.log(userMods)
     return (
         <div>
-            <Graph allMods={degreeMods} takenMods={eligibleMods}/>
+            <Graph allMods={degreeMods} takenMods={eligibleMods} completedMods={userMods}/>
         </div>
 
     )
