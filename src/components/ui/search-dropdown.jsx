@@ -20,6 +20,8 @@ export function SearchDropdown({
     .filter(opt => opt.id.toLowerCase().includes(search.toLowerCase()))
     .slice(0, 20)
 
+  const normalizeId = (id) => id.trim().toLowerCase()
+
   const handleSelect = (opt) => {
     setValue(opt.id)
     setSearch(opt.id)
@@ -27,25 +29,36 @@ export function SearchDropdown({
     if (onSelect) onSelect(opt)
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault()
-        const selectedId = value || filteredOptions[0]?.id
-        if (!selectedId) return
-        if (onSubmit) onSubmit(selectedId)
-        setSearch('')
-        setValue('')
-        setOpen(false)
-    }
+  const resolveSubmittedId = () => {
+    const normalizedSearch = normalizeId(search)
+    const exactMatch = safeOptions.find(opt => normalizeId(opt.id) === normalizedSearch)
+
+    if (value && normalizeId(value) === normalizedSearch) {
+      return value
     }
 
-  const handleSubmit = () => {
-    const selected = value || filteredOptions[0]?.id
-    if (!selected) return 
-    if (onSubmit) onSubmit(selected)
-    setValue('')
+    return exactMatch?.id ?? null
+  }
+
+  const submitSelection = () => {
+    const selectedId = resolveSubmittedId()
+    if (!selectedId) return
+
+    if (onSubmit) onSubmit(selectedId)
     setSearch('')
+    setValue('')
     setOpen(false)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      submitSelection()
+    }
+  }
+
+  const handleSubmit = () => {
+    submitSelection()
   }
 
   return (
@@ -56,9 +69,12 @@ export function SearchDropdown({
         placeholder="Search by module code..."
         value={search}
         onChange={e => {
-          setSearch(e.target.value)
+          const nextSearch = e.target.value
+          setSearch(nextSearch)
           setOpen(true)
-          if (e.target.value === "") setValue("")
+          if (nextSearch === "" || normalizeId(nextSearch) !== normalizeId(value || "")) {
+            setValue("")
+          }
         }}
         onKeyDown = {handleKeyDown}
         onFocus={() => setOpen(true)}
