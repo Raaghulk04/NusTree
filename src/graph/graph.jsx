@@ -90,7 +90,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
                 position: {
                     // X positions spread evenly based on how many share that specific dependency row
                     x: posInRow * 180 - (totalInRow * 90),
-                    // 🔥 CRITICAL FIX: Add the subLevelRow offset to dynamically push dependencies down
+                    // Add the subLevelRow offset to dynamically push dependencies down
                     y: (level * 350) + (subLevelRow * 90)
                 },
                 data: { label: module.id },
@@ -151,13 +151,13 @@ export default function Graph({ allMods, takenMods, completedMods }) {
                 display: 'flex', 
                 gap: '16px', 
                 fontSize: '12px',
-                background: '#fff',
-                borderBottom: '1px solid #e5e7eb'
+                background: '#a1abf8',
+                borderBottom: '1px solid #738bbb'
             }}>
                 <span>🟢 Completed</span>
                 <span>🔵 Eligible</span>
                 <span>⬜ Locked</span>
-                <span style={{ color: '#6b7280' }}>
+                <span style={{ color: '#000000' }}>
                     Click a node to see prerequisites (red) and modules it unlocks (blue)
                 </span>
             </div>
