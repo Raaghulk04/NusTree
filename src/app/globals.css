@@ -1,8 +1,8 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 html,
 body {
   margin: 0;
-  padding: 10;
+  padding: 0;
   font-family: sans-serif;
 }
 
@@ -13,4 +13,3 @@ body {
 main {
   padding: 24px;
 }
-
