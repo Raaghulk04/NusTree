@@ -1,20 +1,13 @@
 import Link from 'next/link'
-import ModuleTracker from '../components/module-tracker'
-import prisma from "../lib/db"
-import getAllMods from "./getAllMods";
+import { LoginForm } from "@/components/login-form"
 
-export default async function HomePage() {
-  const mods = await getAllMods();
-  console.log(mods[0]);
-  console.log("hello")
-  
-  return (
-    <main>
-      <h1 className="mainTitle">NusTree</h1>
-      <p><i>Plan your academic pathway in ONE place</i></p>
-      <Link href="/signup">Sign Up</Link>
-      <Link href="/signin">Sign In</Link>
-      <Link href="/homePage">test</Link>
-    </main>
-  );
+export default function homePage() {
+
+    return (
+        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+            <div className="w-full max-w-sm">
+                <LoginForm />
+            </div>
+        </div>
+    )
 }
