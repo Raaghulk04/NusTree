@@ -7,7 +7,8 @@ export function SearchDropdown({
   dataOptions = [],
   onSelect,
   onSubmit,
-  submitLabel = "Add"
+  submitLabel = "Add",
+  placeholder = "Search by module code..."
 }) {
   const [open, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
@@ -15,9 +16,15 @@ export function SearchDropdown({
 
   const safeOptions = Array.isArray(dataOptions) ? dataOptions : []
 
-  // filter by id, limit to 20
+  // Match either the primary identifier or the display title, then limit to 20.
   const filteredOptions = safeOptions
-    .filter(opt => opt.id.toLowerCase().includes(search.toLowerCase()))
+    .filter(opt => {
+      const normalizedSearch = search.toLowerCase()
+      return (
+        opt.id.toLowerCase().includes(normalizedSearch) ||
+        (opt.title?.toLowerCase().includes(normalizedSearch) ?? false)
+      )
+    })
     .slice(0, 20)
 
   const normalizeId = (id) => id.trim().toLowerCase()
@@ -66,7 +73,7 @@ export function SearchDropdown({
       <div className="flex items-center gap-2">
         <input
         className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-        placeholder="Search by module code..."
+        placeholder={placeholder}
         value={search}
         onChange={e => {
           const nextSearch = e.target.value

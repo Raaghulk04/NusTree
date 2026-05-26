@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">NusTree ER Diagram</title>
+  <desc id="desc">Entity relationship diagram for the current Prisma schema on a white grid with orthogonal connectors.</desc>
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .grid { stroke: #e7edf3; stroke-width: 1; }
+      .entity { fill: #ffffff; stroke: #1f2937; stroke-width: 2; }
+      .header { fill: #f8fafc; stroke: #1f2937; stroke-width: 2; }
+      .title { font: 700 20px Arial, sans-serif; fill: #111827; }
+      .field { font: 14px monospace; fill: #111827; }
+      .meta { font: 13px Arial, sans-serif; fill: #4b5563; }
+      .line { stroke: #000000; stroke-width: 3; fill: none; stroke-linecap: square; stroke-linejoin: miter; }
+      .label { font: 13px Arial, sans-serif; fill: #1f2937; }
+      .legend { font: 14px Arial, sans-serif; fill: #374151; }
+    </style>
+    <pattern id="smallGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" class="grid" fill="none"/>
+    </pattern>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="1200"/>
+  <rect x="0" y="0" width="1800" height="1200" fill="url(#smallGrid)"/>
+
+  <text x="60" y="58" style="font: 700 32px Arial, sans-serif; fill: #111827;">NusTree ER Diagram</text>
+  <text x="60" y="86" class="meta">Current Prisma schema rendered on an orthogonal grid</text>
+
+  <g transform="translate(80 140)">
+    <rect class="entity" x="0" y="0" width="320" height="210"/>
+    <rect class="header" x="0" y="0" width="320" height="44"/>
+    <text class="title" x="18" y="28">User</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">name: String</text>
+    <text class="field" x="18" y="124">UK  email: String</text>
+    <text class="field" x="18" y="150">emailVerified: Boolean</text>
+    <text class="field" x="18" y="176">image: String?</text>
+    <text class="field" x="18" y="202">createdAt / updatedAt</text>
+  </g>
+
+  <g transform="translate(80 420)">
+    <rect class="entity" x="0" y="0" width="320" height="180"/>
+    <rect class="header" x="0" y="0" width="320" height="44"/>
+    <text class="title" x="18" y="28">Session</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">UK  token: String</text>
+    <text class="field" x="18" y="124">expiresAt: DateTime</text>
+    <text class="field" x="18" y="150">FK  userId: String</text>
+    <text class="field" x="18" y="176">ipAddress, userAgent</text>
+  </g>
+
+  <g transform="translate(80 680)">
+    <rect class="entity" x="0" y="0" width="320" height="220"/>
+    <rect class="header" x="0" y="0" width="320" height="44"/>
+    <text class="title" x="18" y="28">Account</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">accountId: String</text>
+    <text class="field" x="18" y="124">providerId: String</text>
+    <text class="field" x="18" y="150">FK  userId: String</text>
+    <text class="field" x="18" y="176">access/refresh/id tokens</text>
+    <text class="field" x="18" y="202">scope, password, timestamps</text>
+  </g>
+
+  <g transform="translate(80 980)">
+    <rect class="entity" x="0" y="0" width="320" height="140"/>
+    <rect class="header" x="0" y="0" width="320" height="44"/>
+    <text class="title" x="18" y="28">Verification</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">identifier, value</text>
+    <text class="field" x="18" y="124">expiresAt, createdAt, updatedAt</text>
+  </g>
+
+  <g transform="translate(740 140)">
+    <rect class="entity" x="0" y="0" width="340" height="210"/>
+    <rect class="header" x="0" y="0" width="340" height="44"/>
+    <text class="title" x="18" y="28">Module</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">title: String</text>
+    <text class="field" x="18" y="124">description: String?</text>
+    <text class="field" x="18" y="150">department: String?</text>
+    <text class="field" x="18" y="176">workload: Float?</text>
+    <text class="field" x="18" y="202">prereqTree: Json?</text>
+  </g>
+
+  <g transform="translate(1280 140)">
+    <rect class="entity" x="0" y="0" width="340" height="170"/>
+    <rect class="header" x="0" y="0" width="340" height="44"/>
+    <text class="title" x="18" y="28">DegreePreset</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">UK  degreeCode: String</text>
+    <text class="field" x="18" y="124">degreeName: String</text>
+  </g>
+
+  <g transform="translate(680 500)">
+    <rect class="entity" x="0" y="0" width="380" height="220"/>
+    <rect class="header" x="0" y="0" width="380" height="44"/>
+    <text class="title" x="18" y="28">UserPlanModule</text>
+    <text class="field" x="18" y="72">PK  id: String</text>
+    <text class="field" x="18" y="98">FK  userId: String</text>
+    <text class="field" x="18" y="124">FK  moduleId: String</text>
+    <text class="field" x="18" y="150">planYear: Int</text>
+    <text class="field" x="18" y="176">planSemester: Int</text>
+    <text class="field" x="18" y="202">FK? degreePresetId: String</text>
+  </g>
+
+  <g transform="translate(1240 480)">
+    <rect class="entity" x="0" y="0" width="380" height="150"/>
+    <rect class="header" x="0" y="0" width="380" height="44"/>
+    <text class="title" x="18" y="28">DegreePresetModule</text>
+    <text class="field" x="18" y="72">PK/FK degreePresetId: String</text>
+    <text class="field" x="18" y="98">PK/FK moduleId: String</text>
+    <text class="meta" x="18" y="126">Join table for DegreePreset and Module</text>
+  </g>
+
+  <g transform="translate(1240 760)">
+    <rect class="entity" x="0" y="0" width="380" height="150"/>
+    <rect class="header" x="0" y="0" width="380" height="44"/>
+    <text class="title" x="18" y="28">UserPreset</text>
+    <text class="field" x="18" y="72">PK/FK userId: String</text>
+    <text class="field" x="18" y="98">PK/FK degreePresetId: String</text>
+    <text class="field" x="18" y="124">importedAt: DateTime</text>
+  </g>
+
+  <path class="line" marker-end="url(#arrow)" d="M 400 240 L 500 240 L 500 510 L 400 510"/>
+  <text class="label" x="510" y="382">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 400 240 L 540 240 L 540 790 L 400 790"/>
+  <text class="label" x="550" y="540">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 400 240 L 620 240 L 620 610 L 680 610"/>
+  <text class="label" x="540" y="600">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 400 240 L 600 240 L 600 835 L 1240 835"/>
+  <text class="label" x="610" y="825">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 910 350 L 910 420 L 870 420 L 870 500"/>
+  <text class="label" x="882" y="448">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 1080 240 L 1160 240 L 1160 555 L 1240 555"/>
+  <text class="label" x="1100" y="400">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 1450 310 L 1450 390 L 1430 390 L 1430 480"/>
+  <text class="label" x="1462" y="400">1 to many</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 1280 225 L 1140 225 L 1140 610 L 1060 610"/>
+  <text class="label" x="1148" y="420">optional source</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M 1280 225 L 1200 225 L 1200 835 L 1240 835"/>
+  <text class="label" x="1210" y="520">1 to many</text>
+
+  <text x="520" y="1060" class="legend">PK = primary key, FK = foreign key, UK = unique key.</text>
+  <text x="520" y="1088" class="legend">Verification is standalone. UserPlanModule.degreePresetId is nullable.</text>
+  <text x="520" y="1116" class="legend">Connectors are routed orthogonally through dedicated gutters between entities.</text>
+</svg>

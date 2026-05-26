@@ -6,24 +6,14 @@ import { MajorSearchDropdown } from "@/components/major-search-dropdown";
 export function DegreePresetPicker() {
   const { data, isPending } = authClient.useSession();
   const [majors, setMajors] = useState([]);
-  const [major, setMajor] = useState("");
   const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     if (!data?.user?.id) return;
     fetch("/api/allDegreePreset")
       .then((res) => res.json())
-      .then((d) => {
-        console.log("majors API response:", d);
-        setMajors(d.map(obj => obj.degreeName));
-      });
+      .then((d) => setMajors(d));
   }, [data?.user?.id, refresh]);
-
-  console.log(majors[0])
-  
-  useEffect(() => {
-    authClient.getSession().then((s) => console.log("manual session:", s));
-  }, []);
 
   if (isPending) return <p>loading...</p>;
   if (!data) return <p>not logged in</p>;
@@ -36,8 +26,8 @@ export function DegreePresetPicker() {
         here.
       </p>
       <form>
-        <MajorSearchDropdown degreePresets={majors} onAdd={() => setRefresh(r => r + 1)}/>
-      </form> 
+        <MajorSearchDropdown degreePresets={majors} onAdd={() => setRefresh((r) => r + 1)} />
+      </form>
     </section>
   );
 }
