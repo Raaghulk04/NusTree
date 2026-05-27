@@ -2,13 +2,36 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { TreeDeciduous } from "lucide-react";
 import { useState, useMemo } from "react";
+import Basic from "@/graph/basic";
 
-export default function Graph({ allMods, takenMods, completedMods }) {
+export default function Graph({
+  allMods,
+  takenMods,
+  completedMods,
+  compulsoryMods,
+}) {
   const [selectedNode, setSelectedNode] = useState(null);
+  const [basic, setBasic] = useState(true);
 
   const allModIds = new Set(allMods.map((m) => m.id));
   const takenIds = new Set((takenMods || []).map((m) => m.id));
   const completedIds = new Set((completedMods || []).map((m) => m.moduleId));
+
+  console.log("taken", takenIds);
+  console.log("completed", completedIds);
+
+  if (basic === true) {
+    return (
+      <div>
+        <Basic
+          allMods={allMods}
+          takenMods={takenMods}
+          completedMods={completedMods}
+          compulsoryMods={compulsoryMods}
+        />
+      </div>
+    );
+  }
 
   const getYLevel = (moduleId) => {
     const num = parseInt(moduleId.match(/\d+/)?.[0]);
