@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "scrape:degree": "node scripts/scrape-degree-preset.js",
+    "test:scraper": "node --test scripts/degree-scraper.test.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -20,6 +22,7 @@
     "@xyflow/react": "^12.10.2",
     "axios": "^1.16.0",
     "better-auth": "^1.6.11",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
