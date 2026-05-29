@@ -286,6 +286,7 @@ export default function Graph({
         nodes={nodes}
         edges={edges}
         onNodeClick={handleNodeClick}
+        colorMode="dark"
         fitView
       >
         <Background />

@@ -8,7 +8,6 @@ export default function EligibleModClient({
   userMods,
   compulsoryMods,
 }) {
-  console.log("modsclient receives", compulsoryMods);
   const completedMods = userMods;
   console.log(completedMods[0]);
   console.log(mods[0].id);

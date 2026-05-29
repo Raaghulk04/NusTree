@@ -41,12 +41,15 @@ export default function Basic({
       style: {
         backgroundColor:
           entry.code === 2
-            ? "#86efac" // green - completed
+            ? "#bbf7d0" // green - completed
             : entry.code === 1
-              ? "#93c5fd" // blue - eligible
-              : "#e5e7eb", // grey - compulsory but not yet eligible
+              ? "#bfdbfe" // blue - eligible
+              : "#f3f4f6", // grey - compulsory but not yet eligible
+        color: "#0f172a",
+        fontWeight: "600", // Gives the text a bit more weight to pop
         borderRadius: "8px",
         fontSize: "11px",
+        border: "none",
       },
     }));
   }, [takenMods, completedMods, compulsoryMods]);
@@ -67,7 +70,7 @@ export default function Basic({
         <span>🔵 Eligible</span>
         <span>⬜ Compulsory</span>
       </div>
-      <ReactFlow nodes={nodes} fitView>
+      <ReactFlow nodes={nodes} colorMode="dark" fitView>
         <Background />
         <Controls />
       </ReactFlow>
