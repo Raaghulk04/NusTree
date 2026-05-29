@@ -278,6 +278,36 @@ Useful routes:
 
 The seed process loads module data and degree preset data into the database.
 
+### Updating degree presets from curriculum links
+
+Degree presets live in `src/data/degree-presets.json`. If you have a new NUS
+curriculum link, run the scraper with a stable degree code:
+
+```bash
+npm run scrape:degree -- --url https://www.comp.nus.edu.sg/programmes/ug/cs/curr/ --code computer-science
+```
+
+If the page heading does not produce the degree name you want, pass the name
+manually:
+
+```bash
+npm run scrape:degree -- --url <curriculum-url> --code <degree-code> --name "Computer Science"
+```
+
+After checking the updated JSON, seed the database again:
+
+```bash
+npm run seed
+```
+
+The scraper only keeps fixed compulsory module codes. It intentionally skips
+choice requirements, wildcard placeholders such as `GEC%`, and conditional
+modules that only apply to some students. To verify scraper behavior, run:
+
+```bash
+npm run test:scraper
+```
+
 ## 10. How I would describe the project overall
 
 NusTree is a valid software engineering project because it combines frontend, backend, persistence, auth, and domain logic in one system. It is not just a static website and not just a simple form-based tracker.
