@@ -22,8 +22,8 @@ async function main() {
     }
   }
 
+  fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2));
-  console.log("Done!");
 }
 
 main();

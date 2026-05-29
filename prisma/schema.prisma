@@ -15,6 +15,9 @@ model Module {
   department        String?
   workload          Float?
   prereqTree        Json?
+  preclusion        String?
+  prerequisite      String?
+  fulfillreqs       String[]
   userPlanModules   UserPlanModule[]
   degreePresetLinks DegreePresetModule[]
 }
