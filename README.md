@@ -81,6 +81,43 @@ The seed script loads:
 - module data from `src/data/modules.json`
 - degree preset data from `src/data/degree-presets.json`
 
+### Updating the Prisma Schema
+
+After changing `prisma/schema.prisma`, create and apply a new migration locally:
+
+```bash
+npx prisma migrate dev --name describe-your-change
+```
+
+This creates a new migration folder under `prisma/migrations`, applies it to the local database, and regenerates the Prisma client.
+
+If Prisma returns `P3014` because the database user cannot create a shadow database, either grant the local database user permission to create databases or configure a dedicated shadow database. For local development, granting `CREATEDB` is usually simplest:
+
+```sql
+ALTER USER your_database_user CREATEDB;
+```
+
+If you only want to create the migration file without applying it immediately:
+
+```bash
+npx prisma migrate dev --name describe-your-change --create-only
+```
+
+After reviewing the generated SQL, apply it:
+
+```bash
+npx prisma migrate dev
+```
+
+When deploying an existing migration to another environment, use:
+
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
+
+Restart the app after deployment so it uses the updated Prisma client. Run `npm run seed` only if the schema change also requires updated seed data.
+
 ### Run Locally
 
 ```bash
