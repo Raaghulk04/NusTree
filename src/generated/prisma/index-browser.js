@@ -126,7 +126,10 @@ exports.Prisma.ModuleScalarFieldEnum = {
   description: 'description',
   department: 'department',
   workload: 'workload',
-  prereqTree: 'prereqTree'
+  prereqTree: 'prereqTree',
+  preclusion: 'preclusion',
+  prerequisite: 'prerequisite',
+  fulfillreqs: 'fulfillreqs'
 };
 
 exports.Prisma.DegreePresetScalarFieldEnum = {

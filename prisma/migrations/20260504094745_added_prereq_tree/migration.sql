@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Module" (
+CREATE TABLE IF NOT EXISTS "Module" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -11,7 +11,7 @@ CREATE TABLE "Module" (
 );
 
 -- CreateTable
-CREATE TABLE "MajorTemplate" (
+CREATE TABLE IF NOT EXISTS "MajorTemplate" (
     "id" TEXT NOT NULL,
     "majorCode" TEXT NOT NULL,
     "majorName" TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE "MajorTemplate" (
 );
 
 -- CreateTable
-CREATE TABLE "UserPlanModule" (
+CREATE TABLE IF NOT EXISTS "UserPlanModule" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "moduleId" TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE "UserPlanModule" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MajorTemplate_majorCode_key" ON "MajorTemplate"("majorCode");
+CREATE UNIQUE INDEX IF NOT EXISTS "MajorTemplate_majorCode_key" ON "MajorTemplate"("majorCode");
 
 -- AddForeignKey
 ALTER TABLE "UserPlanModule" ADD CONSTRAINT "UserPlanModule_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "Module"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
