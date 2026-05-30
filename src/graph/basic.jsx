@@ -1,6 +1,7 @@
 import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
+import isPrecluded from "@/graph/isPreclusion";
 
 export default function Basic({
   allMods,
@@ -8,52 +9,81 @@ export default function Basic({
   completedMods,
   compulsoryMods,
 }) {
-  const nodes = useMemo(() => {
-    const takenIds = takenMods.map((mod) => ({ code: 1, id: mod.id }));
-    const completedIds = completedMods.map((mod) => ({
-      code: 2,
-      id: mod.moduleId,
-    }));
-    const compulsoryIds = (compulsoryMods || []).map((mod) => ({
-      code: 0,
-      id: mod,
-    }));
+  const [finalEntries, setFinalEntries] = useState([]);
+  const [isLoading, setIsLoading] = useState([]);
 
-    const allEntries = takenIds.concat(completedIds).concat(compulsoryIds);
+  useEffect(() => {
+    async function calculateNodes() {
+      setIsLoading(true);
+      const takenIds = takenMods.map((mod) => ({ code: 1, id: mod.id }));
+      const completedIds = completedMods.map((mod) => ({
+        code: 2,
+        id: mod.moduleId,
+      }));
+      const compulsoryIds = (compulsoryMods || []).map((mod) => ({
+        code: 0,
+        id: mod,
+      }));
+      try {
+        console.log("in basic, takenIds", takenIds);
+        console.log("in basic, compulsoryids", compulsoryIds);
+        const allEntries = await isPrecluded({
+          completedIds,
+          takenIds,
+          compulsoryIds,
+        });
+        console.log("allentries", allEntries);
 
-    // deduplicate — sort ascending so higher code overwrites lower
-    const deduped = Object.values(
-      allEntries
-        .sort((a, b) => a.code - b.code) // 0 → 1 → 2, so 2 wins
-        .reduce((acc, entry) => {
-          acc[entry.id] = entry; // later (higher code) overwrites earlier
-          return acc;
-        }, {}),
-    );
+        // remove duplicates by the correct priority order
+        const deduped = Object.values(
+          Array.from(allEntries)
+            .sort((a, b) => a.code - b.code) // 0 → 1 → 2, so 2 wins
+            .reduce((acc, entry) => {
+              acc[entry.id] = entry; // later (higher code) overwrites earlier
+              return acc;
+            }, {}),
+        );
 
-    return deduped.map((entry, index) => ({
-      id: entry.id,
-      position: {
-        x: (index % 10) * 160, // 10 per row
-        y: Math.floor(index / 10) * 80, // new row every 10
-      },
-      data: { label: entry.id },
-      style: {
-        backgroundColor:
-          entry.code === 2
-            ? "#bbf7d0" // green - completed
-            : entry.code === 1
-              ? "#bfdbfe" // blue - eligible
-              : "#f3f4f6", // grey - compulsory but not yet eligible
-        color: "#0f172a",
-        fontWeight: "600", // Gives the text a bit more weight to pop
-        borderRadius: "8px",
-        fontSize: "11px",
-        border: "none",
-      },
-    }));
-  }, [takenMods, completedMods, compulsoryMods]);
+        const reactFlowNodes = deduped.map((mod, index) => {
+          // Stagger positions slightly so they don't stack directly on top of each other
+          const xPosition = (index % 5) * 200;
+          const yPosition = Math.floor(index / 5) * 150;
 
+          return {
+            id: mod.id,
+            position: { x: xPosition, y: yPosition }, // React Flow expects this object
+            data: { label: mod.id }, // The text that shows inside the box
+            // Optional: Match style to your header layout legend
+            style: {
+              background:
+                mod.code === 2
+                  ? "#bbf7d0"
+                  : mod.code === 1
+                    ? "#bfdbfe"
+                    : "#ffffff",
+              color: "#000000",
+              border: "1px solid #374151",
+              borderRadius: "6px",
+              padding: "10px",
+            },
+          };
+        });
+
+        setFinalEntries(reactFlowNodes);
+      } catch (error) {
+        console.error("failed calculating nodes", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    calculateNodes();
+  }, [completedMods, takenMods, compulsoryMods]);
+
+  if (isLoading) {
+    return <div>Rendering Graph.....</div>;
+  }
+
+  console.log("finally", finalEntries);
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <div
@@ -70,7 +100,7 @@ export default function Basic({
         <span>🔵 Eligible</span>
         <span>⬜ Compulsory</span>
       </div>
-      <ReactFlow nodes={nodes} colorMode="dark" fitView>
+      <ReactFlow nodes={finalEntries} colorMode="dark" fitView>
         <Background />
         <Controls />
       </ReactFlow>
