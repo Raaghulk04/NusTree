@@ -94,21 +94,6 @@ export default function Basic({
         overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          padding: "8px 16px",
-          display: "flex",
-          gap: "16px",
-          fontSize: "12px",
-          background: "#a1abf8",
-          borderBottom: "1px solid #738bbb",
-          flexShrink: 0, // prevents the legend from shrinking
-        }}
-      >
-        <span>🟢 Completed</span>
-        <span>🔵 Eligible</span>
-        <span>⬜ Compulsory</span>
-      </div>
       <div style={{ flex: 1 }}>
         {" "}
         {/* fills remaining height */}

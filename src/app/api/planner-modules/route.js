@@ -1,23 +1,24 @@
-import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
-import prisma from '@/lib/db'
-import { NextResponse } from 'next/server'
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    if (!session) return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
+  if (!session)
+    return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
-    const mods = await prisma.userPlanModule.findMany({
-        where: { userId: session.user.id },
-        orderBy: [
-            { planYear: 'asc' },
-            { planSemester: 'asc' },
-            { moduleId: 'asc' },
-        ],
-    })
+  const mods = await prisma.userPlanModule.findMany({
+    where: { userId: session.user.id },
+    orderBy: [
+      { planYear: "asc" },
+      { planSemester: "asc" },
+      { moduleId: "asc" },
+    ],
+  });
 
-    return NextResponse.json(mods)
+  return NextResponse.json(mods);
 }
