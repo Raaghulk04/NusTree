@@ -130,6 +130,7 @@ export default function Graph({
         },
         data: { label: module.id },
         style: {
+          color: "#000000",
           backgroundColor: completedIds.has(module.id)
             ? "#86efac"
             : takenIds.has(module.id)
