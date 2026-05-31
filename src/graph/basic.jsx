@@ -85,7 +85,15 @@ export default function Basic({
 
   console.log("finally", finalEntries);
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
+    <div
+      style={{
+        height: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           padding: "8px 16px",
@@ -94,16 +102,21 @@ export default function Basic({
           fontSize: "12px",
           background: "#a1abf8",
           borderBottom: "1px solid #738bbb",
+          flexShrink: 0, // prevents the legend from shrinking
         }}
       >
         <span>🟢 Completed</span>
         <span>🔵 Eligible</span>
         <span>⬜ Compulsory</span>
       </div>
-      <ReactFlow nodes={finalEntries} colorMode="dark" fitView>
-        <Background />
-        <Controls />
-      </ReactFlow>
+      <div style={{ flex: 1 }}>
+        {" "}
+        {/* fills remaining height */}
+        <ReactFlow nodes={finalEntries} colorMode="dark" fitView>
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
