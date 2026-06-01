@@ -28,9 +28,28 @@ const html = `
           <li>CS2109S Introduction to AI and Machine Learning</li>
           <li>CS3230 Design and Analysis of Algorithms</li>
         </ul>
+        <h2>Information Security Requirements</h2>
+        <p>Either</p>
+        <p>IFS4205 Information Security Capstone Project or</p>
+        <p>(CS4238 Computer Security Practice and IFS4103 Penetration Testing Practice)</p>
+        <p>IS4231 Information Security Management</p>
         <h2>Industry Experience Requirement</h2>
         <p>CP3880 Advanced Technology Attachment Programme or IS4010 Industry Internship Programme</p>
+        <ul>
+          <li>
+            A 3-month internship through one of the followings:
+            <ul>
+              <li>CP3200 Internship</li>
+              <li>CP3110 Computing for Social Service Agencies II</li>
+            </ul>
+          </li>
+        </ul>
         <p>Students who aim for Honours (Highest Distinction) must pass CP4101 BComp Dissertation.</p>
+        <h2>Programme Electives</h2>
+        <ul>
+          <li>CS4230 Foundations of Modern Cryptography</li>
+          <li>IFS4101 Legal Aspects of Information Security</li>
+        </ul>
         <h2>Mathematics and Sciences</h2>
         <ul>
           <li>MA1521 Calculus for Computing</li>
@@ -57,6 +76,7 @@ test("extractFixedModuleCodes keeps fixed modules and drops choices/placeholders
     "CS2106",
     "CS2109S",
     "CS3230",
+    "IS4231",
     "MA1521",
     "MA1522",
     "ST2334",

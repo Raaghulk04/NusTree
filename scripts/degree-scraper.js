@@ -2,10 +2,16 @@ const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
 
-const MODULE_CODE_PATTERN = /\b[A-Z]{2,4}\d{4}[A-Z]{0,3}\b/g;
+const MODULE_CODE_PATTERN = /\b[A-Z]{2,3}\d{4}[A-Z]{0,3}\b/g;
 
 const CONDITIONAL_OR_CHOICE_PATTERN =
-  /\b(either|one of|or|choose|choice|option|at least|at most|satisfy|approved|may|opt|replace|in place of|without|double[- ]degree|recommended|preclusion|precludes|if|unless|internship|focus area|elective|students who|students with|gpa|honours|highest distinction|dissertation)\b/i;
+  /\b(either|one of|or|choose|choice|option|at least|at most|satisfy|approved|may|opt|replace|in place of|without|double[- ]degree|recommended|preclusion|precludes|if|unless|internship|focus area|elective|following list|students who|students with|gpa|honours|highest distinction|dissertation|voluntary)\b|either(?=[A-Z])/i;
+
+const SKIPPED_SECTION_PATTERN =
+  /\b(programme electives?|unrestricted electives?|industry experience|industrial experience|nus overseas colleges?|footnotes?)/i;
+
+const SECTION_HEADING_PATTERN =
+  /\b(common curriculum requirements?|programme requirements?|computing foundation|information security requirements?|mathematics(?: and sciences)?|computing ethics|interdisciplinary|cross-disciplinary education)\b/i;
 
 function selectContentRoot($) {
   const candidates = [
@@ -47,6 +53,7 @@ function getTextBlocks($) {
   $root.find("script, style, nav, header, footer, form, noscript").remove();
 
   const blocks = [];
+  let currentSection = "";
   $root.find("li, p, tr, h2, h3, h4").each((_, element) => {
     const $element = $root.find(element);
     const tagName = element.tagName?.toLowerCase();
@@ -60,16 +67,42 @@ function getTextBlocks($) {
             .join(" | ")
         : normaliseText($element.text());
 
-    if (text) blocks.push(text);
+    if (!text) return;
+
+    const parentListContext = $element
+      .parents("li")
+      .map((__, listItem) => normaliseText($root.find(listItem).text()))
+      .get()
+      .join(" ");
+
+    if (/^h[2-4]$/.test(tagName)) {
+      currentSection = text;
+    } else if (
+      !MODULE_CODE_PATTERN.test(text) &&
+      !/[A-Z]{2,4}%/.test(text) &&
+      (SKIPPED_SECTION_PATTERN.test(text) || SECTION_HEADING_PATTERN.test(text)) &&
+      text.length <= 80
+    ) {
+      currentSection = text;
+    }
+    MODULE_CODE_PATTERN.lastIndex = 0;
+
+    blocks.push({
+      text,
+      context: normaliseText(`${currentSection} ${parentListContext}`),
+    });
   });
 
   return blocks;
 }
 
 function hasChoiceSyntax(block) {
+  const moduleCodeCount = (block.match(MODULE_CODE_PATTERN) || []).length;
+
   return (
     CONDITIONAL_OR_CHOICE_PATTERN.test(block) ||
     /[A-Z]{2,4}%/.test(block) ||
+    (block.trim().startsWith("(") && moduleCodeCount > 1) ||
     /\b[A-Z]{2,4}\d{4}[A-Z]{0,3}\s*\/\s*[A-Z]{0,4}?\d{3,4}[A-Z]{0,3}\b/.test(block)
   );
 }
@@ -81,8 +114,15 @@ function extractFixedModuleCodes(html) {
   const moduleCodes = [];
 
   for (const block of blocks) {
-    const matches = block.match(MODULE_CODE_PATTERN);
-    if (!matches || hasChoiceSyntax(block)) continue;
+    const matches = block.text.match(MODULE_CODE_PATTERN);
+    if (
+      !matches ||
+      hasChoiceSyntax(block.text) ||
+      hasChoiceSyntax(block.context) ||
+      SKIPPED_SECTION_PATTERN.test(block.context)
+    ) {
+      continue;
+    }
 
     for (const moduleCode of matches) {
       if (!seen.has(moduleCode)) {

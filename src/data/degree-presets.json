@@ -18,5 +18,26 @@
       "ES2660",
       "IS1108"
     ]
+  },
+  "information-security": {
+    "degreeName": "Information Security",
+    "compulsoryModules": [
+      "CS1010",
+      "IS1108",
+      "CS1231S",
+      "CS2030",
+      "CS2040C",
+      "CS2100",
+      "CS2101",
+      "CS2103T",
+      "CS2105",
+      "CS2106",
+      "CS2107",
+      "CS3235",
+      "IS4231",
+      "MA1521",
+      "MA1522",
+      "ST2334"
+    ]
   }
 }
