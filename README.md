@@ -149,11 +149,37 @@ An ER diagram is available at [docs/er-diagram.svg](./docs/er-diagram.svg).
 
 ## Architecture Notes
 
-- `src/app/api` contains route handlers for planner data, presets, auth, and placeholder endpoints.
-- `src/components` contains UI components and server-side mutation actions.
-- `src/lib/auth.ts` configures Better Auth with the Prisma adapter.
-- `src/lib/db.js` provides database access.
-- `src/server` currently contains service stubs for eligibility and modules.
+### Updating degree presets from curriculum links
+
+Degree presets live in `src/data/degree-presets.json`. If you have a new NUS
+curriculum link, run the scraper with a stable degree code:
+
+```bash
+npm run scrape:degree -- --url https://www.comp.nus.edu.sg/programmes/ug/cs/curr/ --code computer-science
+```
+
+If the page heading does not produce the degree name you want, pass the name
+manually:
+
+```bash
+npm run scrape:degree -- --url <curriculum-url> --code <degree-code> --name "Computer Science"
+```
+
+After checking the updated JSON, seed the database again:
+
+```bash
+npm run seed
+```
+
+The scraper only keeps fixed compulsory module codes. It intentionally skips
+choice requirements, wildcard placeholders such as `GEC%`, and conditional
+modules that only apply to some students. To verify scraper behavior, run:
+
+```bash
+npm run test:scraper
+```
+
+## 10. How I would describe the project overall
 
 ## Current Status
 
