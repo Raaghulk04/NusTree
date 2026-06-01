@@ -1766,6 +1766,8 @@ export namespace Prisma {
     description: string | null
     department: string | null
     workload: number | null
+    preclusion: string | null
+    prerequisite: string | null
   }
 
   export type ModuleMaxAggregateOutputType = {
@@ -1774,6 +1776,8 @@ export namespace Prisma {
     description: string | null
     department: string | null
     workload: number | null
+    preclusion: string | null
+    prerequisite: string | null
   }
 
   export type ModuleCountAggregateOutputType = {
@@ -1783,6 +1787,9 @@ export namespace Prisma {
     department: number
     workload: number
     prereqTree: number
+    preclusion: number
+    prerequisite: number
+    fulfillreqs: number
     _all: number
   }
 
@@ -1801,6 +1808,8 @@ export namespace Prisma {
     description?: true
     department?: true
     workload?: true
+    preclusion?: true
+    prerequisite?: true
   }
 
   export type ModuleMaxAggregateInputType = {
@@ -1809,6 +1818,8 @@ export namespace Prisma {
     description?: true
     department?: true
     workload?: true
+    preclusion?: true
+    prerequisite?: true
   }
 
   export type ModuleCountAggregateInputType = {
@@ -1818,6 +1829,9 @@ export namespace Prisma {
     department?: true
     workload?: true
     prereqTree?: true
+    preclusion?: true
+    prerequisite?: true
+    fulfillreqs?: true
     _all?: true
   }
 
@@ -1914,6 +1928,9 @@ export namespace Prisma {
     department: string | null
     workload: number | null
     prereqTree: JsonValue | null
+    preclusion: string | null
+    prerequisite: string | null
+    fulfillreqs: string[]
     _count: ModuleCountAggregateOutputType | null
     _avg: ModuleAvgAggregateOutputType | null
     _sum: ModuleSumAggregateOutputType | null
@@ -1942,6 +1959,9 @@ export namespace Prisma {
     department?: boolean
     workload?: boolean
     prereqTree?: boolean
+    preclusion?: boolean
+    prerequisite?: boolean
+    fulfillreqs?: boolean
     userPlanModules?: boolean | Module$userPlanModulesArgs<ExtArgs>
     degreePresetLinks?: boolean | Module$degreePresetLinksArgs<ExtArgs>
     _count?: boolean | ModuleCountOutputTypeDefaultArgs<ExtArgs>
@@ -1954,6 +1974,9 @@ export namespace Prisma {
     department?: boolean
     workload?: boolean
     prereqTree?: boolean
+    preclusion?: boolean
+    prerequisite?: boolean
+    fulfillreqs?: boolean
   }, ExtArgs["result"]["module"]>
 
   export type ModuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1963,6 +1986,9 @@ export namespace Prisma {
     department?: boolean
     workload?: boolean
     prereqTree?: boolean
+    preclusion?: boolean
+    prerequisite?: boolean
+    fulfillreqs?: boolean
   }, ExtArgs["result"]["module"]>
 
   export type ModuleSelectScalar = {
@@ -1972,9 +1998,12 @@ export namespace Prisma {
     department?: boolean
     workload?: boolean
     prereqTree?: boolean
+    preclusion?: boolean
+    prerequisite?: boolean
+    fulfillreqs?: boolean
   }
 
-  export type ModuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "department" | "workload" | "prereqTree", ExtArgs["result"]["module"]>
+  export type ModuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "department" | "workload" | "prereqTree" | "preclusion" | "prerequisite" | "fulfillreqs", ExtArgs["result"]["module"]>
   export type ModuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userPlanModules?: boolean | Module$userPlanModulesArgs<ExtArgs>
     degreePresetLinks?: boolean | Module$degreePresetLinksArgs<ExtArgs>
@@ -1996,6 +2025,9 @@ export namespace Prisma {
       department: string | null
       workload: number | null
       prereqTree: Prisma.JsonValue | null
+      preclusion: string | null
+      prerequisite: string | null
+      fulfillreqs: string[]
     }, ExtArgs["result"]["module"]>
     composites: {}
   }
@@ -2427,6 +2459,9 @@ export namespace Prisma {
     readonly department: FieldRef<"Module", 'String'>
     readonly workload: FieldRef<"Module", 'Float'>
     readonly prereqTree: FieldRef<"Module", 'Json'>
+    readonly preclusion: FieldRef<"Module", 'String'>
+    readonly prerequisite: FieldRef<"Module", 'String'>
+    readonly fulfillreqs: FieldRef<"Module", 'String[]'>
   }
     
 
@@ -11717,7 +11752,10 @@ export namespace Prisma {
     description: 'description',
     department: 'department',
     workload: 'workload',
-    prereqTree: 'prereqTree'
+    prereqTree: 'prereqTree',
+    preclusion: 'preclusion',
+    prerequisite: 'prerequisite',
+    fulfillreqs: 'fulfillreqs'
   };
 
   export type ModuleScalarFieldEnum = (typeof ModuleScalarFieldEnum)[keyof typeof ModuleScalarFieldEnum]
@@ -11956,6 +11994,9 @@ export namespace Prisma {
     department?: StringNullableFilter<"Module"> | string | null
     workload?: FloatNullableFilter<"Module"> | number | null
     prereqTree?: JsonNullableFilter<"Module">
+    preclusion?: StringNullableFilter<"Module"> | string | null
+    prerequisite?: StringNullableFilter<"Module"> | string | null
+    fulfillreqs?: StringNullableListFilter<"Module">
     userPlanModules?: UserPlanModuleListRelationFilter
     degreePresetLinks?: DegreePresetModuleListRelationFilter
   }
@@ -11967,6 +12008,9 @@ export namespace Prisma {
     department?: SortOrderInput | SortOrder
     workload?: SortOrderInput | SortOrder
     prereqTree?: SortOrderInput | SortOrder
+    preclusion?: SortOrderInput | SortOrder
+    prerequisite?: SortOrderInput | SortOrder
+    fulfillreqs?: SortOrder
     userPlanModules?: UserPlanModuleOrderByRelationAggregateInput
     degreePresetLinks?: DegreePresetModuleOrderByRelationAggregateInput
   }
@@ -11981,6 +12025,9 @@ export namespace Prisma {
     department?: StringNullableFilter<"Module"> | string | null
     workload?: FloatNullableFilter<"Module"> | number | null
     prereqTree?: JsonNullableFilter<"Module">
+    preclusion?: StringNullableFilter<"Module"> | string | null
+    prerequisite?: StringNullableFilter<"Module"> | string | null
+    fulfillreqs?: StringNullableListFilter<"Module">
     userPlanModules?: UserPlanModuleListRelationFilter
     degreePresetLinks?: DegreePresetModuleListRelationFilter
   }, "id">
@@ -11992,6 +12039,9 @@ export namespace Prisma {
     department?: SortOrderInput | SortOrder
     workload?: SortOrderInput | SortOrder
     prereqTree?: SortOrderInput | SortOrder
+    preclusion?: SortOrderInput | SortOrder
+    prerequisite?: SortOrderInput | SortOrder
+    fulfillreqs?: SortOrder
     _count?: ModuleCountOrderByAggregateInput
     _avg?: ModuleAvgOrderByAggregateInput
     _max?: ModuleMaxOrderByAggregateInput
@@ -12009,6 +12059,9 @@ export namespace Prisma {
     department?: StringNullableWithAggregatesFilter<"Module"> | string | null
     workload?: FloatNullableWithAggregatesFilter<"Module"> | number | null
     prereqTree?: JsonNullableWithAggregatesFilter<"Module">
+    preclusion?: StringNullableWithAggregatesFilter<"Module"> | string | null
+    prerequisite?: StringNullableWithAggregatesFilter<"Module"> | string | null
+    fulfillreqs?: StringNullableListFilter<"Module">
   }
 
   export type DegreePresetWhereInput = {
@@ -12532,6 +12585,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutModuleInput
     degreePresetLinks?: DegreePresetModuleCreateNestedManyWithoutModuleInput
   }
@@ -12543,6 +12599,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput
     degreePresetLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutModuleInput
   }
@@ -12554,6 +12613,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUpdateManyWithoutModuleNestedInput
     degreePresetLinks?: DegreePresetModuleUpdateManyWithoutModuleNestedInput
   }
@@ -12565,6 +12627,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput
     degreePresetLinks?: DegreePresetModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
@@ -12576,6 +12641,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
   }
 
   export type ModuleUpdateManyMutationInput = {
@@ -12585,6 +12653,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
   }
 
   export type ModuleUncheckedUpdateManyInput = {
@@ -12594,6 +12665,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
   }
 
   export type DegreePresetCreateInput = {
@@ -13191,6 +13265,14 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type UserPlanModuleListRelationFilter = {
     every?: UserPlanModuleWhereInput
     some?: UserPlanModuleWhereInput
@@ -13223,6 +13305,9 @@ export namespace Prisma {
     department?: SortOrder
     workload?: SortOrder
     prereqTree?: SortOrder
+    preclusion?: SortOrder
+    prerequisite?: SortOrder
+    fulfillreqs?: SortOrder
   }
 
   export type ModuleAvgOrderByAggregateInput = {
@@ -13235,6 +13320,8 @@ export namespace Prisma {
     description?: SortOrder
     department?: SortOrder
     workload?: SortOrder
+    preclusion?: SortOrder
+    prerequisite?: SortOrder
   }
 
   export type ModuleMinOrderByAggregateInput = {
@@ -13243,6 +13330,8 @@ export namespace Prisma {
     description?: SortOrder
     department?: SortOrder
     workload?: SortOrder
+    preclusion?: SortOrder
+    prerequisite?: SortOrder
   }
 
   export type ModuleSumOrderByAggregateInput = {
@@ -13711,6 +13800,10 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type ModuleCreatefulfillreqsInput = {
+    set: string[]
+  }
+
   export type UserPlanModuleCreateNestedManyWithoutModuleInput = {
     create?: XOR<UserPlanModuleCreateWithoutModuleInput, UserPlanModuleUncheckedCreateWithoutModuleInput> | UserPlanModuleCreateWithoutModuleInput[] | UserPlanModuleUncheckedCreateWithoutModuleInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutModuleInput | UserPlanModuleCreateOrConnectWithoutModuleInput[]
@@ -13753,6 +13846,11 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type ModuleUpdatefulfillreqsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type UserPlanModuleUpdateManyWithoutModuleNestedInput = {
@@ -14727,6 +14825,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutModuleInput
   }
 
@@ -14737,6 +14838,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput
   }
 
@@ -14790,6 +14894,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUpdateManyWithoutModuleNestedInput
   }
 
@@ -14800,6 +14907,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
 
@@ -14841,6 +14951,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleCreateNestedManyWithoutModuleInput
   }
 
@@ -14851,6 +14964,9 @@ export namespace Prisma {
     department?: string | null
     workload?: number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutModuleInput
   }
 
@@ -14935,6 +15051,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUpdateManyWithoutModuleNestedInput
   }
 
@@ -14945,6 +15064,9 @@ export namespace Prisma {
     department?: NullableStringFieldUpdateOperationsInput | string | null
     workload?: NullableFloatFieldUpdateOperationsInput | number | null
     prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
 

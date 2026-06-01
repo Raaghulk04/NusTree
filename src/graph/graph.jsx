@@ -2,13 +2,39 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { TreeDeciduous } from "lucide-react";
 import { useState, useMemo } from "react";
+import Basic from "@/graph/basic";
+import ModeToggle from "./modeToggle";
+import Simple from "@/graph/simple";
 
-export default function Graph({ allMods, takenMods, completedMods }) {
+export default function Graph({
+  allMods,
+  takenMods,
+  completedMods,
+  compulsoryMods,
+}) {
   const [selectedNode, setSelectedNode] = useState(null);
+  const [basic, setBasic] = useState(true);
+  const [mode, setMode] = useState("eligible");
 
   const allModIds = new Set(allMods.map((m) => m.id));
   const takenIds = new Set((takenMods || []).map((m) => m.id));
   const completedIds = new Set((completedMods || []).map((m) => m.moduleId));
+
+  console.log("taken", takenIds);
+  console.log("completed", completedIds);
+
+  // if (basic === true) {
+  //   return (
+  //     <div>
+  //       <Basic
+  //         allMods={allMods}
+  //         takenMods={takenMods}
+  //         completedMods={completedMods}
+  //         compulsoryMods={compulsoryMods}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   const getYLevel = (moduleId) => {
     const num = parseInt(moduleId.match(/\d+/)?.[0]);
@@ -105,6 +131,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
         },
         data: { label: module.id },
         style: {
+          color: "#000000",
           backgroundColor: completedIds.has(module.id)
             ? "#86efac"
             : takenIds.has(module.id)
@@ -126,7 +153,7 @@ export default function Graph({ allMods, takenMods, completedMods }) {
         },
       };
     });
-  }, [allMods, selectedNode, completedIds, takenIds]);
+  }, [allMods, selectedNode, completedMods, takenMods]);
 
   const edges = useMemo(() => {
     if (!selectedNode) return [];
@@ -234,40 +261,48 @@ export default function Graph({ allMods, takenMods, completedMods }) {
     });
 
     return result;
-  }, [selectedNode, allMods, allModIds]);
+  }, [selectedNode, allMods]);
 
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
-      <div
-        style={{
-          padding: "8px 16px",
-          display: "flex",
-          gap: "16px",
-          fontSize: "12px",
-          background: "#a1abf8",
-          borderBottom: "1px solid #738bbb",
-        }}
-      >
-        <span>🟢 Completed</span>
-        <span>🔵 Eligible</span>
-        <span>⬜ Locked</span>
-        <span style={{ color: "#000000" }}>
-          Click a node to see prerequisites (red) and modules it unlocks (blue)
-        </span>
-      </div>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodeClick={handleNodeClick}
-        fitView
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+    <div
+      style={{
+        height: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      <ModeToggle mode={mode} setMode={setMode} />
+      {mode === "eligible" && (
+        <Basic
+          allMods={allMods}
+          takenMods={takenMods}
+          completedMods={completedMods}
+          compulsoryMods={compulsoryMods}
+        />
+      )}
+
+      {mode === "All" && (
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodeClick={handleNodeClick}
+          colorMode="dark"
+          fitView
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      )}
+
+      {mode === "Simple" && (
+        <Simple completedMods={completedMods} compulsoryMods={compulsoryMods} />
+      )}
     </div>
   );
 }
