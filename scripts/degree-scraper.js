@@ -5,7 +5,7 @@ const cheerio = require("cheerio");
 const MODULE_CODE_PATTERN = /\b[A-Z]{2,3}\d{4}[A-Z]{0,3}\b/g;
 
 const CONDITIONAL_OR_CHOICE_PATTERN =
-  /\b(either|one of|or|choose|choice|option|at least|at most|satisfy|approved|may|opt|replace|in place of|without|double[- ]degree|recommended|preclusion|precludes|if|unless|internship|focus area|elective|following list|students who|students with|gpa|honours|highest distinction|dissertation|voluntary)\b|either(?=[A-Z])/i;
+  /\b(either|one of|or|choose|choice|option|at least|at most|satisfy|approved|may|opt|replace|in place of|without|double[- ]degree|recommended|preclusion|precludes|if|unless|internship|industry seminar|focus area|elective|following list|students who|students with|gpa|honours|highest distinction|dissertation|voluntary)\b|either(?=[A-Z])/i;
 
 const SKIPPED_SECTION_PATTERN =
   /\b(programme electives?|unrestricted electives?|industry experience|industrial experience|nus overseas colleges?|footnotes?)/i;
@@ -151,6 +151,53 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
 }
 
+function loadDegreeLinks(filePath) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Degree link list not found: ${filePath}`);
+  }
+
+  const degreeLinks = readJson(filePath);
+  if (!Array.isArray(degreeLinks)) {
+    throw new Error("Degree link list must be a JSON array");
+  }
+
+  return degreeLinks.map((entry, index) => {
+    if (!entry || Array.isArray(entry) || typeof entry !== "object") {
+      throw new Error(`Degree link entry ${index + 1} must be an object`);
+    }
+
+    const url = typeof entry.url === "string" ? entry.url.trim() : "";
+    const code = typeof entry.code === "string" ? entry.code.trim() : "";
+    const name = typeof entry.name === "string" ? entry.name.trim() : entry.name;
+
+    if (!url) {
+      throw new Error(`Degree link entry ${index + 1} is missing url`);
+    }
+
+    if (!code) {
+      throw new Error(`Degree link entry ${index + 1} is missing code`);
+    }
+
+    if (name !== undefined && typeof name !== "string") {
+      throw new Error(`Degree link entry ${index + 1} name must be a string`);
+    }
+
+    return {
+      url,
+      code,
+      ...(name ? { name } : {}),
+    };
+  });
+}
+
+function ensureJsonOnlyInput(argv) {
+  if (argv.length > 0) {
+    throw new Error(
+      "Usage: npm run scrape:degree. Configure curriculum links in scripts/degree-links.json.",
+    );
+  }
+}
+
 function validateModuleCodes(moduleCodes, modulesPath) {
   const moduleData = readJson(modulesPath);
   const knownCodes = new Set(Object.keys(moduleData));
@@ -166,7 +213,7 @@ function updateDegreePresetFile({
 }) {
   const unknownModules = validateModuleCodes(compulsoryModules, modulesPath);
   if (unknownModules.length > 0) {
-    throw new Error(`Unknown module code(s): ${unknownModules.join(", ")}`);
+    throw new Error(`Unknown module code(s): ${unknownModules.join(", ")} for ${degreeName}`);
   }
 
   const presetData = fs.existsSync(presetPath) ? readJson(presetPath) : {};
@@ -179,34 +226,18 @@ function updateDegreePresetFile({
   return presetData[degreeCode];
 }
 
-function parseArgs(argv) {
-  const args = {};
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index];
-    if (!arg.startsWith("--")) continue;
-
-    const key = arg.slice(2);
-    const value = argv[index + 1];
-    if (!value || value.startsWith("--")) {
-      args[key] = true;
-    } else {
-      args[key] = value;
-      index += 1;
-    }
-  }
-  return args;
-}
-
 function defaultPaths(repoRoot = process.cwd()) {
   return {
+    degreeLinksPath: path.join(repoRoot, "scripts", "degree-links.json"),
     presetPath: path.join(repoRoot, "src", "data", "degree-presets.json"),
     modulesPath: path.join(repoRoot, "src", "data", "modules.json"),
   };
 }
 
 module.exports = {
+  ensureJsonOnlyInput,
   extractFixedModuleCodes,
-  parseArgs,
+  loadDegreeLinks,
   parseDegreePage,
   updateDegreePresetFile,
   validateModuleCodes,
