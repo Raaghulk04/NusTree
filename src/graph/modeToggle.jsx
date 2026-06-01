@@ -3,7 +3,7 @@ import Legend from "@/graph/legend";
 const MODES = [
   { id: "eligible", label: "Eligible Mods" },
   { id: "All", label: "All Modules" },
-  { id: "simple", label: "Simple" },
+  { id: "Simple", label: "Simple" },
 ];
 
 export default function ModeToggle({ mode, setMode }) {

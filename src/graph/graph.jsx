@@ -4,6 +4,7 @@ import { TreeDeciduous } from "lucide-react";
 import { useState, useMemo } from "react";
 import Basic from "@/graph/basic";
 import ModeToggle from "./modeToggle";
+import Simple from "@/graph/simple";
 
 export default function Graph({
   allMods,
@@ -300,9 +301,7 @@ export default function Graph({
       )}
 
       {mode === "Simple" && (
-        <div>
-          <p> havent worked on this yet</p>
-        </div>
+        <Simple completedMods={completedMods} compulsoryMods={compulsoryMods} />
       )}
     </div>
   );
