@@ -151,18 +151,23 @@ An ER diagram is available at [docs/er-diagram.svg](./docs/er-diagram.svg).
 
 ### Updating degree presets from curriculum links
 
-Degree presets live in `src/data/degree-presets.json`. If you have a new NUS
-curriculum link, run the scraper with a stable degree code:
+Degree presets live in `src/data/degree-presets.json`. Curriculum links are
+configured in `scripts/degree-links.json`:
 
-```bash
-npm run scrape:degree -- --url https://www.comp.nus.edu.sg/programmes/ug/cs/curr/ --code computer-science
+```json
+[
+  {
+    "url": "https://www.comp.nus.edu.sg/programmes/ug/cs/curr/",
+    "code": "computer-science",
+    "name": "Computer Science"
+  }
+]
 ```
 
-If the page heading does not produce the degree name you want, pass the name
-manually:
+Run the scraper to process every configured curriculum link in order:
 
 ```bash
-npm run scrape:degree -- --url <curriculum-url> --code <degree-code> --name "Computer Science"
+npm run scrape:degree
 ```
 
 After checking the updated JSON, seed the database again:
@@ -173,7 +178,8 @@ npm run seed
 
 The scraper only keeps fixed compulsory module codes. It intentionally skips
 choice requirements, wildcard placeholders such as `GEC%`, and conditional
-modules that only apply to some students. To verify scraper behavior, run:
+modules that only apply to some students. The scraper stops on the first failed
+entry. To verify scraper behavior, run:
 
 ```bash
 npm run test:scraper

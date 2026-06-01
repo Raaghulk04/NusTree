@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://www.comp.nus.edu.sg/programmes/ug/ba/curr/",
+    "code": "business-analytics",
+    "name": "Business Analytics"
+  },
+  {
+    "url": "https://www.comp.nus.edu.sg/programmes/ug/bais/curr/",
+    "code": "business-artificial-intelligence-systems",
+    "name": "Business Artificial Intelligence Systems"
+  },
+  {
+    "url": "https://ceg.nus.edu.sg/curriculum/requirements/",
+    "code": "computer-engineering",
+    "name": "Computer Engineering"
+  },
+  {
+    "url": "https://www.comp.nus.edu.sg/programmes/ug/cs/curr/",
+    "code": "computer-science",
+    "name": "Computer Science"
+  },
+  {
+    "url": "https://www.comp.nus.edu.sg/programmes/ug/isc/curr/",
+    "code": "information-security",
+    "name": "Information Security"
+  }
+]

@@ -1,6 +1,14 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 const test = require("node:test");
-const { extractFixedModuleCodes, parseDegreePage } = require("./degree-scraper");
+const {
+  ensureJsonOnlyInput,
+  extractFixedModuleCodes,
+  loadDegreeLinks,
+  parseDegreePage,
+} = require("./degree-scraper");
 
 const html = `
   <html>
@@ -85,4 +93,111 @@ test("extractFixedModuleCodes keeps fixed modules and drops choices/placeholders
 
 test("parseDegreePage derives the degree name from the page heading", () => {
   assert.equal(parseDegreePage(html).degreeName, "Computer Science");
+});
+
+test("extractFixedModuleCodes skips BAIS optional industry seminar entries", () => {
+  const baisHtml = `
+    <html>
+      <body>
+        <main>
+          <h1>Bachelor of Computing in Business Artificial Intelligence Systems</h1>
+          <h2>Core Courses</h2>
+          <ul>
+            <li>CS2030 Programming Methodology II</li>
+            <li>IS2108 Full-stack Software Engineering for AI Solutions I</li>
+          </ul>
+          <p>BAIS Industrial Experience Requirement (IER)</p>
+          <p>Take a single 3-month internship consisting of CP3200 Internship and any 6 units of courses chosen from the given elective list below.</p>
+          <ul>
+            <li>CP3201 Industry Seminar (2 units)</li>
+            <li>CS4352 Industry Seminar in Cybersecurity (2 units)</li>
+            <li>IS4236 Cloud Services and Infrastructure Management (4 units)</li>
+          </ul>
+        </main>
+      </body>
+    </html>
+  `;
+
+  assert.deepEqual(extractFixedModuleCodes(baisHtml), [
+    "CS2030",
+    "IS2108",
+  ]);
+});
+
+function writeTempJson(data) {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "degree-links-"));
+  const filePath = path.join(tempDir, "degree-links.json");
+  fs.writeFileSync(filePath, JSON.stringify(data));
+  return filePath;
+}
+
+test("loadDegreeLinks reads valid entries with optional names", () => {
+  const filePath = writeTempJson([
+    {
+      url: " https://example.com/cs ",
+      code: " computer-science ",
+      name: " Computer Science ",
+    },
+    {
+      url: "https://example.com/is",
+      code: "information-security",
+    },
+  ]);
+
+  assert.deepEqual(loadDegreeLinks(filePath), [
+    {
+      url: "https://example.com/cs",
+      code: "computer-science",
+      name: "Computer Science",
+    },
+    {
+      url: "https://example.com/is",
+      code: "information-security",
+    },
+  ]);
+});
+
+test("loadDegreeLinks rejects a missing file", () => {
+  const missingPath = path.join(os.tmpdir(), "missing-degree-links.json");
+
+  assert.throws(
+    () => loadDegreeLinks(missingPath),
+    /Degree link list not found/,
+  );
+});
+
+test("loadDegreeLinks rejects non-array JSON", () => {
+  const filePath = writeTempJson({ url: "https://example.com/cs" });
+
+  assert.throws(
+    () => loadDegreeLinks(filePath),
+    /Degree link list must be a JSON array/,
+  );
+});
+
+test("loadDegreeLinks rejects entries without url or code", () => {
+  const missingUrlPath = writeTempJson([{ code: "computer-science" }]);
+  const missingCodePath = writeTempJson([{ url: "https://example.com/cs" }]);
+
+  assert.throws(
+    () => loadDegreeLinks(missingUrlPath),
+    /Degree link entry 1 is missing url/,
+  );
+  assert.throws(
+    () => loadDegreeLinks(missingCodePath),
+    /Degree link entry 1 is missing code/,
+  );
+});
+
+test("ensureJsonOnlyInput rejects old direct CLI input", () => {
+  assert.throws(
+    () =>
+      ensureJsonOnlyInput([
+        "--url",
+        "https://example.com/cs",
+        "--code",
+        "computer-science",
+      ]),
+    /Usage: npm run scrape:degree\. Configure curriculum links in scripts\/degree-links\.json\./,
+  );
 });
