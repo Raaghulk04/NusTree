@@ -8,6 +8,7 @@ import Simple from "@/graph/simple";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
+import SideBar from "@/components/sideBar";
 
 export default function Graph({
   allMods,
@@ -18,7 +19,7 @@ export default function Graph({
   const [selectedNode, setSelectedNode] = useState(null);
   const [basic, setBasic] = useState(true);
   const [mode, setMode] = useState("eligible");
-
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
   const allModIds = new Set(allMods.map((m) => m.id));
   const takenIds = new Set((takenMods || []).map((m) => m.id));
   const completedIds = new Set((completedMods || []).map((m) => m.moduleId));
@@ -141,12 +142,20 @@ export default function Graph({
     >
       <ModeToggle mode={mode} setMode={setMode} />
       {mode === "eligible" && (
-        <Basic
-          allMods={allMods}
-          takenMods={takenMods}
-          completedMods={completedMods}
-          compulsoryMods={compulsoryMods}
-        />
+        <div className="flex w-full h-full flex-row overflow-hidden">
+          {/* 1. Left aligned layout control panel */}
+          <SideBar isOpen={isSideBarOpen} setIsOpen={setIsSideBarOpen} />
+
+          {/* 2. Main content area takes up the remaining horizontal space */}
+          <div className="flex-1 overflow-auto">
+            <Basic
+              allMods={allMods}
+              takenMods={takenMods}
+              completedMods={completedMods}
+              compulsoryMods={compulsoryMods}
+            />
+          </div>
+        </div>
       )}
 
       {mode === "All" && (
