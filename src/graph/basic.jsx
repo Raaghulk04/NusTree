@@ -2,6 +2,16 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
+import buildTree from "@/graph/buildTree";
+import findEdgeType from "@/graph/findEdgeType";
+
+const extractMods = (tree) => {
+  if (!tree) return [];
+  if (typeof tree === "string") return [tree.split(":")[0]];
+  if (tree.or) return tree.or.flatMap(extractMods);
+  if (tree.and) return tree.and.flatMap(extractMods);
+  return [];
+};
 
 export default function Basic({
   allMods,
@@ -9,8 +19,10 @@ export default function Basic({
   completedMods,
   compulsoryMods,
 }) {
+  console.log("takenMods at basic", takenMods);
   const [finalEntries, setFinalEntries] = useState([]);
-  const [isLoading, setIsLoading] = useState([]);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function calculateNodes() {
@@ -25,35 +37,29 @@ export default function Basic({
         id: mod,
       }));
       try {
-        console.log("in basic, takenIds", takenIds);
-        console.log("in basic, compulsoryids", compulsoryIds);
         const allEntries = await isPrecluded({
           completedIds,
           takenIds,
           compulsoryIds,
         });
-        console.log("allentries", allEntries);
 
-        // remove duplicates by the correct priority order
         const deduped = Object.values(
           Array.from(allEntries)
-            .sort((a, b) => a.code - b.code) // 0 → 1 → 2, so 2 wins
+            .sort((a, b) => a.code - b.code)
             .reduce((acc, entry) => {
-              acc[entry.id] = entry; // later (higher code) overwrites earlier
+              acc[entry.id] = entry;
               return acc;
             }, {}),
         );
 
         const reactFlowNodes = deduped.map((mod, index) => {
-          // Stagger positions slightly so they don't stack directly on top of each other
           const xPosition = (index % 5) * 200;
           const yPosition = Math.floor(index / 5) * 150;
 
           return {
             id: mod.id,
-            position: { x: xPosition, y: yPosition }, // React Flow expects this object
-            data: { label: mod.id }, // The text that shows inside the box
-            // Optional: Match style to your header layout legend
+            position: { x: xPosition, y: yPosition },
+            data: { label: mod.id },
             style: {
               background:
                 mod.code === 2
@@ -65,6 +71,7 @@ export default function Basic({
               border: "1px solid #374151",
               borderRadius: "6px",
               padding: "10px",
+              cursor: "pointer",
             },
           };
         });
@@ -76,18 +83,77 @@ export default function Basic({
         setIsLoading(false);
       }
     }
+
     calculateNodes();
   }, [completedMods, takenMods, compulsoryMods]);
+
+  const allModIds = useMemo(
+    () => new Set(finalEntries.map((n) => n.id)),
+    [finalEntries],
+  );
+
+  const edges = useMemo(() => {
+    if (!selectedNode) return [];
+
+    const result = [];
+    const edgeIds = new Set();
+
+    finalEntries.forEach((node) => {
+      const module = allMods.find((m) => m.id === node.id);
+      if (!module?.prereqTree) return;
+
+      const prereqs = [...new Set(extractMods(module.prereqTree))];
+      const isSelected = selectedNode === module.id;
+      const isPrereqOfSelected = prereqs.includes(selectedNode);
+
+      if (!isSelected && !isPrereqOfSelected) return;
+
+      if (isSelected) {
+        buildTree(module.prereqTree, module.id, allModIds, result, edgeIds);
+      } else {
+        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${module.id}`;
+
+        if (!edgeIds.has(edgeId)) {
+          edgeIds.add(edgeId);
+          result.push({
+            id: edgeId,
+            source: selectedNode,
+            target: module.id,
+            label: edgeType === "or" ? "OR" : "AND",
+            style: {
+              stroke: edgeType === "or" ? "#8b5cf6" : "#3b82f6",
+              strokeWidth: 2,
+            },
+            labelStyle: {
+              fontSize: "10px",
+              fill: edgeType === "or" ? "#8b5cf6" : "#3b82f6",
+            },
+          });
+        }
+      }
+    });
+
+    return result;
+  }, [selectedNode, finalEntries, allMods, allModIds]);
+
+  const handleNodeClick = (_, node) => {
+    console.log("Clicked", node.id);
+    console.log(
+      "all mods entry",
+      allMods.find((m) => m.id === node.id),
+    );
+    setSelectedNode((prev) => (prev === node.id ? null : node.id));
+  };
 
   if (isLoading) {
     return <div>Rendering Graph.....</div>;
   }
 
-  console.log("finally", finalEntries);
   return (
     <div
       style={{
-        height: "100vh",
+        height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -95,9 +161,14 @@ export default function Basic({
       }}
     >
       <div style={{ flex: 1 }}>
-        {" "}
-        {/* fills remaining height */}
-        <ReactFlow nodes={finalEntries} colorMode="dark" fitView>
+        <ReactFlow
+          nodes={finalEntries}
+          edges={edges}
+          colorMode="dark"
+          onNodeClick={handleNodeClick}
+          elementsSelectable={true}
+          fitView
+        >
           <Background />
           <Controls />
         </ReactFlow>

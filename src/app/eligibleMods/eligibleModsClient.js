@@ -9,9 +9,9 @@ export default function EligibleModClient({
   compulsoryMods,
 }) {
   const completedMods = userMods;
-  console.log(completedMods[0]);
-  console.log(mods[0].id);
   const dsa = mods.find((module) => module.id === "CS2040S");
+
+  const completedModIds = completedMods.map((mod) => mod.moduleId);
 
   const isSatisfied = (tree, completedMods) => {
     if (!tree) return true; // no prereqs, always eligible
@@ -33,13 +33,12 @@ export default function EligibleModClient({
 
   const inDegree = (dept) => degree.find((d) => d.degreeName == dept);
   let eligibleMods = mods.filter((module) =>
-    isSatisfied(module.prereqTree, completedMods),
+    isSatisfied(module.prereqTree, completedModIds),
   );
   eligibleMods = eligibleMods.filter((module) => inDegree(module.department));
 
   let degreeMods = mods.filter((module) => inDegree(module.department));
-  console.log(degree);
-  console.log(userMods);
+  console.log("eligibleMods", eligibleMods);
   return (
     <div>
       <Graph

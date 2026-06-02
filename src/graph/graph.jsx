@@ -5,6 +5,8 @@ import { useState, useMemo } from "react";
 import Basic from "@/graph/basic";
 import ModeToggle from "./modeToggle";
 import Simple from "@/graph/simple";
+import buildTree from "@/graph/buildTree";
+import findEdgeType from "@/graph/findEdgeType";
 
 export default function Graph({
   allMods,
@@ -161,70 +163,6 @@ export default function Graph({
     const result = [];
     const edgeIds = new Set();
 
-    const buildTree = (tree, targetId, edgeType = "and") => {
-      if (!tree) return;
-
-      if (typeof tree === "string") {
-        const modId = tree.split(":")[0];
-        if (allModIds.has(modId)) {
-          const edgeId = `${modId}-${targetId}`;
-          if (!edgeIds.has(edgeId)) {
-            edgeIds.add(edgeId);
-            result.push({
-              id: edgeId,
-              source: modId,
-              target: targetId,
-              label: edgeType === "or" ? "OR" : "AND",
-              style: {
-                stroke: edgeType === "or" ? "#8b5cf6" : "#ef4444",
-                strokeWidth: 2,
-              },
-              labelStyle: {
-                fontSize: "10px",
-                fill: edgeType === "or" ? "#8b5cf6" : "#ef4444",
-              },
-            });
-          }
-        }
-        return;
-      }
-
-      if (tree.and) {
-        tree.and.forEach((child) => buildTree(child, targetId, "and"));
-      }
-
-      if (tree.or) {
-        tree.or.forEach((child) => buildTree(child, targetId, "or"));
-      }
-    };
-
-    const findEdgeType = (tree, startId) => {
-      if (!tree) return null;
-      if (typeof tree === "string") return null;
-
-      if (tree.and) {
-        for (const child of tree.and) {
-          if (typeof child === "string" && child.split(":")[0] === startId) {
-            return "and";
-          }
-          const nested = findEdgeType(child, startId);
-          if (nested) return nested;
-        }
-      }
-
-      if (tree.or) {
-        for (const child of tree.or) {
-          if (typeof child === "string" && child.split(":")[0] === startId) {
-            return "or";
-          }
-          const nested = findEdgeType(child, startId);
-          if (nested) return nested;
-        }
-      }
-
-      return null;
-    };
-
     allMods.forEach((module) => {
       if (!module.prereqTree) return;
 
@@ -235,7 +173,7 @@ export default function Graph({
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
-        buildTree(module.prereqTree, module.id);
+        buildTree(module.prereqTree, module.id, allModIds, result, edgeIds);
       } else {
         const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
         const edgeId = `${selectedNode}-${module.id}`;
