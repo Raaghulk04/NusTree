@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { ModuleSearchDropdown } from "./module-search-dropdown";
 import { SearchDropdown } from "@/components/ui/search-dropdown";
+import { SidebarSearch } from "@/components/sidebar-search";
 
 export default function Sidebar({ isOpen, setIsOpen, mods }) {
   console.log("In Sidebar now");
@@ -25,7 +26,7 @@ export default function Sidebar({ isOpen, setIsOpen, mods }) {
         {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
       <h1 className="text-xl font-bold mb-8"></h1>
-      <SearchDropdown dataOptions={mods} />
+      <SidebarSearch dataOptions={mods} />
       <nav className="flex flex-col gap-2"></nav>
     </aside>
   );

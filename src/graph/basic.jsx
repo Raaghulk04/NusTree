@@ -150,29 +150,6 @@ export default function Basic({
 
   const nodeType = useMemo(() => ({ module: ModuleNode }), []);
 
-  const onDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const onDrop = (e) => {
-    e.preventDefault();
-    const raw = e.dataTransfer.getData("application/reactflow");
-    if (!raw) return;
-
-    const mod = JSON.parse(raw);
-    const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-
-    const newNode = {
-      id: mod.id,
-      type: "module", // or whatever your node type is called
-      position,
-      data: { label: mod.id, status: mod.status },
-    };
-
-    setFinalEntries((prev) => [...prev, newNode]);
-  };
-
   if (isLoading) {
     return <div>Rendering Graph.....</div>;
   }
@@ -195,8 +172,6 @@ export default function Basic({
           colorMode="dark"
           onNodeClick={handleNodeClick}
           elementsSelectable={true}
-          onDragOver={onDragOver}
-          onDrop={onDrop}
           fitView
         >
           <DropHandler setNodes={setFinalEntries} />

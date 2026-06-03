@@ -44,7 +44,7 @@ export default function DropHandler({ setNodes }) {
         position: "absolute",
         inset: 0,
         zIndex: 10,
-        pointerEvents: "none",
+        pointerEvents: "all",
       }}
     />
   );
