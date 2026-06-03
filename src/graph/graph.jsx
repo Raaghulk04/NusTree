@@ -9,6 +9,7 @@ import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import SideBar from "@/components/sideBar";
+import ModuleNode from "@/components/ModuleNode";
 
 export default function Graph({
   allMods,
@@ -16,14 +17,14 @@ export default function Graph({
   completedMods,
   compulsoryMods,
 }) {
+  console.log("allMods", allMods);
   const [selectedNode, setSelectedNode] = useState(null);
   const [basic, setBasic] = useState(true);
   const [mode, setMode] = useState("eligible");
-  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
   const allModIds = new Set(allMods.map((m) => m.id));
   const takenIds = new Set((takenMods || []).map((m) => m.id));
   const completedIds = new Set((completedMods || []).map((m) => m.moduleId));
-
   console.log("taken", takenIds);
   console.log("completed", completedIds);
 
@@ -130,6 +131,8 @@ export default function Graph({
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
+  const nodeType = useMemo(() => ({ module: ModuleNode }), []);
+
   return (
     <div
       style={{
@@ -142,12 +145,15 @@ export default function Graph({
     >
       <ModeToggle mode={mode} setMode={setMode} />
       {mode === "eligible" && (
-        <div className="flex w-full h-full flex-row overflow-hidden">
+        <div className="flex w-full h-screen flex-row overflow-hidden bg-zinc-950 text-slate-100">
           {/* 1. Left aligned layout control panel */}
-          <SideBar isOpen={isSideBarOpen} setIsOpen={setIsSideBarOpen} />
-
-          {/* 2. Main content area takes up the remaining horizontal space */}
-          <div className="flex-1 overflow-auto">
+          <SideBar
+            isOpen={isSideBarOpen}
+            setIsOpen={setIsSideBarOpen}
+            mods={allMods}
+          />
+          "{/* 2. Main content area takes up the remaining horizontal space */}
+          <div className="flex-1 h-full relative bg-zinc-900">
             <Basic
               allMods={allMods}
               takenMods={takenMods}

@@ -1,9 +1,11 @@
-import { ReactFlow, Background, Controls } from "@xyflow/react";
+import { ReactFlow, Background, Controls, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
+import ModuleNode from "@/components/ModuleNode";
+import DropHandler from "@/graph/dropHandler";
 
 const extractMods = (tree) => {
   if (!tree) return [];
@@ -146,6 +148,31 @@ export default function Basic({
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
+  const nodeType = useMemo(() => ({ module: ModuleNode }), []);
+
+  const onDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    const raw = e.dataTransfer.getData("application/reactflow");
+    if (!raw) return;
+
+    const mod = JSON.parse(raw);
+    const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+
+    const newNode = {
+      id: mod.id,
+      type: "module", // or whatever your node type is called
+      position,
+      data: { label: mod.id, status: mod.status },
+    };
+
+    setFinalEntries((prev) => [...prev, newNode]);
+  };
+
   if (isLoading) {
     return <div>Rendering Graph.....</div>;
   }
@@ -162,13 +189,17 @@ export default function Basic({
     >
       <div style={{ flex: 1 }}>
         <ReactFlow
+          nodeTypes={nodeType}
           nodes={finalEntries}
           edges={edges}
           colorMode="dark"
           onNodeClick={handleNodeClick}
           elementsSelectable={true}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
           fitView
         >
+          <DropHandler setNodes={setFinalEntries} />
           <Background />
           <Controls />
         </ReactFlow>
