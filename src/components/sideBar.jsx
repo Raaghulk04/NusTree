@@ -6,8 +6,10 @@ import {
   FolderCanvas,
   Settings,
 } from "lucide-react";
+import { ModuleSearchDropdown } from "./module-search-dropdown";
+import { SearchDropdown } from "@/components/ui/search-dropdown";
 
-export default function Sidebar({ isOpen, setIsOpen }) {
+export default function Sidebar({ isOpen, setIsOpen, mods }) {
   console.log("In Sidebar now");
   return (
     <aside
@@ -22,24 +24,9 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       >
         {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
-      <h1 className="text-xl font-bold mb-8">My App</h1>
-
-      <nav className="flex flex-col gap-2">
-        <Link
-          href="/dashboard"
-          className="rounded px-3 py-2 hover:bg-slate-800"
-        >
-          Dashboard
-        </Link>
-
-        <Link href="/projects" className="rounded px-3 py-2 hover:bg-slate-800">
-          Projects
-        </Link>
-
-        <Link href="/settings" className="rounded px-3 py-2 hover:bg-slate-800">
-          Settings
-        </Link>
-      </nav>
+      <h1 className="text-xl font-bold mb-8"></h1>
+      <SearchDropdown dataOptions={mods} />
+      <nav className="flex flex-col gap-2"></nav>
     </aside>
   );
 }
