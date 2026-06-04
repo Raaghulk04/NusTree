@@ -22,8 +22,7 @@ export default async function EligibleModPage() {
   const degreePresets = await prisma.degreePreset.findMany({
     where: { id: { in: degreePresetIds } },
   });
-  console.log("hiiii", degreePresetIds);
-  console.log("hellloooooo", degreePresets);
+
   const userMods = await prisma.userPlanModule.findMany({
     where: { userId: session.user.id },
   });
@@ -39,8 +38,6 @@ export default async function EligibleModPage() {
     },
   });
   compulsoryModules = compulsoryModules.map((obj) => obj.moduleId);
-
-  console.log("compulsoryModules", compulsoryModules);
 
   return (
     <div>

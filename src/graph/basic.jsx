@@ -1,11 +1,11 @@
-import { ReactFlow, Background, Controls, useReactFlow } from "@xyflow/react";
+import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import ModuleNode from "@/components/ModuleNode";
-import DropHandler from "@/graph/dropHandler";
+import useDropHandler from "@/graph/useDropHandler";
 
 const extractMods = (tree) => {
   if (!tree) return [];
@@ -21,7 +21,6 @@ export default function Basic({
   completedMods,
   compulsoryMods,
 }) {
-  console.log("takenMods at basic", takenMods);
   const [finalEntries, setFinalEntries] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,15 +139,36 @@ export default function Basic({
   }, [selectedNode, finalEntries, allMods, allModIds]);
 
   const handleNodeClick = (_, node) => {
-    console.log("Clicked", node.id);
-    console.log(
-      "all mods entry",
-      allMods.find((m) => m.id === node.id),
-    );
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
   const nodeType = useMemo(() => ({ module: ModuleNode }), []);
+
+  const handleNewNodeDrop = (mod, position) => {
+    const newNode = {
+      id: mod.id,
+      type: "module",
+      position,
+      data: { label: mod.id },
+      style: {
+        background: "#bfdbfe",
+        color: "#000000",
+        border: "1px solid #374151",
+        borderRadius: "6px",
+        padding: "10px",
+      },
+    };
+
+    setFinalEntries((prev) => {
+      if (prev.find((n) => n.id === mod.id)) {
+        console.log("found");
+        return prev;
+      }
+      return [...prev, newNode];
+    });
+  };
+
+  const { onDragOver, onDrop } = useDropHandler(handleNewNodeDrop);
 
   if (isLoading) {
     return <div>Rendering Graph.....</div>;
@@ -164,7 +184,7 @@ export default function Basic({
         overflow: "hidden",
       }}
     >
-      <div style={{ flex: 1 }}>
+      <div onDragOver={onDragOver} onDrop={onDrop} style={{ flex: 1 }}>
         <ReactFlow
           nodeTypes={nodeType}
           nodes={finalEntries}
@@ -174,7 +194,6 @@ export default function Basic({
           elementsSelectable={true}
           fitView
         >
-          <DropHandler setNodes={setFinalEntries} />
           <Background />
           <Controls />
         </ReactFlow>
