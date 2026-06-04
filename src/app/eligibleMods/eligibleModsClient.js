@@ -1,5 +1,6 @@
 "use client";
 import { useModuleStore } from "../../store/useModuleStore";
+import { ReactFlowProvider } from "@xyflow/react";
 import Graph from "@/graph/graph";
 
 export default function EligibleModClient({
@@ -41,12 +42,14 @@ export default function EligibleModClient({
   console.log("eligibleMods", eligibleMods);
   return (
     <div>
-      <Graph
-        allMods={degreeMods}
-        takenMods={eligibleMods}
-        completedMods={userMods}
-        compulsoryMods={compulsoryMods}
-      />
+      <ReactFlowProvider>
+        <Graph
+          allMods={degreeMods}
+          takenMods={eligibleMods}
+          completedMods={userMods}
+          compulsoryMods={compulsoryMods}
+        />
+      </ReactFlowProvider>
     </div>
   );
 }
