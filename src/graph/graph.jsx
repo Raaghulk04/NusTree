@@ -152,7 +152,7 @@ export default function Graph({
             setIsOpen={setIsSideBarOpen}
             mods={allMods}
           />
-          "{/* 2. Main content area takes up the remaining horizontal space */}
+          {/* 2. Main content area takes up the remaining horizontal space */}
           <div className="flex-1 h-full relative bg-zinc-900">
             <Basic
               allMods={allMods}
