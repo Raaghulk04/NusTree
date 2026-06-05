@@ -22,9 +22,44 @@ export default function Graph({
   const [basic, setBasic] = useState(true);
   const [mode, setMode] = useState("eligible");
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
-  const allModIds = new Set(allMods.map((m) => m.id));
-  const takenIds = new Set((takenMods || []).map((m) => m.id));
-  const completedIds = new Set((completedMods || []).map((m) => m.moduleId));
+
+  const isUndergradLevelModule = (moduleId) => {
+    const number = Number(moduleId.match(/\d+/)?.[0]);
+    return !number || number < 5000;
+  };
+
+  const graphAllMods = useMemo(
+    () => allMods.filter(mod => isUndergradLevelModule(mod.id)),
+    [allMods],
+  );
+
+  const graphTakenMods = useMemo(
+    () => (takenMods || []).filter((mod) => isUndergradLevelModule(mod.id)),
+    [takenMods],
+  );
+
+  const graphCompletedMods = useMemo(
+    () => (completedMods || []).filter((mod) => isUndergradLevelModule(mod.moduleId)),
+    [completedMods],
+  );
+
+  const graphCompulsoryMods = useMemo(
+    () => (compulsoryMods || []).filter((moduleId) => isUndergradLevelModule(moduleId)),
+    [compulsoryMods],
+  );
+
+  const allModIds = useMemo(
+    () => new Set(graphAllMods.map((m) => m.id)),
+    [graphAllMods],
+  );
+  const takenIds = useMemo(
+    () => new Set((graphTakenMods || []).map((m) => m.id)),
+    [graphTakenMods],
+  );
+  const completedIds = useMemo(
+    () => new Set((graphCompletedMods || []).map((m) => m.moduleId)),
+    [graphCompletedMods],
+  );
   console.log("taken", takenIds);
   console.log("completed", completedIds);
 
@@ -41,11 +76,14 @@ export default function Graph({
   //   );
   // }
 
-  const nodePositions = useMemo(() => computeNodePositions(allMods), [allMods]);
+  const nodePositions = useMemo(
+    () => computeNodePositions(graphAllMods), 
+    [graphAllMods],
+  );
 
   const nodes = useMemo(() => {
     // 3. Build the ReactFlow structural layout grid
-    return allMods.map((module) => {
+    return graphAllMods.map((module) => {
       const isSelected = module.id === selectedNode;
       const isConnected =
         selectedNode &&
@@ -81,7 +119,7 @@ export default function Graph({
         },
       };
     });
-  }, [allMods, selectedNode, completedMods, takenMods]);
+  }, [graphAllMods, selectedNode, completedIds, takenIds, nodePositions]);
 
   const edges = useMemo(() => {
     if (!selectedNode) return [];
@@ -89,7 +127,7 @@ export default function Graph({
     const result = [];
     const edgeIds = new Set();
 
-    allMods.forEach((module) => {
+    graphAllMods.forEach((module) => {
       if (!module.prereqTree) return;
 
       const prereqs = [...new Set(extractMods(module.prereqTree))];
@@ -125,7 +163,7 @@ export default function Graph({
     });
 
     return result;
-  }, [selectedNode, allMods]);
+  }, [selectedNode, graphAllMods, allModIds]);
 
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
@@ -156,9 +194,9 @@ export default function Graph({
           <div className="flex-1 h-full relative bg-zinc-900">
             <Basic
               allMods={allMods}
-              takenMods={takenMods}
-              completedMods={completedMods}
-              compulsoryMods={compulsoryMods}
+              takenMods={graphTakenMods}
+              completedMods={graphCompletedMods}
+              compulsoryMods={graphCompulsoryMods}
             />
           </div>
         </div>
@@ -178,7 +216,7 @@ export default function Graph({
       )}
 
       {mode === "Simple" && (
-        <Simple completedMods={completedMods} compulsoryMods={compulsoryMods} />
+        <Simple completedMods={graphCompletedMods} compulsoryMods={graphCompulsoryMods} />
       )}
     </div>
   );
