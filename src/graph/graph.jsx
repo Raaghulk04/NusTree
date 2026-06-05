@@ -1,6 +1,5 @@
 import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { TreeDeciduous } from "lucide-react";
 import { useState, useMemo } from "react";
 import Basic from "@/graph/basic";
 import ModeToggle from "./modeToggle";
@@ -9,7 +8,69 @@ import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import SideBar from "@/components/sideBar";
-import ModuleNode from "@/components/ModuleNode";
+
+const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
+const NODE_COLORS = {
+  completed: "#86efac",
+  taken: "#93c5fd",
+  default: "#e5e7eb",
+  selectedBorder: "#f59e0b",
+  connectedBorder: "#3b82f6",
+  completedBorder: "#22c55e",
+  defaultBorder: "#d1d5db",
+};
+const EDGE_COLORS = {
+  and: "#3b82f6",
+  or: "#8b5cf6",
+};
+
+const isUndergradLevelModule = (moduleId) => {
+  const number = Number(String(moduleId).match(/\d+/)?.[0]);
+  return !number || number < 5000;
+};
+
+const getNodeBackground = (moduleId, completedIds, takenIds) => {
+  if (completedIds.has(moduleId)) return NODE_COLORS.completed;
+  if (takenIds.has(moduleId)) return NODE_COLORS.taken;
+  return NODE_COLORS.default;
+};
+
+const getNodeBorder = ({
+  moduleId,
+  isSelected,
+  isConnected,
+  completedIds,
+  takenIds,
+}) => {
+  if (isSelected) return `2px solid ${NODE_COLORS.selectedBorder}`;
+  if (isConnected) return `2px solid ${NODE_COLORS.connectedBorder}`;
+  if (completedIds.has(moduleId)) {
+    return `2px solid ${NODE_COLORS.completedBorder}`;
+  }
+  if (takenIds.has(moduleId)) {
+    return `2px solid ${NODE_COLORS.connectedBorder}`;
+  }
+  return `1px solid ${NODE_COLORS.defaultBorder}`;
+};
+
+const createDirectDependencyEdge = (source, target, edgeType) => {
+  const color = edgeType === "or" ? EDGE_COLORS.or : EDGE_COLORS.and;
+
+  return {
+    id: `${source}-${target}`,
+    source,
+    target,
+    label: edgeType === "or" ? "OR" : "AND",
+    style: {
+      stroke: color,
+      strokeWidth: 2,
+    },
+    labelStyle: {
+      fontSize: "10px",
+      fill: color,
+    },
+  };
+};
 
 export default function Graph({
   allMods,
@@ -17,19 +78,12 @@ export default function Graph({
   completedMods,
   compulsoryMods,
 }) {
-  console.log("allMods", allMods);
   const [selectedNode, setSelectedNode] = useState(null);
-  const [basic, setBasic] = useState(true);
   const [mode, setMode] = useState("eligible");
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
 
-  const isUndergradLevelModule = (moduleId) => {
-    const number = Number(moduleId.match(/\d+/)?.[0]);
-    return !number || number < 5000;
-  };
-
   const graphAllMods = useMemo(
-    () => allMods.filter(mod => isUndergradLevelModule(mod.id)),
+    () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
   );
 
@@ -39,12 +93,18 @@ export default function Graph({
   );
 
   const graphCompletedMods = useMemo(
-    () => (completedMods || []).filter((mod) => isUndergradLevelModule(mod.moduleId)),
+    () =>
+      (completedMods || []).filter((mod) =>
+        isUndergradLevelModule(mod.moduleId),
+      ),
     [completedMods],
   );
 
   const graphCompulsoryMods = useMemo(
-    () => (compulsoryMods || []).filter((moduleId) => isUndergradLevelModule(moduleId)),
+    () =>
+      (compulsoryMods || []).filter((moduleId) =>
+        isUndergradLevelModule(moduleId),
+      ),
     [compulsoryMods],
   );
 
@@ -60,60 +120,37 @@ export default function Graph({
     () => new Set((graphCompletedMods || []).map((m) => m.moduleId)),
     [graphCompletedMods],
   );
-  console.log("taken", takenIds);
-  console.log("completed", completedIds);
-
-  // if (basic === true) {
-  //   return (
-  //     <div>
-  //       <Basic
-  //         allMods={allMods}
-  //         takenMods={takenMods}
-  //         completedMods={completedMods}
-  //         compulsoryMods={compulsoryMods}
-  //       />
-  //     </div>
-  //   );
-  // }
 
   const nodePositions = useMemo(
-    () => computeNodePositions(graphAllMods), 
+    () => computeNodePositions(graphAllMods),
     [graphAllMods],
   );
 
   const nodes = useMemo(() => {
-    // 3. Build the ReactFlow structural layout grid
     return graphAllMods.map((module) => {
       const isSelected = module.id === selectedNode;
-      const isConnected =
+      const isConnected = Boolean(
         selectedNode &&
-        (() => {
-          const prereqs = extractMods(module.prereqTree || null);
-          return prereqs.includes(selectedNode);
-        })();
-      const position = nodePositions[module.id] || { x: 0, y: 0 };
+          extractMods(module.prereqTree || null).includes(selectedNode),
+      );
+      const position = nodePositions[module.id] || DEFAULT_NODE_POSITION;
+
       return {
         id: module.id,
         position,
         data: { label: module.id },
         style: {
           color: "#000000",
-          backgroundColor: completedIds.has(module.id)
-            ? "#86efac"
-            : takenIds.has(module.id)
-              ? "#93c5fd"
-              : "#e5e7eb",
+          backgroundColor: getNodeBackground(module.id, completedIds, takenIds),
           borderRadius: "8px",
           fontSize: "11px",
-          border: isSelected
-            ? "2px solid #f59e0b"
-            : isConnected
-              ? "2px solid #3b82f6"
-              : completedIds.has(module.id)
-                ? "2px solid #22c55e"
-                : takenIds.has(module.id)
-                  ? "2px solid #3b82f6"
-                  : "1px solid #d1d5db",
+          border: getNodeBorder({
+            moduleId: module.id,
+            isSelected,
+            isConnected,
+            completedIds,
+            takenIds,
+          }),
           opacity: selectedNode && !isSelected && !isConnected ? 0.4 : 1,
           cursor: "pointer",
         },
@@ -144,20 +181,9 @@ export default function Graph({
 
         if (!edgeIds.has(edgeId)) {
           edgeIds.add(edgeId);
-          result.push({
-            id: edgeId,
-            source: selectedNode,
-            target: module.id,
-            label: edgeType === "or" ? "OR" : "AND",
-            style: {
-              stroke: edgeType === "or" ? "#8b5cf6" : "#3b82f6",
-              strokeWidth: 2,
-            },
-            labelStyle: {
-              fontSize: "10px",
-              fill: edgeType === "or" ? "#8b5cf6" : "#3b82f6",
-            },
-          });
+          result.push(
+            createDirectDependencyEdge(selectedNode, module.id, edgeType),
+          );
         }
       }
     });
@@ -168,8 +194,6 @@ export default function Graph({
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
-
-  const nodeType = useMemo(() => ({ module: ModuleNode }), []);
 
   return (
     <div
@@ -184,13 +208,11 @@ export default function Graph({
       <ModeToggle mode={mode} setMode={setMode} />
       {mode === "eligible" && (
         <div className="flex w-full h-screen flex-row overflow-hidden bg-zinc-950 text-slate-100">
-          {/* 1. Left aligned layout control panel */}
           <SideBar
             isOpen={isSideBarOpen}
             setIsOpen={setIsSideBarOpen}
             mods={allMods}
           />
-          {/* 2. Main content area takes up the remaining horizontal space */}
           <div className="flex-1 h-full relative bg-zinc-900">
             <Basic
               allMods={allMods}
@@ -216,7 +238,10 @@ export default function Graph({
       )}
 
       {mode === "Simple" && (
-        <Simple completedMods={graphCompletedMods} compulsoryMods={graphCompulsoryMods} />
+        <Simple
+          completedMods={graphCompletedMods}
+          compulsoryMods={graphCompulsoryMods}
+        />
       )}
     </div>
   );
