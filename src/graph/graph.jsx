@@ -84,6 +84,7 @@ export default function Graph({
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
   );
+  console.log("graphAllMods", graphAllMods);
 
   const graphTakenMods = useMemo(
     () => (takenMods || []).filter((mod) => isUndergradLevelModule(mod.id)),
@@ -110,6 +111,7 @@ export default function Graph({
     () => new Set(graphAllMods.map((m) => m.id)),
     [graphAllMods],
   );
+  console.log("Allmodsids", allModIds);
   const takenIds = useMemo(
     () => new Set((graphTakenMods || []).map((m) => m.id)),
     [graphTakenMods],
@@ -129,7 +131,7 @@ export default function Graph({
       const isSelected = module.id === selectedNode;
       const isConnected = Boolean(
         selectedNode &&
-          extractMods(module.prereqTree || null).includes(selectedNode),
+        extractMods(module.prereqTree || null).includes(selectedNode),
       );
       const position = nodePositions[module.id] || DEFAULT_NODE_POSITION;
 
@@ -223,6 +225,7 @@ export default function Graph({
           completedMods={graphCompletedMods}
           compulsoryMods={graphCompulsoryMods}
           takenMods={graphTakenMods}
+          allMods={graphAllMods}
         />
       )}
     </div>

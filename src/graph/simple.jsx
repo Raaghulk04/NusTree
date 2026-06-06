@@ -3,13 +3,21 @@ import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import { computeNodePositions } from "./layoutUtils";
+import { SidebarSearch } from "../components/sidebar-search";
 
-export default function Simple({ completedMods, compulsoryMods, takenMods }) {
+export default function Simple({
+  completedMods,
+  compulsoryMods,
+  takenMods,
+  allMods,
+}) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  console.log("allMods", allMods);
 
   useEffect(() => {
     async function calculateNodes() {
@@ -32,7 +40,6 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
         takenIds,
         compulsoryIds,
       });
-      console.log("final", final);
 
       const uniques = new Map();
       for (let i = 0; i < final.length; i++) {
@@ -42,7 +49,6 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
       }
       const finalNodes = [...uniques.values()];
       const positions = computeNodePositions(finalNodes);
-      console.log("Positions dictionary:", positions);
       // filter out takenIds (eligible mods) depending on whether the button is
       // toggled or not
 
@@ -51,7 +57,7 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
       );
 
       availableNodes = showEligible ? finalNodes : availableNodes;
-      //positions.forEach((value, key) => console.log(key));
+
       const flowNodes = availableNodes.map((mod, index) => {
         const xPosition = positions[mod.id]?.x;
         const yPosition = positions[mod.id]?.y;
@@ -86,27 +92,93 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
     <div
       style={{
         height: "100vh",
-        width: "100%",
+        width: "100vw",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         overflow: "hidden",
-        position: "relative",
+        backgroundColor: "#111827",
       }}
     >
-      <div style={{ flex: 1 }}>
-        {" "}
-        {/* fills remaining height */}
+      {/* 1. Sidebar Container with Dynamic Width & Transition styling */}
+      <div
+        style={{
+          width: isCollapsed ? "60px" : "320px",
+          minWidth: isCollapsed ? "60px" : "320px",
+          height: "100%",
+          borderRight: "1px solid #374151",
+          backgroundColor: "#1f2937",
+          zIndex: 10,
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          transition: "all 0.3s ease", // Smooth slide transition
+        }}
+      >
+        {/* Collapse Toggle Icon Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: isCollapsed ? "16px" : "12px",
+            zIndex: 20,
+            background: "#374151",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "50%",
+            width: "28px",
+            height: "28px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          }}
+          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {/* Simple CSS Arrow Icons changing direction based on state */}
+          {isCollapsed ? (
+            <span
+              style={{ transform: "rotate(180deg)", display: "inline-block" }}
+            >
+              o
+            </span>
+          ) : (
+            <span>c</span>
+          )}
+        </button>
+
+        {/* Hide internal content cleanly when collapsed to prevent text overflowing */}
+        <div
+          style={{
+            opacity: isCollapsed ? 0 : 1,
+            visibility: isCollapsed ? "hidden" : "visible",
+            transition: "opacity 0.2s ease",
+            height: "100%",
+            width: "100%",
+            paddingTop: "50px", // Leaves clean space for the toggle button
+          }}
+        >
+          <SidebarSearch dataOptions={allMods} />
+        </div>
+      </div>
+
+      {/* 2. Graph Canvas Container */}
+      <div style={{ flex: 1, height: "100%", position: "relative" }}>
         <ReactFlow nodes={nodes} colorMode="dark" fitView>
           <Background />
           <Controls />
         </ReactFlow>
       </div>
+
+      {/* 3. Floating Action Button (Shifts dynamically based on sidebar spacing) */}
       <div
         style={{
           position: "absolute",
           bottom: "20px",
-          left: "50px",
+          right: "40px",
           zIndex: 1000,
+          transition: "left 0.3s ease",
         }}
       >
         <button
