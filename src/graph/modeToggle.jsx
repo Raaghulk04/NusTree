@@ -1,7 +1,6 @@
 import Legend from "@/graph/legend";
 
 const MODES = [
-  { id: "eligible", label: "Eligible Mods" },
   { id: "All", label: "All Modules" },
   { id: "Simple", label: "Simple" },
 ];

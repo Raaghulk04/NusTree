@@ -2,14 +2,14 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
+import { computeNodePositions } from "./layoutUtils";
 
-export default function Simple({ completedMods, compulsoryMods }) {
-  console.log("completedMOds");
-  console.log(compulsoryMods);
+export default function Simple({ completedMods, compulsoryMods, takenMods }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [showEligible, setShowEligible] = useState(false);
 
   useEffect(() => {
     async function calculateNodes() {
@@ -23,7 +23,10 @@ export default function Simple({ completedMods, compulsoryMods }) {
           code: 0,
           id: module,
         })) || [];
-      const takenIds = [];
+      const takenIds = (takenMods || []).map((mod) => ({
+        code: 1,
+        id: mod.id,
+      }));
       const final = await isPrecluded({
         completedIds,
         takenIds,
@@ -38,10 +41,21 @@ export default function Simple({ completedMods, compulsoryMods }) {
         }
       }
       const finalNodes = [...uniques.values()];
-      console.log("finalNodes", finalNodes);
-      const flowNodes = finalNodes.map((mod, index) => {
-        const xPosition = (index % 5) * 200;
-        const yPosition = Math.floor(index / 5) * 150;
+      const positions = computeNodePositions(finalNodes);
+      console.log("Positions dictionary:", positions);
+      // filter out takenIds (eligible mods) depending on whether the button is
+      // toggled
+      // 1. Extract IDs into a Set for ultra-fast lookup
+      const takenSet = new Set(takenIds.map((m) => m.id));
+
+      // 2. Filter instantly
+      let availableNodes = finalNodes.filter((mods) => !takenSet.has(mods.id));
+
+      availableNodes = showEligible ? finalNodes : availableNodes;
+      //positions.forEach((value, key) => console.log(key));
+      const flowNodes = availableNodes.map((mod, index) => {
+        const xPosition = positions[mod.id]?.x;
+        const yPosition = positions[mod.id]?.y;
 
         return {
           id: mod.id,
@@ -64,9 +78,10 @@ export default function Simple({ completedMods, compulsoryMods }) {
       });
 
       setNodes(flowNodes);
+      setIsLoading(false);
     }
     calculateNodes();
-  }, [completedMods, compulsoryMods]);
+  }, [completedMods, compulsoryMods, takenMods, showEligible]);
 
   return (
     <div
@@ -76,6 +91,7 @@ export default function Simple({ completedMods, compulsoryMods }) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        position: "relative",
       }}
     >
       <div style={{ flex: 1 }}>
@@ -85,6 +101,32 @@ export default function Simple({ completedMods, compulsoryMods }) {
           <Background />
           <Controls />
         </ReactFlow>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "50px",
+          zIndex: 1000,
+        }}
+      >
+        <button
+          onClick={() => setShowEligible(!showEligible)}
+          style={{
+            padding: "8px 16px",
+            background: showEligible ? "#4f46e5" : "#1e1b4b",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "bold",
+            boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+            transition: "all 0.2s",
+          }}
+        >
+          {showEligible ? "Hide Eligible Mods" : "Show Eligible Mods"}
+        </button>
       </div>
     </div>
   );

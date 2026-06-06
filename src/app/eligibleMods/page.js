@@ -30,15 +30,16 @@ export default async function EligibleModPage() {
   let compulsoryModules = await prisma.degreePresetModule.findMany({
     where: {
       degreePresetId: {
-        in: degreePresetIds, // 💡 FIX: Wrapped inside the 'in' filter object
+        in: degreePresetIds,
       },
     },
     select: {
-      moduleId: true, // Only grab the module strings (e.g. 'CS1101S', 'CS1231S')
+      moduleId: true,
     },
   });
   compulsoryModules = compulsoryModules.map((obj) => obj.moduleId);
-
+  console.log("compulsory mods in page.js");
+  console.log(compulsoryModules);
   return (
     <div>
       <EligibleModClient
