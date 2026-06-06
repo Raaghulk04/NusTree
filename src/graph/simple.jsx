@@ -44,12 +44,11 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
       const positions = computeNodePositions(finalNodes);
       console.log("Positions dictionary:", positions);
       // filter out takenIds (eligible mods) depending on whether the button is
-      // toggled
-      // 1. Extract IDs into a Set for ultra-fast lookup
-      const takenSet = new Set(takenIds.map((m) => m.id));
+      // toggled or not
 
-      // 2. Filter instantly
-      let availableNodes = finalNodes.filter((mods) => !takenSet.has(mods.id));
+      let availableNodes = finalNodes.filter(
+        (mods) => !takenIds.some((m) => m.id === mods.id && mods.code === 1),
+      );
 
       availableNodes = showEligible ? finalNodes : availableNodes;
       //positions.forEach((value, key) => console.log(key));
