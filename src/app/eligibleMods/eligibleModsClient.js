@@ -1,5 +1,4 @@
 "use client";
-import { useModuleStore } from "../../store/useModuleStore";
 import { ReactFlowProvider } from "@xyflow/react";
 import Graph from "@/graph/graph";
 
@@ -10,8 +9,6 @@ export default function EligibleModClient({
   compulsoryMods,
 }) {
   const completedMods = userMods;
-  const dsa = mods.find((module) => module.id === "CS2040S");
-
   const completedModIds = completedMods.map((mod) => mod.moduleId);
 
   const isSatisfied = (tree, completedMods) => {
@@ -25,13 +22,6 @@ export default function EligibleModClient({
     return true;
   };
 
-  const slugify = (str) =>
-    str
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
-
   const inDegree = (dept) => degree.find((d) => d.degreeName == dept);
   let eligibleMods = mods.filter((module) =>
     isSatisfied(module.prereqTree, completedModIds),
@@ -39,7 +29,7 @@ export default function EligibleModClient({
   eligibleMods = eligibleMods.filter((module) => inDegree(module.department));
 
   let degreeMods = mods.filter((module) => inDegree(module.department));
-  console.log("eligibleMods", eligibleMods);
+
   return (
     <div>
       <ReactFlowProvider>
@@ -48,6 +38,7 @@ export default function EligibleModClient({
           takenMods={eligibleMods}
           completedMods={userMods}
           compulsoryMods={compulsoryMods}
+          initialMode="Simple"
         />
       </ReactFlowProvider>
     </div>

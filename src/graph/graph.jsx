@@ -1,13 +1,11 @@
 import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useState, useMemo } from "react";
-import Basic from "@/graph/basic";
 import ModeToggle from "./modeToggle";
 import Simple from "@/graph/simple";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
-import SideBar from "@/components/sideBar";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -77,10 +75,10 @@ export default function Graph({
   takenMods,
   completedMods,
   compulsoryMods,
+  initialMode = "Simple",
 }) {
   const [selectedNode, setSelectedNode] = useState(null);
-  const [mode, setMode] = useState("eligible");
-  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
+  const [mode, setMode] = useState(initialMode);
 
   const graphAllMods = useMemo(
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
@@ -206,23 +204,6 @@ export default function Graph({
       }}
     >
       <ModeToggle mode={mode} setMode={setMode} />
-      {mode === "eligible" && (
-        <div className="flex w-full h-screen flex-row overflow-hidden bg-zinc-950 text-slate-100">
-          <SideBar
-            isOpen={isSideBarOpen}
-            setIsOpen={setIsSideBarOpen}
-            mods={allMods}
-          />
-          <div className="flex-1 h-full relative bg-zinc-900">
-            <Basic
-              allMods={allMods}
-              takenMods={graphTakenMods}
-              completedMods={graphCompletedMods}
-              compulsoryMods={graphCompulsoryMods}
-            />
-          </div>
-        </div>
-      )}
 
       {mode === "All" && (
         <ReactFlow
@@ -241,6 +222,7 @@ export default function Graph({
         <Simple
           completedMods={graphCompletedMods}
           compulsoryMods={graphCompulsoryMods}
+          takenMods={graphTakenMods}
         />
       )}
     </div>
