@@ -10,14 +10,27 @@ export function SidebarSearch({
   const [search, setSearch] = React.useState("");
   const [open, setOpen] = React.useState(false);
 
-  const safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
+  let safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
 
+  //safeOptions = safeOptions.map((mod) => mod.id);
+  console.log("options", safeOptions);
   const filteredOptions = safeOptions
     .filter((opt) => {
+      if (!opt) return false;
+
       const normalizedSearch = search.toLowerCase();
+
+      const optId =
+        opt.id !== undefined && opt.id !== null
+          ? String(opt.id).toLowerCase()
+          : "";
+      const optTitle =
+        opt.title !== undefined && opt.title !== null
+          ? String(opt.title).toLowerCase()
+          : "";
+
       return (
-        opt.id.toLowerCase().includes(normalizedSearch) ||
-        (opt.title?.toLowerCase().includes(normalizedSearch) ?? false)
+        optId.includes(normalizedSearch) || optTitle.includes(normalizedSearch)
       );
     })
     .slice(0, 20);
