@@ -2,12 +2,9 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
+import { computeNodePositions } from "./layoutUtils";
 
 export default function Simple({ completedMods, compulsoryMods, takenMods }) {
-  console.log("completedMOds");
-  console.log(completedMods);
-  console.log("complusorymods");
-  console.log(compulsoryMods);
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,12 +23,10 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
           code: 0,
           id: module,
         })) || [];
-      const takenIds = showEligible
-        ? (takenMods || []).map((mod) => ({
-            code: 1,
-            id: mod.id,
-          }))
-        : [];
+      const takenIds = (takenMods || []).map((mod) => ({
+        code: 1,
+        id: mod.id,
+      }));
       const final = await isPrecluded({
         completedIds,
         takenIds,
@@ -46,10 +41,21 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
         }
       }
       const finalNodes = [...uniques.values()];
-      console.log("finalNodes", finalNodes);
-      const flowNodes = finalNodes.map((mod, index) => {
-        const xPosition = (index % 5) * 200;
-        const yPosition = Math.floor(index / 5) * 150;
+      const positions = computeNodePositions(finalNodes);
+      console.log("Positions dictionary:", positions);
+      // filter out takenIds (eligible mods) depending on whether the button is
+      // toggled
+      // 1. Extract IDs into a Set for ultra-fast lookup
+      const takenSet = new Set(takenIds.map((m) => m.id));
+
+      // 2. Filter instantly
+      let availableNodes = finalNodes.filter((mods) => !takenSet.has(mods.id));
+
+      availableNodes = showEligible ? finalNodes : availableNodes;
+      //positions.forEach((value, key) => console.log(key));
+      const flowNodes = availableNodes.map((mod, index) => {
+        const xPosition = positions[mod.id]?.x;
+        const yPosition = positions[mod.id]?.y;
 
         return {
           id: mod.id,
@@ -100,7 +106,7 @@ export default function Simple({ completedMods, compulsoryMods, takenMods }) {
         style={{
           position: "absolute",
           bottom: "20px",
-          left: "20px",
+          left: "50px",
           zIndex: 1000,
         }}
       >
