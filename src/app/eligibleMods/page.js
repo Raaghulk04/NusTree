@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import EligibleModClient from "./eligibleModsClient";
 import getAllMods from "../getAllMods";
-import { composeEventHandlers } from "radix-ui/internal";
+import { Navbar } from "@/components/navbar";
 
 export default async function EligibleModPage() {
   const session = await auth.api.getSession({
@@ -38,16 +38,18 @@ export default async function EligibleModPage() {
     },
   });
   compulsoryModules = compulsoryModules.map((obj) => obj.moduleId);
-  console.log("compulsory mods in page.js");
-  console.log(compulsoryModules);
+
   return (
-    <div>
-      <EligibleModClient
-        mods={mods}
-        degree={degreePresets}
-        userMods={userMods}
-        compulsoryMods={compulsoryModules}
-      />
+    <div className="flex flex-col h-screen overflow-hidden">
+      <Navbar />
+      <div className="flex-1 overflow-hidden">
+        <EligibleModClient
+          mods={mods}
+          degree={degreePresets}
+          userMods={userMods}
+          compulsoryMods={compulsoryModules}
+        />
+      </div>
     </div>
   );
 }

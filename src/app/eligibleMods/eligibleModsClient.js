@@ -31,7 +31,7 @@ export default function EligibleModClient({
   let degreeMods = mods.filter((module) => inDegree(module.department));
 
   return (
-    <div>
+    <div className="h-full w-full">
       <ReactFlowProvider>
         <Graph
           allMods={degreeMods}

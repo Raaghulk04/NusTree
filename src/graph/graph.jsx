@@ -6,6 +6,7 @@ import Simple from "@/graph/simple";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
+import Sidebar from "@/components/sideBar";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -79,6 +80,7 @@ export default function Graph({
 }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [mode, setMode] = useState(initialMode);
+  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
 
   const graphAllMods = useMemo(
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
@@ -198,7 +200,7 @@ export default function Graph({
   return (
     <div
       style={{
-        height: "100vh",
+        height: "100%",
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -208,16 +210,18 @@ export default function Graph({
       <ModeToggle mode={mode} setMode={setMode} />
 
       {mode === "All" && (
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodeClick={handleNodeClick}
-          colorMode="dark"
-          fitView
-        >
-          <Background />
-          <Controls />
-        </ReactFlow>
+        <div className="flex-1 relative">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodeClick={handleNodeClick}
+            colorMode="dark"
+            fitView
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
+        </div>
       )}
 
       {mode === "Simple" && (
@@ -225,7 +229,9 @@ export default function Graph({
           completedMods={graphCompletedMods}
           compulsoryMods={graphCompulsoryMods}
           takenMods={graphTakenMods}
-          allMods={graphAllMods}
+          allMods={allMods}
+          isSideBarOpen={isSideBarOpen}
+          setIsSideBarOpen={setIsSideBarOpen}
         />
       )}
     </div>

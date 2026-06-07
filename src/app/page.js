@@ -52,11 +52,7 @@ export default function homePage() {
       {/* Right Column: Immersive Brand Canvas (Hidden on Mobile/Tablets) */}
       <div className="hidden lg:flex lg:col-span-7 xl:col-span-8 relative bg-zinc-900 items-center justify-center overflow-hidden border-l border-zinc-200 dark:border-zinc-800">
         {/* Decorative Grid Patterns overlaying background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-
-        {/* Futuristic glowing orbs in the background */}
-        <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[120px]" />
+        <div className="absolute inset-0 bg-grid-pattern bg-mask-radial opacity-50" />
 
         {/* Hero Copy Presentation Text */}
         <div className="relative max-w-xl text-center px-8 space-y-4">
