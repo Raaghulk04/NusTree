@@ -6,7 +6,7 @@ export default function homePage() {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-12 bg-zinc-50 dark:bg-zinc-950">
       {/* Left Column: Focused Login Form Area */}
-      <div className="flex flex-col justify-between p-6 md:p-10 lg:col-span-5 xl:col-span-4 bg-white dark:bg-zinc-900 shadow-xl lg:shadow-none z-10">
+      <div className="flex flex-col justify-between p-6 md:p-10 lg:col-span-5 xl:col-span-4 bg-white dark:bg-black/70 dark:backdrop-blur-md border-t border-transparent dark:border-white/10 shadow-xl lg:shadow-none z-10">
         {/* Top Header: Logo + Brand Name */}
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100 p-1">
