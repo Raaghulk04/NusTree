@@ -20,19 +20,25 @@ export function Navbar() {
               NusTree
             </span>
           </Link>
-          
+
           <div className="hidden md:flex items-center gap-4">
-            <Link 
-              href="/planner" 
+            <Link
+              href="/planner"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
             >
               Planner
             </Link>
-            <Link 
-              href="/eligibleMods" 
+            <Link
+              href="/eligibleMods"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
             >
               Eligible Mods
+            </Link>
+            <Link
+              href="/settings"
+              className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
+            >
+              Settings
             </Link>
           </div>
         </div>
