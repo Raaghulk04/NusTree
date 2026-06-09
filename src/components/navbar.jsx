@@ -1,10 +1,23 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { LogOut } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
+  const router = useRouter();
+
+  const handleLogOut = async () => {
+    const result = await authClient.signOut();
+    if (result.error) {
+      console.log(result.error);
+    }
+    router.push("/");
+  };
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="w-full flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100 p-1">
@@ -43,8 +56,10 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Add user profile or logout here if needed */}
+        <div className="ml-auto">
+          <button onClick={handleLogOut}>
+            <LogOut />
+          </button>
         </div>
       </div>
     </nav>
