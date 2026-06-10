@@ -72,6 +72,7 @@ const createDirectDependencyEdge = (source, target, edgeType) => {
 };
 
 export default function Graph({
+  mods,
   allMods,
   takenMods,
   completedMods,
@@ -226,6 +227,7 @@ export default function Graph({
 
       {mode === "Simple" && (
         <Simple
+          mods={mods}
           completedMods={graphCompletedMods}
           compulsoryMods={graphCompulsoryMods}
           takenMods={graphTakenMods}

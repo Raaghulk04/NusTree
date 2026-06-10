@@ -6,6 +6,7 @@ import { computeNodePositions } from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
 
 export default function Simple({
+  mods,
   completedMods,
   compulsoryMods,
   takenMods,
@@ -13,11 +14,18 @@ export default function Simple({
   isSideBarOpen,
   setIsSideBarOpen,
 }) {
+  // completedMods is an Object with id, moduleId, planYear and planSemester
+  // compulsoryMods is just the id
+
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
+
+  completedMods.forEach((m) => console.log("completedMods", m));
+  compulsoryMods.forEach((m) => console.log(m));
+  console.log(allMods);
 
   useEffect(() => {
     async function calculateNodes() {
@@ -48,7 +56,13 @@ export default function Simple({
         }
       }
       const finalNodes = [...uniques.values()];
-      const positions = computeNodePositions(finalNodes);
+      console.log("finalNodes", finalNodes);
+      const nodeForPositions = mods.filter(
+        (m) => finalNodes.find((fm) => fm.id == m.id) != undefined,
+      );
+      const positions = computeNodePositions(nodeForPositions);
+
+      console.log("positions", positions);
       // filter out takenIds (eligible mods) depending on whether the button is
       // toggled or not
 
@@ -58,9 +72,17 @@ export default function Simple({
 
       availableNodes = showEligible ? finalNodes : availableNodes;
 
+      console.log(availableNodes);
+
+      availableNodes.forEach((m) => {
+        if (!nodeForPositions.find((nm) => nm.id == m.id)) {
+          console.log(m.id);
+        }
+      });
+      console.log("nodeForPositions", nodeForPositions);
       const flowNodes = availableNodes.map((mod, index) => {
-        const xPosition = positions[mod.id]?.x;
-        const yPosition = positions[mod.id]?.y;
+        const xPosition = positions[mod.id]?.x ?? 0;
+        const yPosition = positions[mod.id]?.y ?? 0;
 
         return {
           id: mod.id,

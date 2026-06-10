@@ -13,7 +13,6 @@ export function SidebarSearch({
   let safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
 
   //safeOptions = safeOptions.map((mod) => mod.id);
-  console.log("options", safeOptions);
   const filteredOptions = safeOptions
     .filter((opt) => {
       if (!opt) return false;
