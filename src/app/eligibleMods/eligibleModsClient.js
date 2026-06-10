@@ -8,6 +8,8 @@ export default function EligibleModClient({
   userMods,
   compulsoryMods,
 }) {
+  console.log("mods in eligibleModClient", mods);
+  console.log("degree", degree);
   const completedMods = userMods;
   const completedModIds = completedMods.map((mod) => mod.moduleId);
 
@@ -30,10 +32,16 @@ export default function EligibleModClient({
 
   let degreeMods = mods.filter((module) => inDegree(module.department));
 
+  const testMod = mods.filter(
+    (module) => module.department == "Information Systems and Analytics",
+  );
+  console.log("testMod", testMod);
+
   return (
     <div className="h-full w-full">
       <ReactFlowProvider>
         <Graph
+          mods={mods}
           allMods={degreeMods}
           takenMods={eligibleMods}
           completedMods={userMods}

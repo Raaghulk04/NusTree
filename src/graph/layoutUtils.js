@@ -1,3 +1,6 @@
+// max number of nodes in a single row so that users don't have to scroll sideways too much
+const MAX_NODES_ROW = 6;
+
 // Function to match module codes to a year level row baseline
 export const getYLevel = (moduleId) => {
   const num = parseInt(moduleId.match(/\d+/)?.[0]);
@@ -21,10 +24,13 @@ export const extractMods = (tree) => {
  * Computes topological positions for all modules
  */
 export const computeNodePositions = (allMods) => {
+  console.log("in layoutUtils");
+  console.log(allMods);
   // 1. Group modules by their primary year level (1000, 2000, etc.)
   const byLevel = {};
   allMods.forEach((m) => {
     const level = getYLevel(m.id);
+    console.log(level);
     if (!byLevel[level]) byLevel[level] = [];
     byLevel[level].push(m);
   });
