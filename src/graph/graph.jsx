@@ -7,6 +7,7 @@ import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import Sidebar from "@/components/sideBar";
+import ModuleNode from "@/components/ModuleNode";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -83,6 +84,8 @@ export default function Graph({
   const [mode, setMode] = useState(initialMode);
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
 
+  const nodeType = useMemo(() => ({ moduleNodeType: ModuleNode }), []);
+
   const graphAllMods = useMemo(
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
@@ -141,6 +144,7 @@ export default function Graph({
       return {
         id: module.id,
         position,
+        type: "moduleNodeType",
         data: { label: module.id },
         style: {
           color: "#000000",
@@ -216,6 +220,7 @@ export default function Graph({
             nodes={nodes}
             edges={edges}
             onNodeClick={handleNodeClick}
+            nodeTypes={nodeType}
             colorMode="dark"
             fitView
           >
