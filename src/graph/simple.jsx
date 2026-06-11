@@ -23,10 +23,6 @@ export default function Simple({
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
 
-  completedMods.forEach((m) => console.log("completedMods", m));
-  compulsoryMods.forEach((m) => console.log(m));
-  console.log(allMods);
-
   useEffect(() => {
     async function calculateNodes() {
       setIsLoading(true);
@@ -61,8 +57,6 @@ export default function Simple({
         (m) => finalNodes.find((fm) => fm.id == m.id) != undefined,
       );
       const positions = computeNodePositions(nodeForPositions);
-
-      console.log("positions", positions);
       // filter out takenIds (eligible mods) depending on whether the button is
       // toggled or not
 
@@ -71,8 +65,6 @@ export default function Simple({
       );
 
       availableNodes = showEligible ? finalNodes : availableNodes;
-
-      console.log(availableNodes);
 
       availableNodes.forEach((m) => {
         if (!nodeForPositions.find((nm) => nm.id == m.id)) {
