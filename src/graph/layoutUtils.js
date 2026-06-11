@@ -1,5 +1,8 @@
-// max number of nodes in a single row so that users don't have to scroll sideways too much
-const MAX_NODES_ROW = 6;
+const MAX_NODES_ROW = 7;
+const NODE_HEIGHT = 40;
+const ROW_SPACING = 120;
+const COL_SPACING = 250;
+const BAND_GAP = 100;
 
 // Function to match module codes to a year level row baseline
 export const getYLevel = (moduleId) => {
@@ -20,68 +23,89 @@ export const extractMods = (tree) => {
   return [];
 };
 
+// Depth-first search to figure how deep in the DAG a module is
+const getDependencyDepth = (currentLevelMods, modId, visited = new Set()) => {
+  if (visited.has(modId)) return 0;
+  visited.add(modId);
+
+  const modObj = currentLevelMods.find((m) => m.id === modId);
+  if (!modObj || !modObj.prereqTree) return 0;
+
+  const prereqs = extractMods(modObj.prereqTree);
+  const sameLevelPrereqs = prereqs.filter((p) =>
+    currentLevelMods.find((m) => m.id === p),
+  );
+
+  if (sameLevelPrereqs.length === 0) return 0;
+
+  return (
+    1 +
+    Math.max(
+      ...sameLevelPrereqs.map((p) =>
+        getDependencyDepth(currentLevelMods, p, visited),
+      ),
+    )
+  );
+};
+
 /**
  * Computes topological positions for all modules
  */
 export const computeNodePositions = (allMods) => {
-  console.log("in layoutUtils");
-  console.log(allMods);
   // 1. Group modules by their primary year level (1000, 2000, etc.)
   const byLevel = {};
   allMods.forEach((m) => {
     const level = getYLevel(m.id);
-    console.log(level);
     if (!byLevel[level]) byLevel[level] = [];
     byLevel[level].push(m);
   });
 
+  // 2. Sort each level by dependency depth and assign grid (x, y) positions
   const subLevelMapping = {};
-
-  // 2. Track depth positions for modules within the same level
   Object.keys(byLevel).forEach((level) => {
     const currentLevelMods = byLevel[level];
-    const levelModIds = new Set(currentLevelMods.map((m) => m.id));
 
-    const getDependencyDepth = (modId, visited = new Set()) => {
-      if (visited.has(modId)) return 0;
-      visited.add(modId);
-
-      const modObj = currentLevelMods.find((m) => m.id === modId);
-      if (!modObj || !modObj.prereqTree) return 0;
-
-      const prereqs = extractMods(modObj.prereqTree);
-      const sameLevelPrereqs = prereqs.filter((p) => levelModIds.has(p));
-
-      if (sameLevelPrereqs.length === 0) return 0;
-
-      return (
-        1 +
-        Math.max(...sameLevelPrereqs.map((p) => getDependencyDepth(p, visited)))
-      );
-    };
-
-    currentLevelMods.forEach((m) => {
-      subLevelMapping[m.id] = getDependencyDepth(m.id);
-    });
+    currentLevelMods
+      .sort(
+        (a, b) =>
+          getDependencyDepth(currentLevelMods, a.id) -
+          getDependencyDepth(currentLevelMods, b.id),
+      )
+      .forEach((mod, index) => {
+        subLevelMapping[mod.id] = {
+          x: index % MAX_NODES_ROW,
+          y: Math.floor(index / MAX_NODES_ROW),
+        };
+      });
   });
 
-  // 3. Map positions out using grid layout parameters
-  const layoutPositions = {};
+  // 3. Compute each level's actual pixel height based on row count + node height
+  const levelHeights = {};
+  Object.keys(byLevel).forEach((level) => {
+    const mods = byLevel[level];
+    const rowCount = Math.ceil(mods.length / MAX_NODES_ROW);
+    levelHeights[level] = rowCount * ROW_SPACING + NODE_HEIGHT;
+  });
 
+  // 4. Compute cumulative Y start position for each level
+  const levelStartY = {};
+  let cumulative = 0;
+  Object.keys(byLevel)
+    .sort((a, b) => Number(a) - Number(b))
+    .forEach((level) => {
+      levelStartY[level] = cumulative;
+      cumulative += levelHeights[level] + BAND_GAP;
+    });
+
+  // 5. Map final pixel positions
+  const layoutPositions = {};
   allMods.forEach((module) => {
     const level = getYLevel(module.id);
-    const levelMods = byLevel[level];
-    const subLevelRow = subLevelMapping[module.id] || 0;
-
-    const sameRowMods = levelMods.filter(
-      (m) => subLevelMapping[m.id] === subLevelRow,
-    );
-    const posInRow = sameRowMods.findIndex((m) => m.id === module.id);
-    const totalInRow = sameRowMods.length;
+    const subLevelRow = subLevelMapping[module.id] || { x: 0, y: 0 };
 
     layoutPositions[module.id] = {
-      x: posInRow * 180 - totalInRow * 90,
-      y: level * 350 + subLevelRow * 90,
+      x: subLevelRow.x * COL_SPACING,
+      y: levelStartY[level] + subLevelRow.y * ROW_SPACING,
     };
   });
 
