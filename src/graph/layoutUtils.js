@@ -1,7 +1,7 @@
 const MAX_NODES_ROW = 7;
 const NODE_HEIGHT = 40;
-const ROW_SPACING = 120;
-const COL_SPACING = 250;
+const ROW_SPACING = 140;
+const COL_SPACING = 270;
 const BAND_GAP = 100;
 
 // Function to match module codes to a year level row baseline
@@ -72,9 +72,14 @@ export const computeNodePositions = (allMods) => {
           getDependencyDepth(currentLevelMods, b.id),
       )
       .forEach((mod, index) => {
+        const row = Math.floor(index / MAX_NODES_ROW);
+        const isOddRow = row % 2 === 1;
+
         subLevelMapping[mod.id] = {
-          x: index % MAX_NODES_ROW,
-          y: Math.floor(index / MAX_NODES_ROW),
+          x:
+            (index % MAX_NODES_ROW) * COL_SPACING +
+            (isOddRow ? COL_SPACING / 2 : 0),
+          y: row,
         };
       });
   });
@@ -104,7 +109,7 @@ export const computeNodePositions = (allMods) => {
     const subLevelRow = subLevelMapping[module.id] || { x: 0, y: 0 };
 
     layoutPositions[module.id] = {
-      x: subLevelRow.x * COL_SPACING,
+      x: subLevelRow.x,
       y: levelStartY[level] + subLevelRow.y * ROW_SPACING,
     };
   });
