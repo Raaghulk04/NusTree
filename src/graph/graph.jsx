@@ -82,7 +82,7 @@ export default function Graph({
 }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [mode, setMode] = useState(initialMode);
-  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
+  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
   const nodeType = useMemo(() => ({ moduleNodeType: ModuleNode }), []);
 
