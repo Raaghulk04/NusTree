@@ -13,10 +13,6 @@ export default function RootLayout({ children }) {
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
           {/* Grid Pattern */}
           <div className="absolute inset-0 bg-grid-pattern bg-mask-radial opacity-50" />
-          
-          {/* Glowing Orbs */}
-          <div className="glow-orb top-[-10%] left-[-10%] h-[500px] w-[500px] bg-emerald-500/10" />
-          <div className="glow-orb bottom-[-10%] right-[-10%] h-[500px] w-[500px] bg-blue-500/10" />
         </div>
 
         {/* Page Content */}
