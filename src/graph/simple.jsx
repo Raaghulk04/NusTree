@@ -4,6 +4,35 @@ import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import { computeNodePositions } from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
+import ModuleNode from "@/components/ModuleNode";
+
+// 1. Unified Node Colors matched exactly with Graph.jsx
+const NODE_COLORS = {
+  completed: "#86efac",
+  taken: "#93c5fd",
+  default: "#e5e7eb",
+  completedBorder: "#22c55e",
+  connectedBorder: "#3b82f6", // used for taken mods border
+  defaultBorder: "#d1d5db",
+};
+
+// 2. Extracted pure, stationary styling utilities
+const getNodeBackground = (code) => {
+  if (code === 2) return NODE_COLORS.completed; // Completed
+  if (code === 1) return NODE_COLORS.taken; // Taken
+  return NODE_COLORS.default; // Default / Compulsory
+};
+
+const getNodeBorder = (code) => {
+  if (code === 2) return `2px solid ${NODE_COLORS.completedBorder}`;
+  if (code === 1) return `2px solid ${NODE_COLORS.connectedBorder}`;
+  return `1px solid ${NODE_COLORS.defaultBorder}`;
+};
+
+// Static registration of custom node components outside the component block
+const nodeTypes = {
+  moduleNodeType: ModuleNode,
+};
 
 export default function Simple({
   mods,
@@ -14,9 +43,6 @@ export default function Simple({
   isSideBarOpen,
   setIsSideBarOpen,
 }) {
-  // completedMods is an Object with id, moduleId, planYear and planSemester
-  // compulsoryMods is just the id
-
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,13 +78,11 @@ export default function Simple({
         }
       }
       const finalNodes = [...uniques.values()];
-      console.log("finalNodes", finalNodes);
+
       const nodeForPositions = mods.filter(
         (m) => finalNodes.find((fm) => fm.id == m.id) != undefined,
       );
       const positions = computeNodePositions(nodeForPositions);
-      // filter out takenIds (eligible mods) depending on whether the button is
-      // toggled or not
 
       let availableNodes = finalNodes.filter(
         (mods) => !takenIds.some((m) => m.id === mods.id && mods.code === 1),
@@ -66,32 +90,23 @@ export default function Simple({
 
       availableNodes = showEligible ? finalNodes : availableNodes;
 
-      availableNodes.forEach((m) => {
-        if (!nodeForPositions.find((nm) => nm.id == m.id)) {
-          console.log(m.id);
-        }
-      });
-      console.log("nodeForPositions", nodeForPositions);
       const flowNodes = availableNodes.map((mod, index) => {
         const xPosition = positions[mod.id]?.x ?? 0;
         const yPosition = positions[mod.id]?.y ?? 0;
 
         return {
           id: mod.id,
-          position: { x: xPosition, y: yPosition }, // React Flow expects this object
-          data: { label: mod.id }, // The text that shows inside the box
-          // Optional: Match style to your header layout legend
+          type: "moduleNodeType",
+          position: { x: xPosition, y: yPosition },
+          data: { label: mod.id },
+          // 3. Updated styles to align with Graph.jsx specs (sans selection states)
           style: {
-            background:
-              mod.code === 2
-                ? "#bbf7d0"
-                : mod.code === 1
-                  ? "#bfdbfe"
-                  : "#ffffff",
             color: "#000000",
-            border: "1px solid #374151",
-            borderRadius: "6px",
-            padding: "10px",
+            backgroundColor: getNodeBackground(mod.code),
+            borderRadius: "8px",
+            fontSize: "11px",
+            border: getNodeBorder(mod.code),
+            cursor: "pointer",
           },
         };
       });
@@ -112,7 +127,7 @@ export default function Simple({
 
       {/* Graph Canvas Container */}
       <div className="flex-1 relative h-full">
-        <ReactFlow nodes={nodes} colorMode="dark" fitView>
+        <ReactFlow nodeTypes={nodeTypes} nodes={nodes} colorMode="dark" fitView>
           <Background />
           <Controls />
         </ReactFlow>
