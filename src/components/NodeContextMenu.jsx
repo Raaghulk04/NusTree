@@ -30,23 +30,30 @@ export default function NodeContextMenu({ x, y, data, onClose }) {
         top: y,
         left: x,
         zIndex: 1000,
-        background: "#0f172a",
-        border: "1px solid #334155",
-        borderRadius: "8px",
-        padding: "12px",
-        minWidth: "200px",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-        color: "#f1f5f9",
+        minWidth: "220px",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.4)", // Keeps the beautiful floating popover shadow
       }}
     >
-      <Card size="sm" className="mx-auto w-full max-w-sm">
+      {/* Removed border-none from here because shadcn's Card uses a default border. 
+        Instead, we control the custom background styling natively via Tailwind.
+      */}
+      <Card
+        size="sm"
+        className="border-none bg-[#151e2d] text-[#f1f5f9] mx-auto w-full max-w-sm"
+      >
         <CardHeader>
           <CardTitle>Course Id</CardTitle>
-          <CardDescription>Course title</CardDescription>
+          <CardDescription className="text-gray-400">
+            Course title
+          </CardDescription>
         </CardHeader>
-        <CardContent>Course Description</CardContent>
+        <CardContent className="text-sm">Course Description</CardContent>
         <CardFooter>
-          <Button variant="outline" size="sm" className="w-full">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full border-gray-700 text-black dark:text-white"
+          >
             Mark as completed
           </Button>
         </CardFooter>
