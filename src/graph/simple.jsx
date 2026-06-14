@@ -49,6 +49,8 @@ export default function Simple({
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
 
+  console.log("all mods in simple", mods);
+
   useEffect(() => {
     async function calculateNodes() {
       setIsLoading(true);
@@ -89,16 +91,20 @@ export default function Simple({
       );
 
       availableNodes = showEligible ? finalNodes : availableNodes;
-
+      console.log("flowNode", availableNodes);
       const flowNodes = availableNodes.map((mod, index) => {
         const xPosition = positions[mod.id]?.x ?? 0;
         const yPosition = positions[mod.id]?.y ?? 0;
+
+        const modObj = mods.filter((m) => m.id === mod.id)[0];
+        const title = modObj.title;
+        const describe = modObj.description;
 
         return {
           id: mod.id,
           type: "moduleNodeType",
           position: { x: xPosition, y: yPosition },
-          data: { label: mod.id },
+          data: { label: mod.id, title: title, description: describe },
           // 3. Updated styles to align with Graph.jsx specs (sans selection states)
           style: {
             color: "#000000",

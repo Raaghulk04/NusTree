@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 export default function NodeContextMenu({ x, y, data, onClose }) {
   const menuRef = useRef(null);
 
+  console.log("data", data);
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -37,17 +38,14 @@ export default function NodeContextMenu({ x, y, data, onClose }) {
       {/* Removed border-none from here because shadcn's Card uses a default border. 
         Instead, we control the custom background styling natively via Tailwind.
       */}
-      <Card
-        size="sm"
-        className="border-none bg-[#151e2d] text-[#f1f5f9] mx-auto w-full max-w-sm"
-      >
+      <Card className="border-none bg-[#151e2d] text-[#f1f5f9] mx-auto w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Course Id</CardTitle>
+          <CardTitle>{data.label}</CardTitle>
           <CardDescription className="text-gray-400">
-            Course title
+            {data.title}
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-sm">Course Description</CardContent>
+        <CardContent className="text-sm">{data.description}</CardContent>
         <CardFooter>
           <Button
             variant="outline"
