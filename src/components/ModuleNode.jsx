@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import NodeContextMenu from "./NodeContextMenu";
 import { Handle, Position } from "@xyflow/react";
 
@@ -6,10 +6,23 @@ import { Handle, Position } from "@xyflow/react";
 export default function ModuleNode({ data }) {
   const [menu, setMenu] = useState(null);
 
+  useEffect(() => {
+    console.log("ModuleNode mounted");
+    return () => console.log("ModuleNode unmounted");
+  }, []);
+
   const onContextMenu = useCallback((e) => {
     e.preventDefault();
-    setMenu({ x: e.ClientX, y: e.ClientY });
-    console.log("right clicked");
+    e.stopPropagation();
+    
+    setMenu((prev) =>
+      prev
+        ? null
+        : {
+            x: e.clientX,
+            y: e.clientY,
+          },
+    );
   }, []);
 
   const closeMenu = useCallback((e) => setMenu(null), []);
@@ -26,6 +39,7 @@ export default function ModuleNode({ data }) {
         color: "#f1f5f9",
         minWidth: 120,
         cursor: "context-menu",
+        zIndex: menu ? 10000 : 1, // Ensure node is on top when menu is open
       }}
     >
       <Handle type="target" position={Position.Top} />
