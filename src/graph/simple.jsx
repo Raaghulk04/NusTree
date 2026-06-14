@@ -1,6 +1,6 @@
 import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import { computeNodePositions } from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
@@ -48,13 +48,20 @@ export default function Simple({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
+  const [localCompletedMods, setLocalCompletedMods] = useState(completedMods);
 
-  console.log("all mods in simple", mods);
+  useEffect(() => {
+    setLocalCompletedMods(completedMods);
+  }, [completedMods]);
+
+  const handleModuleCompleted = useCallback((moduleId) => {
+    setLocalCompletedMods((prev) => [...prev, { moduleId }]);
+  }, []);
 
   useEffect(() => {
     async function calculateNodes() {
       setIsLoading(true);
-      const completedIds = completedMods.map((module) => ({
+      const completedIds = localCompletedMods.map((module) => ({
         code: 2,
         id: module.moduleId,
       }));
@@ -104,7 +111,12 @@ export default function Simple({
           id: mod.id,
           type: "moduleNodeType",
           position: { x: xPosition, y: yPosition },
-          data: { label: mod.id, title: title, description: describe },
+          data: {
+            label: mod.id,
+            title: title,
+            description: describe,
+            onCompleted: (moduleId) => handleModuleCompleted(moduleId),
+          },
           // 3. Updated styles to align with Graph.jsx specs (sans selection states)
           style: {
             color: "#000000",
@@ -121,7 +133,7 @@ export default function Simple({
       setIsLoading(false);
     }
     calculateNodes();
-  }, [completedMods, compulsoryMods, takenMods, showEligible]);
+  }, [localCompletedMods, compulsoryMods, takenMods, showEligible]);
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">

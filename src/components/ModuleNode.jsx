@@ -1,21 +1,62 @@
-import { useState, useCallback } from "react";
+// ModuleNode.jsx
+import { useState, useCallback, useRef } from "react";
 import NodeContextMenu from "./NodeContextMenu";
-import { Handle, Position } from "@xyflow/react";
+import {
+  Handle,
+  Position,
+  useReactFlow,
+  useOnViewportChange,
+} from "@xyflow/react";
 
-// src/components/ModuleNode.jsx
-export default function ModuleNode({ data }) {
-  const [menu, setMenu] = useState(null);
+export default function ModuleNode({ id, data }) {
+  const [menuPos, setMenuPos] = useState(null);
+  const nodeRef = useRef(null);
+  const { setNodes } = useReactFlow();
 
-  const onContextMenu = useCallback((e) => {
-    e.preventDefault();
-    setMenu({ x: e.ClientX, y: e.ClientY });
-    console.log("right clicked");
-  }, []);
+  // Close menu whenever user pans or zooms
+  useOnViewportChange({
+    onChange: useCallback(() => {
+      if (menuPos) closeMenu();
+    }, [menuPos]),
+  });
 
-  const closeMenu = useCallback((e) => setMenu(null), []);
+  const openMenu = useCallback(
+    (rect) => {
+      setMenuPos({ x: rect.left, y: rect.bottom + 8 });
+      setNodes((nodes) =>
+        nodes.map((n) =>
+          n.id === id ? { ...n, zIndex: 9999 } : { ...n, zIndex: 0 },
+        ),
+      );
+    },
+    [id, setNodes],
+  );
+
+  const closeMenu = useCallback(() => {
+    setMenuPos(null);
+    setNodes((nodes) =>
+      nodes.map((n) => (n.id === id ? { ...n, zIndex: 0 } : n)),
+    );
+  }, [id, setNodes]);
+
+  const onContextMenu = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = nodeRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      if (menuPos) {
+        closeMenu();
+      } else {
+        openMenu(rect);
+      }
+    },
+    [menuPos, openMenu, closeMenu],
+  );
 
   return (
     <div
+      ref={nodeRef}
       className={`mod-node ${data.status}`}
       onContextMenu={onContextMenu}
       style={{
@@ -31,12 +72,14 @@ export default function ModuleNode({ data }) {
       <Handle type="target" position={Position.Top} />
       <div style={{ fontWeight: 600 }}>{data.label}</div>
       <Handle type="source" position={Position.Bottom} />
-      {menu && (
+
+      {menuPos && (
         <NodeContextMenu
-          x={menu.x}
-          y={menu.y}
+          x={menuPos.x}
+          y={menuPos.y}
           data={data}
           onClose={closeMenu}
+          onMark={() => data.onCompleted(data.label)}
         />
       )}
     </div>

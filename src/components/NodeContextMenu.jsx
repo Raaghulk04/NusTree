@@ -1,61 +1,86 @@
+// NodeContextMenu.jsx
 import { useEffect, useRef } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { createPortal } from "react-dom";
+import addPlannedModule from "@/components/add-planned-module";
 
-export default function NodeContextMenu({ x, y, data, onClose }) {
+export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
   const menuRef = useRef(null);
 
-  console.log("data", data);
+  const handleMarked = async () => {
+    console.log("clicked");
+    try {
+      await addPlannedModule(data.label, 1, 1);
+      onMark();
+    } catch (error) {
+      console.log(error);
+    }
+
+    console.log("click done");
+  };
+
   useEffect(() => {
-    const handler = (e) => {
+    const handleClickOutside = (e) => {
+      if (e.button === 2) return;
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         onClose();
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mousedown", handleClickOutside, true);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside, true);
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div
       ref={menuRef}
+      onContextMenu={(e) => e.stopPropagation()}
+      className="nodrag nopan"
       style={{
         position: "fixed",
         top: y,
         left: x,
-        zIndex: 1000,
-        minWidth: "220px",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.4)", // Keeps the beautiful floating popover shadow
+        zIndex: 99999,
+        width: "140px",
+        background: "#151e2d",
+        border: "1px solid #334155",
+        borderRadius: "6px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+        padding: "6px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
       }}
     >
-      {/* Removed border-none from here because shadcn's Card uses a default border. 
-        Instead, we control the custom background styling natively via Tailwind.
-      */}
-      <Card className="border-none bg-[#151e2d] text-[#f1f5f9] mx-auto w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>{data.label}</CardTitle>
-          <CardDescription className="text-gray-400">
-            {data.title}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm">{data.description}</CardContent>
-        <CardFooter>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full border-gray-700 text-black dark:text-white"
-          >
-            Mark as completed
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+      <div
+        style={{
+          fontSize: "10px",
+          fontWeight: 700,
+          color: "#f1f5f9",
+          lineHeight: 1.2,
+        }}
+      >
+        {data.label}
+      </div>
+      <div style={{ fontSize: "9px", color: "#9ca3af", lineHeight: 1.2 }}>
+        {data.title}
+      </div>
+      <button
+        onClick={handleMarked}
+        style={{
+          marginTop: "2px",
+          width: "100%",
+          height: "22px",
+          fontSize: "9px",
+          background: "transparent",
+          border: "1px solid #4b5563",
+          borderRadius: "4px",
+          color: "#f1f5f9",
+          cursor: "pointer",
+        }}
+      >
+        Mark as completed
+      </button>
+    </div>,
+    document.body,
   );
 }
