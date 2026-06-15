@@ -7,6 +7,7 @@ import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
+import { setErrorMap } from "better-auth";
 
 const NODE_COLORS = {
   completed: "#86efac",
@@ -67,6 +68,7 @@ export default function Simple({
   allMods,
   isSideBarOpen,
   setIsSideBarOpen,
+  prereqMap,
 }) {
   const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
   const [isLoading, setIsLoading] = useState(false);
@@ -74,6 +76,7 @@ export default function Simple({
   const [showEligible, setShowEligible] = useState(false);
   const [localCompletedMods, setLocalCompletedMods] = useState(completedMods);
 
+  console.log(prereqMap);
   useEffect(() => {
     setLocalCompletedMods(completedMods);
   }, [completedMods]);
@@ -85,6 +88,57 @@ export default function Simple({
   const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
   const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
+  const { ghostNodes, ghostEdges } = useMemo(() => {
+    if (!selectedNode) return { ghostNodes: [], ghostEdges: [] };
+    console.log(selectedNode);
+    const allPrereqs = prereqMap.get(selectedNode) ?? new Set();
+    const inGraphNodes = new Set(baseNodes.map((m) => m.id));
+
+    const ghostNodes = [];
+    const ghostEdges = [];
+
+    console.log("allPrereqs", allPrereqs);
+    allPrereqs.forEach((prereq) => {
+      if (inGraphNodes.has(prereq)) return;
+      const modObj = modMap.get(prereq);
+      if (!modObj) return;
+
+      console.log("prereq in forEach", prereq);
+
+      ghostNodes.push({
+        id: prereq,
+        type: "moduleNodeType",
+        position: { x: 0, y: 0 }, // ReactFlow will place it, you can compute proper position too
+        data: {
+          label: prereq,
+          title: modObj.title,
+          description: modObj.description,
+          isGhost: true, // flag for styling
+        },
+        style: {
+          color: "#000000",
+          backgroundColor: "#fef08a", // yellow — "you still need this"
+          borderRadius: "8px",
+          fontSize: "11px",
+          border: "2px dashed #ca8a04",
+          opacity: 0.85,
+          cursor: "pointer",
+        },
+      });
+      ghostEdges.push({
+        id: `ghost-${prereq}-${selectedNode}`,
+        source: prereq,
+        target: selectedNode,
+        label: "MISSING",
+        style: { stroke: "#ca8a04", strokeWidth: 2, strokeDasharray: "5,5" },
+        labelStyle: { fontSize: "10px", fill: "#ca8a04" },
+      });
+    });
+
+    return { ghostNodes, ghostEdges };
+  }, [selectedNode, baseNodes, prereqMap, modMap]);
+
+  console.log("ghostNodes", ghostNodes);
   // ONLY re-runs when actual data changes, not on selection
   useEffect(() => {
     async function calculateNodes() {
@@ -155,7 +209,7 @@ export default function Simple({
 
   // Selection styling is pure derivation — no async, no rebuild
   const nodes = useMemo(() => {
-    return baseNodes.map((node) => ({
+    const styled = baseNodes.map((node) => ({
       ...node,
       style: {
         color: "#000000",
@@ -167,6 +221,8 @@ export default function Simple({
         cursor: "pointer",
       },
     }));
+
+    return [...styled, ...ghostNodes];
   }, [baseNodes, selectedNode]); // selectedNode changes → only this runs, not the useEffect
 
   const edges = useMemo(() => {
@@ -174,26 +230,28 @@ export default function Simple({
     const result = [];
     const edgeSet = new Set();
 
-    mods.forEach((module) => {
-      if (!module.prereqTree) return;
-      const prereqs = [...new Set(extractMods(module.prereqTree))];
-      const isSelected = module.id === selectedNode;
+    mods.forEach((mod) => {
+      if (!mod.prereqTree) return;
+      const prereqs = [...new Set(extractMods(mod.prereqTree))];
+      const isSelected = mod.id === selectedNode;
       const isPrereqOfSelected = prereqs.includes(selectedNode);
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
-        buildTree(module.prereqTree, module.id, modIds, result, edgeSet);
+        buildTree(mod.prereqTree, mod.id, modIds, result, edgeSet);
       } else {
-        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
-        const edgeId = `${selectedNode}-${module.id}`;
+        const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${mod.id}`;
         if (!edgeSet.has(edgeId)) {
           edgeSet.add(edgeId);
           result.push(
-            createDirectDependencyEdge(selectedNode, module.id, edgeType),
+            createDirectDependencyEdge(selectedNode, mod.id, edgeType),
           );
         }
       }
     });
+
+    console.log("result", result);
     return result;
   }, [selectedNode, modIds, mods]); // removed nodes dependency
 

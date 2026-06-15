@@ -100,27 +100,27 @@ export default function Basic({
     const edgeIds = new Set();
 
     finalEntries.forEach((node) => {
-      const module = allMods.find((m) => m.id === node.id);
-      if (!module?.prereqTree) return;
+      const mod = allMods.find((m) => m.id === node.id);
+      if (!mod?.prereqTree) return;
 
-      const prereqs = [...new Set(extractMods(module.prereqTree))];
-      const isSelected = selectedNode === module.id;
+      const prereqs = [...new Set(extractMods(mod.prereqTree))];
+      const isSelected = selectedNode === mod.id;
       const isPrereqOfSelected = prereqs.includes(selectedNode);
 
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
-        buildTree(module.prereqTree, module.id, allModIds, result, edgeIds);
+        buildTree(mod.prereqTree, mod.id, allModIds, result, edgeIds);
       } else {
-        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
-        const edgeId = `${selectedNode}-${module.id}`;
+        const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${mod.id}`;
 
         if (!edgeIds.has(edgeId)) {
           edgeIds.add(edgeId);
           result.push({
             id: edgeId,
             source: selectedNode,
-            target: module.id,
+            target: mod.id,
             label: edgeType === "or" ? "OR" : "AND",
             style: {
               stroke: edgeType === "or" ? "#8b5cf6" : "#3b82f6",
