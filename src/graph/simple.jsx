@@ -68,7 +68,7 @@ export default function Simple({
   isSideBarOpen,
   setIsSideBarOpen,
 }) {
-  const [nodes, setNodes] = useState([]);
+  const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
@@ -82,36 +82,24 @@ export default function Simple({
     setLocalCompletedMods((prev) => [...prev, { moduleId }]);
   }, []);
 
-  const takenIds = useMemo(
-    () => new Set((takenMods || []).map((m) => m.id)),
-    [takenMods],
-  );
-
-  const completedIds = useMemo(
-    () => new Set((completedMods || []).map((m) => m.id)),
-    [completedMods],
-  );
-
   const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
-
   const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
+  // ONLY re-runs when actual data changes, not on selection
   useEffect(() => {
     async function calculateNodes() {
       setIsLoading(true);
-      const completedIds = localCompletedMods.map((module) => ({
+      const completedIds = localCompletedMods.map((m) => ({
         code: 2,
-        id: module.moduleId,
+        id: m.moduleId,
       }));
-      const compulsoryIds =
-        compulsoryMods.map((module) => ({
-          code: 0,
-          id: module,
-        })) || [];
-      const takenIds = (takenMods || []).map((mod) => ({
-        code: 1,
-        id: mod.id,
+      const compulsoryIds = (compulsoryMods || []).map((m) => ({
+        code: 0,
+        id: m,
       }));
+      const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
+      const takenIdSet = new Set(takenIds.map((m) => m.id));
+
       const final = await isPrecluded({
         completedIds,
         takenIds,
@@ -119,70 +107,40 @@ export default function Simple({
       });
 
       const uniques = new Map();
-      for (let i = 0; i < final.length; i++) {
-        if (!uniques.has(final[i].id)) {
-          uniques.set(final[i].id, final[i]);
-        }
+      for (const node of final) {
+        if (!uniques.has(node.id)) uniques.set(node.id, node);
       }
       const finalNodes = [...uniques.values()];
 
-      const nodeForPositions = mods.filter(
-        (m) => finalNodes.find((fm) => fm.id == m.id) != undefined,
-      );
+      const nodeForPositions = finalNodes
+        .map((n) => modMap.get(n.id))
+        .filter(Boolean);
       const positions = computeNodePositions(nodeForPositions);
 
-      let availableNodes = finalNodes.filter(
-        (mods) => !takenIds.some((m) => m.id === mods.id && mods.code === 1),
-      );
+      let availableNodes = showEligible
+        ? finalNodes
+        : finalNodes.filter((n) => !(takenIdSet.has(n.id) && n.code === 1));
 
-      availableNodes = showEligible ? finalNodes : availableNodes;
-      console.log("flowNode", availableNodes);
-      const flowNodes = availableNodes.map((mod, index) => {
-        const xPosition = positions[mod.id]?.x ?? 0;
-        const yPosition = positions[mod.id]?.y ?? 0;
-
-        const modObj = mods.filter((m) => m.id === mod.id)[0];
-        const title = modObj.title;
-        const describe = modObj.description;
-
-        const isSelected = mod.id === selectedNode;
-        // const isConnected = Boolean(
-        //   selectedNode &&
-        //   extractMods(module.prereqTree || null).includes(selectedNode),
-        // );
-
-        const isConnected = false;
-
-        console.log("isConnected", isConnected);
-        console.log("isSelected", isSelected);
+      const flowNodes = availableNodes.map((mod) => {
+        const modObj = modMap.get(mod.id); // O(1) instead of filter()
         return {
           id: mod.id,
           type: "moduleNodeType",
-          position: { x: xPosition, y: yPosition },
+          position: {
+            x: positions[mod.id]?.x ?? 0,
+            y: positions[mod.id]?.y ?? 0,
+          },
           data: {
             label: mod.id,
-            title: title,
-            description: describe,
+            title: modObj?.title,
+            description: modObj?.description,
             onCompleted: (moduleId) => handleModuleCompleted(moduleId),
-          },
-          // 3. Updated styles to align with Graph.jsx specs (sans selection states)
-          style: {
-            color: "#000000",
-            backgroundColor: getNodeBackground(
-              mod.code,
-              completedIds,
-              takenIds,
-            ),
-            borderRadius: "8px",
-            fontSize: "11px",
-            border: getNodeBorder(mod.code),
-            opacity: !isConnected && !isSelected && selectedNode ? 0.4 : 1,
-            cursor: "pointer",
+            code: mod.code, // store code so useMemo can use it for styling
           },
         };
       });
 
-      setNodes(flowNodes);
+      setBaseNodes(flowNodes);
       setIsLoading(false);
     }
     calculateNodes();
@@ -191,24 +149,36 @@ export default function Simple({
     compulsoryMods,
     takenMods,
     showEligible,
-    selectedNode,
+    modMap,
+    handleModuleCompleted,
   ]);
+
+  // Selection styling is pure derivation — no async, no rebuild
+  const nodes = useMemo(() => {
+    return baseNodes.map((node) => ({
+      ...node,
+      style: {
+        color: "#000000",
+        backgroundColor: getNodeBackground(node.data.code),
+        borderRadius: "8px",
+        fontSize: "11px",
+        border: getNodeBorder(node.data.code),
+        opacity: selectedNode && node.id !== selectedNode ? 0.4 : 1,
+        cursor: "pointer",
+      },
+    }));
+  }, [baseNodes, selectedNode]); // selectedNode changes → only this runs, not the useEffect
 
   const edges = useMemo(() => {
     if (!selectedNode) return [];
-
     const result = [];
     const edgeSet = new Set();
 
-    console.log(nodes);
     mods.forEach((module) => {
       if (!module.prereqTree) return;
-
-      console.log("inside for each", module.id);
       const prereqs = [...new Set(extractMods(module.prereqTree))];
       const isSelected = module.id === selectedNode;
       const isPrereqOfSelected = prereqs.includes(selectedNode);
-
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
@@ -216,7 +186,6 @@ export default function Simple({
       } else {
         const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
         const edgeId = `${selectedNode}-${module.id}`;
-
         if (!edgeSet.has(edgeId)) {
           edgeSet.add(edgeId);
           result.push(
@@ -225,16 +194,13 @@ export default function Simple({
         }
       }
     });
-    console.log(result);
     return result;
-  }, [selectedNode, nodes, modIds]);
+  }, [selectedNode, modIds, mods]); // removed nodes dependency
 
-  const handleNodeClick = (_, node) => {
-    console.log("node is clicked");
+  const handleNodeClick = useCallback((_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
-  };
+  }, []);
 
-  console.log("edges in simple mode", edges);
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
       <Sidebar
@@ -242,8 +208,6 @@ export default function Simple({
         setIsOpen={setIsSideBarOpen}
         mods={allMods}
       />
-
-      {/* Graph Canvas Container */}
       <div className="flex-1 relative h-full">
         <ReactFlow
           nodeTypes={nodeTypes}
@@ -256,8 +220,6 @@ export default function Simple({
           <Background />
           <Controls />
         </ReactFlow>
-
-        {/* Floating Action Button */}
         <div className="absolute bottom-6 right-6 z-50">
           <button
             onClick={() => setShowEligible(!showEligible)}
