@@ -117,7 +117,7 @@ export default function Graph({
     () => new Set(graphAllMods.map((m) => m.id)),
     [graphAllMods],
   );
-  console.log("Allmodsids", allModIds);
+
   const takenIds = useMemo(
     () => new Set((graphTakenMods || []).map((m) => m.id)),
     [graphTakenMods],

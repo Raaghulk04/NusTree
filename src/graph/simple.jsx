@@ -2,18 +2,24 @@ import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import isPrecluded from "@/graph/isPreclusion";
-import { computeNodePositions } from "./layoutUtils";
+import { computeNodePositions, extractMods } from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
+import buildTree from "@/graph/buildTree";
+import findEdgeType from "@/graph/findEdgeType";
 
-// 1. Unified Node Colors matched exactly with Graph.jsx
 const NODE_COLORS = {
   completed: "#86efac",
   taken: "#93c5fd",
   default: "#e5e7eb",
+  selectedBorder: "#f59e0b",
+  connectedBorder: "#3b82f6",
   completedBorder: "#22c55e",
-  connectedBorder: "#3b82f6", // used for taken mods border
   defaultBorder: "#d1d5db",
+};
+const EDGE_COLORS = {
+  and: "#3b82f6",
+  or: "#8b5cf6",
 };
 
 // 2. Extracted pure, stationary styling utilities
@@ -34,6 +40,25 @@ const nodeTypes = {
   moduleNodeType: ModuleNode,
 };
 
+const createDirectDependencyEdge = (source, target, edgeType) => {
+  const color = edgeType === "or" ? EDGE_COLORS.or : EDGE_COLORS.and;
+
+  return {
+    id: `${source}-${target}`,
+    source,
+    target,
+    label: edgeType === "or" ? "OR" : "AND",
+    style: {
+      stroke: color,
+      strokeWidth: 2,
+    },
+    labelStyle: {
+      fontSize: "10px",
+      fill: color,
+    },
+  };
+};
+
 export default function Simple({
   mods,
   completedMods,
@@ -44,7 +69,6 @@ export default function Simple({
   setIsSideBarOpen,
 }) {
   const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
@@ -57,6 +81,20 @@ export default function Simple({
   const handleModuleCompleted = useCallback((moduleId) => {
     setLocalCompletedMods((prev) => [...prev, { moduleId }]);
   }, []);
+
+  const takenIds = useMemo(
+    () => new Set((takenMods || []).map((m) => m.id)),
+    [takenMods],
+  );
+
+  const completedIds = useMemo(
+    () => new Set((completedMods || []).map((m) => m.id)),
+    [completedMods],
+  );
+
+  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
+
+  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
   useEffect(() => {
     async function calculateNodes() {
@@ -107,6 +145,16 @@ export default function Simple({
         const title = modObj.title;
         const describe = modObj.description;
 
+        const isSelected = mod.id === selectedNode;
+        // const isConnected = Boolean(
+        //   selectedNode &&
+        //   extractMods(module.prereqTree || null).includes(selectedNode),
+        // );
+
+        const isConnected = false;
+
+        console.log("isConnected", isConnected);
+        console.log("isSelected", isSelected);
         return {
           id: mod.id,
           type: "moduleNodeType",
@@ -120,10 +168,15 @@ export default function Simple({
           // 3. Updated styles to align with Graph.jsx specs (sans selection states)
           style: {
             color: "#000000",
-            backgroundColor: getNodeBackground(mod.code),
+            backgroundColor: getNodeBackground(
+              mod.code,
+              completedIds,
+              takenIds,
+            ),
             borderRadius: "8px",
             fontSize: "11px",
             border: getNodeBorder(mod.code),
+            opacity: !isConnected && !isSelected && selectedNode ? 0.4 : 1,
             cursor: "pointer",
           },
         };
@@ -133,8 +186,55 @@ export default function Simple({
       setIsLoading(false);
     }
     calculateNodes();
-  }, [localCompletedMods, compulsoryMods, takenMods, showEligible]);
+  }, [
+    localCompletedMods,
+    compulsoryMods,
+    takenMods,
+    showEligible,
+    selectedNode,
+  ]);
 
+  const edges = useMemo(() => {
+    if (!selectedNode) return [];
+
+    const result = [];
+    const edgeSet = new Set();
+
+    console.log(nodes);
+    mods.forEach((module) => {
+      if (!module.prereqTree) return;
+
+      console.log("inside for each", module.id);
+      const prereqs = [...new Set(extractMods(module.prereqTree))];
+      const isSelected = module.id === selectedNode;
+      const isPrereqOfSelected = prereqs.includes(selectedNode);
+
+      if (!isSelected && !isPrereqOfSelected) return;
+
+      if (isSelected) {
+        buildTree(module.prereqTree, module.id, modIds, result, edgeSet);
+      } else {
+        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${module.id}`;
+
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          result.push(
+            createDirectDependencyEdge(selectedNode, module.id, edgeType),
+          );
+        }
+      }
+    });
+    console.log(result);
+    return result;
+  }, [selectedNode, nodes, modIds]);
+
+  const handleNodeClick = (_, node) => {
+    console.log("node is clicked");
+    setSelectedNode((prev) => (prev === node.id ? null : node.id));
+  };
+
+  console.log("edges in simple mode", edges);
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
       <Sidebar
@@ -145,7 +245,14 @@ export default function Simple({
 
       {/* Graph Canvas Container */}
       <div className="flex-1 relative h-full">
-        <ReactFlow nodeTypes={nodeTypes} nodes={nodes} colorMode="dark" fitView>
+        <ReactFlow
+          nodeTypes={nodeTypes}
+          nodes={nodes}
+          edges={edges}
+          colorMode="dark"
+          onNodeClick={handleNodeClick}
+          fitView
+        >
           <Background />
           <Controls />
         </ReactFlow>
