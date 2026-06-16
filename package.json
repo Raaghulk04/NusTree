@@ -9,7 +9,8 @@
     "lint": "eslint",
     "seed": "node prisma/seed.js",
     "scrape:degree": "node scripts/scrape-degree-preset.js",
-    "test:scraper": "node --test scripts/degree-scraper.test.js"
+    "test:scraper": "node --test scripts/degree-scraper.test.js",
+    "test": "vitest"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -45,6 +46,7 @@
     "eslint-config-next": "^16.2.4",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.9"
   }
 }

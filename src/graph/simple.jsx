@@ -356,4 +356,3 @@ export default function Simple({
     </div>
   );
 }
-
