@@ -12,6 +12,7 @@ import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
+import MissingMods from "./missingmods";
 
 const NODE_COLORS = {
   completed: "#86efac",
@@ -81,6 +82,8 @@ export default function Simple({
   const [positions, setPositions] = useState({});
   const [measureGhostIds, setMeasuredGhostIds] = useState(new Set());
 
+  const completedIds = completedMods.map((mod) => mod.moduleId);
+
   useEffect(() => {
     setMeasuredGhostIds(new Set());
   }, [selectedNode]);
@@ -99,7 +102,8 @@ export default function Simple({
   const ghostNodes = useMemo(() => {
     if (!selectedNode) return [];
 
-    const allPrereqs = prereqMap.get(selectedNode) ?? new Set();
+    const allPrereqs =
+      MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
     const inGraphNodes = new Set(baseNodes.map((m) => m.id));
 
     // Find the CURRENT position of the selected node in baseNodes
@@ -112,8 +116,7 @@ export default function Simple({
 
     const ghostNodes = [];
 
-    // Convert Set to Array to get a proper numeric index
-    [...allPrereqs].forEach((prereq, index) => {
+    allPrereqs.forEach((prereq, index) => {
       if (inGraphNodes.has(prereq)) return;
       const modObj = modMap.get(prereq);
       if (!modObj) return;
