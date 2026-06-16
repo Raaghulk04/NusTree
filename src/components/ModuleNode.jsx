@@ -13,12 +13,12 @@ export default function ModuleNode({ id, data }) {
   const nodeRef = useRef(null);
   const { setNodes } = useReactFlow();
 
-  // Close menu whenever user pans or zooms
-  useOnViewportChange({
-    onChange: useCallback(() => {
-      if (menuPos) closeMenu();
-    }, [menuPos]),
-  });
+  const closeMenu = useCallback(() => {
+    setMenuPos(null);
+    setNodes((nodes) =>
+      nodes.map((n) => (n.id === id ? { ...n, zIndex: 0 } : n)),
+    );
+  }, [id, setNodes]);
 
   const openMenu = useCallback(
     (rect) => {
@@ -32,12 +32,12 @@ export default function ModuleNode({ id, data }) {
     [id, setNodes],
   );
 
-  const closeMenu = useCallback(() => {
-    setMenuPos(null);
-    setNodes((nodes) =>
-      nodes.map((n) => (n.id === id ? { ...n, zIndex: 0 } : n)),
-    );
-  }, [id, setNodes]);
+  // Close menu whenever user pans or zooms
+  useOnViewportChange({
+    onChange: useCallback(() => {
+      if (menuPos) closeMenu();
+    }, [menuPos, closeMenu]),
+  });
 
   const onContextMenu = useCallback(
     (e) => {

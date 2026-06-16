@@ -90,7 +90,7 @@ export default function Graph({
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
   );
-  console.log("graphAllMods", graphAllMods);
+  console.log("mods", mods);
 
   const graphTakenMods = useMemo(
     () => (takenMods || []).filter((mod) => isUndergradLevelModule(mod.id)),
@@ -202,6 +202,20 @@ export default function Graph({
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
+  // pre computes the mod to its prereqTree
+  const prereqMap = useMemo(() => {
+    const map = new Map();
+    mods.forEach((mod) => {
+      if (!mod.prereqTree) {
+        map.set(mod.id, new Set());
+        return;
+      }
+      console.log(mod.prereqTree);
+      map.set(mod.id, new Set(extractMods(mod.prereqTree)));
+    });
+    return map;
+  }, [mods]);
+
   return (
     <div
       style={{
@@ -239,6 +253,7 @@ export default function Graph({
           allMods={allMods}
           isSideBarOpen={isSideBarOpen}
           setIsSideBarOpen={setIsSideBarOpen}
+          prereqMap={prereqMap}
         />
       )}
     </div>

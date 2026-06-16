@@ -1,4 +1,9 @@
-import { ReactFlow, Background, Controls } from "@xyflow/react";
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  applyNodeChanges,
+} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import isPrecluded from "@/graph/isPreclusion";
@@ -67,12 +72,18 @@ export default function Simple({
   allMods,
   isSideBarOpen,
   setIsSideBarOpen,
+  prereqMap,
 }) {
   const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showEligible, setShowEligible] = useState(false);
   const [localCompletedMods, setLocalCompletedMods] = useState(completedMods);
+  const [positions, setPositions] = useState({});
+  const [measureGhostIds, setMeasuredGhostIds] = useState(new Set());
+
+  useEffect(() => {
+    setMeasuredGhostIds(new Set());
+  }, [selectedNode]);
 
   useEffect(() => {
     setLocalCompletedMods(completedMods);
@@ -85,10 +96,56 @@ export default function Simple({
   const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
   const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
+  const ghostNodes = useMemo(() => {
+    if (!selectedNode) return [];
+
+    const allPrereqs = prereqMap.get(selectedNode) ?? new Set();
+    const inGraphNodes = new Set(baseNodes.map((m) => m.id));
+
+    // Find the CURRENT position of the selected node in baseNodes
+    const selectedBaseNode = baseNodes.find((n) => n.id === selectedNode);
+    const selectedPos = selectedBaseNode?.position ??
+      positions[selectedNode] ?? { x: 0, y: 0 };
+
+    const baseX = Number.isFinite(selectedPos.x) ? selectedPos.x : 0;
+    const baseY = Number.isFinite(selectedPos.y) ? selectedPos.y : 0;
+
+    const ghostNodes = [];
+
+    // Convert Set to Array to get a proper numeric index
+    [...allPrereqs].forEach((prereq, index) => {
+      if (inGraphNodes.has(prereq)) return;
+      const modObj = modMap.get(prereq);
+      if (!modObj) return;
+
+      ghostNodes.push({
+        id: prereq,
+        type: "moduleNodeType",
+        position: { x: baseX + index * 160, y: baseY - 120 },
+        data: {
+          label: prereq,
+          title: modObj.title,
+          description: modObj.description,
+          isGhost: true, // flag for styling
+        },
+        style: {
+          color: "#000000",
+          backgroundColor: "#fef08a", // yellow — "you still need this"
+          borderRadius: "8px",
+          fontSize: "11px",
+          border: "2px dashed #ca8a04",
+          opacity: 0.85,
+          cursor: "pointer",
+        },
+      });
+    });
+
+    return ghostNodes;
+  }, [selectedNode, baseNodes, prereqMap, modMap, positions]);
+
   // ONLY re-runs when actual data changes, not on selection
   useEffect(() => {
     async function calculateNodes() {
-      setIsLoading(true);
       const completedIds = localCompletedMods.map((m) => ({
         code: 2,
         id: m.moduleId,
@@ -115,7 +172,9 @@ export default function Simple({
       const nodeForPositions = finalNodes
         .map((n) => modMap.get(n.id))
         .filter(Boolean);
-      const positions = computeNodePositions(nodeForPositions);
+
+      const computedPositions = computeNodePositions(nodeForPositions);
+      setPositions(computedPositions);
 
       let availableNodes = showEligible
         ? finalNodes
@@ -127,8 +186,8 @@ export default function Simple({
           id: mod.id,
           type: "moduleNodeType",
           position: {
-            x: positions[mod.id]?.x ?? 0,
-            y: positions[mod.id]?.y ?? 0,
+            x: computedPositions[mod.id]?.x ?? 0,
+            y: computedPositions[mod.id]?.y ?? 0,
           },
           data: {
             label: mod.id,
@@ -141,7 +200,6 @@ export default function Simple({
       });
 
       setBaseNodes(flowNodes);
-      setIsLoading(false);
     }
     calculateNodes();
   }, [
@@ -155,7 +213,7 @@ export default function Simple({
 
   // Selection styling is pure derivation — no async, no rebuild
   const nodes = useMemo(() => {
-    return baseNodes.map((node) => ({
+    const styled = baseNodes.map((node) => ({
       ...node,
       style: {
         color: "#000000",
@@ -167,39 +225,100 @@ export default function Simple({
         cursor: "pointer",
       },
     }));
-  }, [baseNodes, selectedNode]); // selectedNode changes → only this runs, not the useEffect
+
+    return [...styled, ...ghostNodes];
+  }, [baseNodes, selectedNode, ghostNodes]);
 
   const edges = useMemo(() => {
     if (!selectedNode) return [];
+
     const result = [];
     const edgeSet = new Set();
+    const measuredIds = new Set(
+      nodes.filter((n) => n.measured?.width != null).map((n) => n.id),
+    );
 
-    mods.forEach((module) => {
-      if (!module.prereqTree) return;
-      const prereqs = [...new Set(extractMods(module.prereqTree))];
-      const isSelected = module.id === selectedNode;
+    mods.forEach((mod) => {
+      if (!mod.prereqTree) return;
+      const prereqs = [...new Set(extractMods(mod.prereqTree))];
+      const isSelected = mod.id === selectedNode;
       const isPrereqOfSelected = prereqs.includes(selectedNode);
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
-        buildTree(module.prereqTree, module.id, modIds, result, edgeSet);
+        buildTree(mod.prereqTree, mod.id, modIds, result, edgeSet);
       } else {
-        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
-        const edgeId = `${selectedNode}-${module.id}`;
+        const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${mod.id}`;
         if (!edgeSet.has(edgeId)) {
           edgeSet.add(edgeId);
           result.push(
-            createDirectDependencyEdge(selectedNode, module.id, edgeType),
+            createDirectDependencyEdge(selectedNode, mod.id, edgeType),
           );
         }
       }
     });
-    return result;
-  }, [selectedNode, modIds, mods]); // removed nodes dependency
+
+    const ghostEdges = ghostNodes
+      .filter((n) => measureGhostIds.has(n.id))
+      .map((n) => ({
+        id: `ghost-${n.id}-${selectedNode}`,
+        source: n.id,
+        target: selectedNode,
+        label: "MISSING",
+        style: { stroke: "#d10000", strokeWidth: 2, strokeDasharray: "5,5" },
+        labelStyle: { fontSize: "10px", fill: "#ca8a04" },
+      }));
+
+    const allEdges = [...result, ...ghostEdges];
+
+    return allEdges.filter((e) => {
+      // If it's a ghost node, we trust measureGhostIds
+      const sourceMeasured =
+        measureGhostIds.has(e.source) || measuredIds.has(e.source);
+      const targetMeasured =
+        measureGhostIds.has(e.target) || measuredIds.has(e.target);
+      return sourceMeasured && targetMeasured;
+    });
+  }, [selectedNode, modIds, mods, nodes, ghostNodes, measureGhostIds]);
 
   const handleNodeClick = useCallback((_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   }, []);
+
+  const onNodesChange = useCallback(
+    (changes) => {
+      const ghostIds = new Set(ghostNodes.map((n) => n.id));
+
+      // Apply ALL dimension changes (including measured) to baseNodes
+      const baseDimensionChanges = changes.filter(
+        (c) => c.type === "dimensions" && !ghostIds.has(c.id),
+      );
+      if (baseDimensionChanges.length > 0) {
+        setBaseNodes((nds) => applyNodeChanges(baseDimensionChanges, nds));
+      }
+
+      // Track ghost measurements separately
+      const ghostDimensionChanges = changes.filter(
+        (c) => c.type === "dimensions" && ghostIds.has(c.id),
+      );
+      if (ghostDimensionChanges.length > 0) {
+        setMeasuredGhostIds((prev) => {
+          const next = new Set(prev);
+          ghostDimensionChanges.forEach((c) => next.add(c.id));
+          return next;
+        });
+      }
+
+      const posChanges = changes.filter(
+        (c) => c.type === "position" && !ghostIds.has(c.id),
+      );
+      if (posChanges.length > 0) {
+        setBaseNodes((nds) => applyNodeChanges(posChanges, nds));
+      }
+    },
+    [ghostNodes],
+  );
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
@@ -215,6 +334,7 @@ export default function Simple({
           edges={edges}
           colorMode="dark"
           onNodeClick={handleNodeClick}
+          onNodesChange={onNodesChange}
           fitView
         >
           <Background />
@@ -236,3 +356,4 @@ export default function Simple({
     </div>
   );
 }
+
