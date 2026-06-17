@@ -1,17 +1,26 @@
-const MAX_NODES_ROW = 7;
-const NODE_HEIGHT = 40;
-const ROW_SPACING = 140;
-const COL_SPACING = 270;
-const BAND_GAP = 100;
+import dagre from "@dagrejs/dagre";
 
-// Function to match module codes to a year level row baseline
-export const getYLevel = (moduleId) => {
-  const num = parseInt(moduleId.match(/\d+/)?.[0]);
-  if (num < 2000) return 0;
-  if (num < 3000) return 1;
-  if (num < 4000) return 2;
-  if (num < 5000) return 3;
-  return 4;
+const NODE_WIDTH = 140;
+const NODE_HEIGHT = 52;
+const COMPACT_NODE_GAP = 16;
+const ROW_GROUP_TOLERANCE = 8;
+const MAX_NODES_PER_LAYER = 7;
+const SUBLAYER_SPACING = 84;
+const RANK_LAYER_GAP = 40;
+
+const compareModuleIds = (a, b) => {
+  const levelA = getModuleLevel(a);
+  const levelB = getModuleLevel(b);
+  if (levelA !== levelB) return levelA.localeCompare(levelB);
+
+  const prefixA = getModulePrefix(a);
+  const prefixB = getModulePrefix(b);
+  if (prefixA !== prefixB) return prefixA.localeCompare(prefixB);
+
+  return String(a).localeCompare(String(b), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 };
 
 // Flatten prerequisite configurations out to arrays
@@ -25,96 +34,144 @@ export const extractMods = (tree) => {
   return [];
 };
 
-// Depth-first search to figure how deep in the DAG a module is
-const getDependencyDepth = (currentLevelMods, modId, visited = new Set()) => {
-  if (visited.has(modId)) return 0;
-  visited.add(modId);
-
-  const modObj = currentLevelMods.find((m) => m.id === modId);
-  if (!modObj || !modObj.prereqTree) return 0;
-
-  const prereqs = extractMods(modObj.prereqTree);
-  const sameLevelPrereqs = prereqs.filter((p) =>
-    currentLevelMods.find((m) => m.id === p),
-  );
-
-  if (sameLevelPrereqs.length === 0) return 0;
-
-  return (
-    1 +
-    Math.max(
-      ...sameLevelPrereqs.map((p) =>
-        getDependencyDepth(currentLevelMods, p, visited),
-      ),
-    )
-  );
-};
-
 /**
- * Computes topological positions for all modules
+ * Computes top-to-bottom Dagre positions for all visible module nodes.
  */
-export const computeNodePositions = (allMods) => {
-  // 1. Group modules by their primary year level (1000, 2000, etc.)
-  const byLevel = {};
-  allMods.forEach((m) => {
-    const level = getYLevel(m.id);
-    if (!byLevel[level]) byLevel[level] = [];
-    byLevel[level].push(m);
+export const computeNodePositions = (allMods, options = {}) => {
+  const graph = new dagre.graphlib.Graph();
+  graph.setDefaultEdgeLabel(() => ({}));
+  graph.setGraph({
+    rankdir: "TB",
+    ranksep: 115,
+    nodesep: 30,
+    edgesep: 20,
+    marginx: 20,
+    marginy: 20,
+    ranker: "tight-tree",
   });
 
-  // 2. Sort each level by dependency depth and assign grid (x, y) positions
-  const subLevelMapping = {};
-  Object.keys(byLevel).forEach((level) => {
-    const currentLevelMods = byLevel[level];
+  const sortedMods = [...allMods].sort((a, b) => compareModuleIds(a.id, b.id));
+  const moduleIds = new Set(sortedMods.map((mod) => mod.id));
 
-    currentLevelMods
-      .sort(
-        (a, b) =>
-          getDependencyDepth(currentLevelMods, a.id) -
-          getDependencyDepth(currentLevelMods, b.id),
-      )
-      .forEach((mod, index) => {
-        const row = Math.floor(index / MAX_NODES_ROW);
-        const isOddRow = row % 2 === 1;
+  sortedMods.forEach((mod) => {
+    graph.setNode(mod.id, {
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    });
+  });
 
-        subLevelMapping[mod.id] = {
-          x:
-            (index % MAX_NODES_ROW) * COL_SPACING +
-            (isOddRow ? COL_SPACING / 2 : 0),
-          y: row,
-        };
+  sortedMods.forEach((mod) => {
+    const prereqs = [...new Set(extractMods(mod.prereqTree))];
+    prereqs.sort(compareModuleIds).forEach((prereqId) => {
+      if (moduleIds.has(prereqId) && prereqId !== mod.id) {
+        graph.setEdge(prereqId, mod.id);
+      }
+    });
+  });
+
+  dagre.layout(graph);
+
+  const rows = [];
+  sortedMods.forEach((module) => {
+    const dagreNode = graph.node(module.id);
+    if (!dagreNode) return;
+
+    const row = rows.find(
+      (candidate) => Math.abs(candidate.y - dagreNode.y) <= ROW_GROUP_TOLERANCE,
+    );
+
+    if (row) {
+      row.nodes.push({ id: module.id, dagreX: dagreNode.x });
+    } else {
+      rows.push({
+        y: dagreNode.y,
+        nodes: [{ id: module.id, dagreX: dagreNode.x }],
       });
+    }
   });
 
-  // 3. Compute each level's actual pixel height based on row count + node height
-  const levelHeights = {};
-  Object.keys(byLevel).forEach((level) => {
-    const mods = byLevel[level];
-    const rowCount = Math.ceil(mods.length / MAX_NODES_ROW);
-    levelHeights[level] = rowCount * ROW_SPACING + NODE_HEIGHT;
-  });
+  rows.sort((a, b) => a.y - b.y);
 
-  // 4. Compute cumulative Y start position for each level
-  const levelStartY = {};
-  let cumulative = 0;
-  Object.keys(byLevel)
-    .sort((a, b) => Number(a) - Number(b))
-    .forEach((level) => {
-      levelStartY[level] = cumulative;
-      cumulative += levelHeights[level] + BAND_GAP;
+  const layoutPositions = {};
+  const horizontalStep = NODE_WIDTH + COMPACT_NODE_GAP;
+  let currentY = 0;
+
+  rows.forEach((row) => {
+    row.nodes.sort((a, b) => {
+      const codeComparison = compareModuleIds(a.id, b.id);
+      return codeComparison || a.dagreX - b.dagreX;
     });
 
-  // 5. Map final pixel positions
-  const layoutPositions = {};
-  allMods.forEach((module) => {
-    const level = getYLevel(module.id);
-    const subLevelRow = subLevelMapping[module.id] || { x: 0, y: 0 };
+    const layers = [];
+    for (let index = 0; index < row.nodes.length; index += MAX_NODES_PER_LAYER) {
+      layers.push(row.nodes.slice(index, index + MAX_NODES_PER_LAYER));
+    }
 
-    layoutPositions[module.id] = {
-      x: subLevelRow.x,
-      y: levelStartY[level] + subLevelRow.y * ROW_SPACING,
-    };
+    layers.forEach((layer, layerIndex) => {
+      const layerWidth = (layer.length - 1) * horizontalStep;
+      const alternatingOffset = layerIndex % 2 === 1 ? horizontalStep / 2 : 0;
+      layer.forEach((node, nodeIndex) => {
+        layoutPositions[node.id] = {
+          x: nodeIndex * horizontalStep - layerWidth / 2 + alternatingOffset,
+          y: currentY + layerIndex * SUBLAYER_SPACING,
+        };
+      });
+    });
+
+    currentY += layers.length * SUBLAYER_SPACING + RANK_LAYER_GAP;
   });
 
+  if (options.anchorId && layoutPositions[options.anchorId]) {
+    const anchorOffset = layoutPositions[options.anchorId].x;
+    Object.values(layoutPositions).forEach((position) => {
+      position.x -= anchorOffset;
+    });
+  }
+
   return layoutPositions;
+};
+
+export const getModuleLevel = (moduleId) => {
+  const number = Number(String(moduleId).match(/\d+/)?.[0]);
+  if (!number) return "";
+  return `${Math.floor(number / 1000) * 1000}`;
+};
+
+export const getModulePrefix = (moduleId) =>
+  String(moduleId).match(/^[A-Z]+/)?.[0] || "";
+
+export const getDirectPrerequisites = (moduleId, modMap) => {
+  const mod = modMap.get(moduleId);
+  return [...new Set(extractMods(mod?.prereqTree))];
+};
+
+export const getDirectDependents = (moduleId, mods) =>
+  mods
+    .filter((mod) => extractMods(mod.prereqTree).includes(moduleId))
+    .map((mod) => mod.id);
+
+export const getPrerequisiteClosure = (moduleId, modMap) => {
+  const result = new Set();
+  const visit = (id) => {
+    getDirectPrerequisites(id, modMap).forEach((prereqId) => {
+      if (result.has(prereqId)) return;
+      result.add(prereqId);
+      visit(prereqId);
+    });
+  };
+
+  visit(moduleId);
+  return result;
+};
+
+export const getModuleNeighborhood = (selectedId, mods, extraIds = []) => {
+  if (!selectedId) return new Set();
+
+  const modMap = new Map(mods.map((mod) => [mod.id, mod]));
+  const ids = new Set([selectedId, ...extraIds]);
+
+  getPrerequisiteClosure(selectedId, modMap).forEach((id) => ids.add(id));
+  getDirectDependents(selectedId, mods).forEach((id) => ids.add(id));
+
+  return ids;
 };

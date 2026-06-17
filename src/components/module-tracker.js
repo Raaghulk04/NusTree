@@ -5,6 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import removePlannedModule from "./remove-planned-module";
 import PlannedModulesList from "./planned-modules-list";
 import { ModuleSearchDropdown } from "@/components/module-search-dropdown";
+import SemesterTimeline from "@/components/semester-timeline";
 
 export default function ModuleTracker({ mods }) {
   const [plannedModules, setPlannedModules] = useState([]);
@@ -85,7 +86,7 @@ export default function ModuleTracker({ mods }) {
         onRemove={handleRemoveMod}
         removingModuleId={removingModuleId}
       />
-      <p>Track your current planner rows and semester placement here.</p>
+      <SemesterTimeline plannedModules={plannedModules} mods={mods} />
       <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
     </section>
   );
