@@ -12,10 +12,10 @@ export default function buildTree(
 
   // BASE CASE: It's a string module name (e.g., "CS1010S")
   if (typeof tree === "string") {
-    const modId = tree.split(":")[0];
+    let modId = tree.split(":")[0];
+    modId = modId.replace("%", "");
 
     if (!allModIds.has(modId)) {
-      console.log(`Prereq ${modId} required by ${targetId} but not in graph`);
       return;
     }
 
@@ -58,7 +58,12 @@ export default function buildTree(
 
   // RECURSIVE CASE B: Split pathways / alternative tracks (OR logic)
   if (tree.or) {
-    const junctionId = `junction-or-${targetId}-${Math.random().toString(36).substr(2, 5)}`;
+    // Generate a STABLE ID based on children to prevent infinite re-renders
+    const childIds = tree.or
+      .map((c) => (typeof c === "string" ? c.split(":")[0].replace("%", "") : "nested"))
+      .sort()
+      .join("-");
+    const junctionId = `junction-or-${targetId}-${childIds}`;
 
     // --- NEW: DYNAMIC POSITIONING LOGIC ---
     let junctionPosition = { x: 0, y: 0 };

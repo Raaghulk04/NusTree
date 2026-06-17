@@ -17,7 +17,9 @@ export const getYLevel = (moduleId) => {
 // Flatten prerequisite configurations out to arrays
 export const extractMods = (tree) => {
   if (!tree) return [];
-  if (typeof tree === "string") return [tree.split(":")[0]];
+  if (typeof tree === "string") {
+    return [tree.split(":")[0].replace("%", "")];
+  }
   if (tree.or) return tree.or.flatMap(extractMods);
   if (tree.and) return tree.and.flatMap(extractMods);
   return [];

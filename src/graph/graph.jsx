@@ -162,7 +162,7 @@ export default function Graph({
           edgeIds,
           "and",
           junctionNodes1,
-          nodePositions, // <-- NEW: Passed layout configurations to fix coordinates
+          nodePositions,
         );
       } else {
         const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";

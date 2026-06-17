@@ -82,7 +82,10 @@ export default function Simple({
   const [positions, setPositions] = useState({});
   const [measureGhostIds, setMeasuredGhostIds] = useState(new Set());
 
-  const completedIds = completedMods.map((mod) => mod.moduleId);
+  const completedIds = useMemo(
+    () => localCompletedMods.map((mod) => mod.moduleId),
+    [localCompletedMods],
+  );
 
   useEffect(() => {
     setMeasuredGhostIds(new Set());
@@ -215,7 +218,7 @@ export default function Simple({
   ]);
 
   // Selection styling is pure derivation — no async, no rebuild
-  const nodes = useMemo(() => {
+  const { nodes, edges } = useMemo(() => {
     const styled = baseNodes.map((node) => ({
       ...node,
       style: {
@@ -229,17 +232,13 @@ export default function Simple({
       },
     }));
 
-    return [...styled, ...ghostNodes];
-  }, [baseNodes, selectedNode, ghostNodes]);
+    if (!selectedNode) {
+      return { nodes: [...styled, ...ghostNodes], edges: [] };
+    }
 
-  const edges = useMemo(() => {
-    if (!selectedNode) return [];
-
-    const result = [];
+    const resultEdges = [];
     const edgeSet = new Set();
-    const measuredIds = new Set(
-      nodes.filter((n) => n.measured?.width != null).map((n) => n.id),
-    );
+    const junctionNodes = [];
 
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
@@ -249,41 +248,63 @@ export default function Simple({
       if (!isSelected && !isPrereqOfSelected) return;
 
       if (isSelected) {
-        buildTree(mod.prereqTree, mod.id, modIds, result, edgeSet);
+        buildTree(
+          mod.prereqTree,
+          mod.id,
+          modIds,
+          resultEdges,
+          edgeSet,
+          "and",
+          junctionNodes,
+          positions,
+        );
       } else {
         const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
         const edgeId = `${selectedNode}-${mod.id}`;
         if (!edgeSet.has(edgeId)) {
           edgeSet.add(edgeId);
-          result.push(
+          resultEdges.push(
             createDirectDependencyEdge(selectedNode, mod.id, edgeType),
           );
         }
       }
     });
 
-    const ghostEdges = ghostNodes
-      .filter((n) => measureGhostIds.has(n.id))
-      .map((n) => ({
-        id: `ghost-${n.id}-${selectedNode}`,
-        source: n.id,
-        target: selectedNode,
-        label: "MISSING",
-        style: { stroke: "#d10000", strokeWidth: 2, strokeDasharray: "5,5" },
-        labelStyle: { fontSize: "10px", fill: "#ca8a04" },
-      }));
-
-    const allEdges = [...result, ...ghostEdges];
-
-    return allEdges.filter((e) => {
-      // If it's a ghost node, we trust measureGhostIds
-      const sourceMeasured =
-        measureGhostIds.has(e.source) || measuredIds.has(e.source);
-      const targetMeasured =
-        measureGhostIds.has(e.target) || measuredIds.has(e.target);
-      return sourceMeasured && targetMeasured;
+    // Post-process edges to handle ghost node visibility
+    const processedEdges = resultEdges.map((edge) => {
+      const isGhostSource = ghostNodes.some((gn) => gn.id === edge.source);
+      if (isGhostSource) {
+        return {
+          ...edge,
+          style: {
+            ...edge.style,
+            stroke: "#d10000",
+            strokeDasharray: "5,5",
+            opacity: measureGhostIds.has(edge.source) ? 1 : 0,
+          },
+          label: "MISSING",
+          labelStyle: {
+            ...edge.labelStyle,
+            opacity: measureGhostIds.has(edge.source) ? 1 : 0,
+          },
+        };
+      }
+      return edge;
     });
-  }, [selectedNode, modIds, mods, nodes, ghostNodes, measureGhostIds]);
+
+    return {
+      nodes: [...styled, ...ghostNodes, ...junctionNodes],
+      edges: processedEdges,
+    };
+  }, [
+    baseNodes,
+    selectedNode,
+    ghostNodes,
+    mods,
+    modIds,
+    positions,
+    measureGhostIds,
+  ]);
 
   const handleNodeClick = useCallback((_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
@@ -291,17 +312,16 @@ export default function Simple({
 
   const onNodesChange = useCallback(
     (changes) => {
+      const baseNodeIds = new Set(baseNodes.map((n) => n.id));
       const ghostIds = new Set(ghostNodes.map((n) => n.id));
 
-      // Apply ALL dimension changes (including measured) to baseNodes
-      const baseDimensionChanges = changes.filter(
-        (c) => c.type === "dimensions" && !ghostIds.has(c.id),
-      );
-      if (baseDimensionChanges.length > 0) {
-        setBaseNodes((nds) => applyNodeChanges(baseDimensionChanges, nds));
+      // 1. Handle baseNodes changes
+      const baseChanges = changes.filter((c) => baseNodeIds.has(c.id));
+      if (baseChanges.length > 0) {
+        setBaseNodes((nds) => applyNodeChanges(baseChanges, nds));
       }
 
-      // Track ghost measurements separately
+      // 2. Handle ghost measurement tracking
       const ghostDimensionChanges = changes.filter(
         (c) => c.type === "dimensions" && ghostIds.has(c.id),
       );
@@ -312,15 +332,8 @@ export default function Simple({
           return next;
         });
       }
-
-      const posChanges = changes.filter(
-        (c) => c.type === "position" && !ghostIds.has(c.id),
-      );
-      if (posChanges.length > 0) {
-        setBaseNodes((nds) => applyNodeChanges(posChanges, nds));
-      }
     },
-    [ghostNodes],
+    [baseNodes, ghostNodes],
   );
 
   return (
