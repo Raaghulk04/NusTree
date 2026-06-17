@@ -3,11 +3,16 @@ import {
   Background,
   Controls,
   applyNodeChanges,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import isPrecluded from "@/graph/isPreclusion";
-import { computeNodePositions, extractMods } from "./layoutUtils";
+import {
+  computeNodePositions,
+  extractMods,
+  getModuleNeighborhood,
+} from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
 import buildTree from "@/graph/buildTree";
@@ -75,59 +80,95 @@ export default function Simple({
   setIsSideBarOpen,
   prereqMap,
 }) {
+  const { fitView } = useReactFlow();
   const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
   const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedView, setSelectedView] = useState("focus");
   const [showEligible, setShowEligible] = useState(false);
-  const [localCompletedMods, setLocalCompletedMods] = useState(completedMods);
+  const [localCompletedModIds, setLocalCompletedModIds] = useState([]);
   const [positions, setPositions] = useState({});
-  const [measureGhostIds, setMeasuredGhostIds] = useState(new Set());
+  const [measuredGhostState, setMeasuredGhostState] = useState({
+    selectedNode: null,
+    ids: new Set(),
+  });
 
   const completedIds = useMemo(
-    () => localCompletedMods.map((mod) => mod.moduleId),
-    [localCompletedMods],
+    () => [
+      ...new Set([
+        ...(completedMods || []).map((mod) => mod.moduleId),
+        ...localCompletedModIds,
+      ]),
+    ],
+    [completedMods, localCompletedModIds],
   );
 
-  useEffect(() => {
-    setMeasuredGhostIds(new Set());
-  }, [selectedNode]);
-
-  useEffect(() => {
-    setLocalCompletedMods(completedMods);
-  }, [completedMods]);
+  const measureGhostIds = useMemo(
+    () =>
+      measuredGhostState.selectedNode === selectedNode
+        ? measuredGhostState.ids
+        : new Set(),
+    [measuredGhostState, selectedNode],
+  );
 
   const handleModuleCompleted = useCallback((moduleId) => {
-    setLocalCompletedMods((prev) => [...prev, { moduleId }]);
+    setLocalCompletedModIds((prev) =>
+      prev.includes(moduleId) ? prev : [...prev, moduleId],
+    );
   }, []);
 
   const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
   const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
+  const selectedMissingPrereqs = useMemo(() => {
+    if (!selectedNode) return [];
+    return MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
+  }, [selectedNode, prereqMap, completedIds]);
+
+  const focusIds = useMemo(
+    () =>
+      selectedNode
+        ? getModuleNeighborhood(selectedNode, mods, selectedMissingPrereqs)
+        : new Set(),
+    [selectedNode, mods, selectedMissingPrereqs],
+  );
+
+  const focusPositions = useMemo(() => {
+    if (!selectedNode || selectedView !== "focus") return {};
+
+    const layoutMods = [...focusIds]
+      .map((id) => modMap.get(id))
+      .filter(Boolean);
+
+    return computeNodePositions(layoutMods, { anchorId: selectedNode });
+  }, [selectedNode, selectedView, focusIds, modMap]);
+
+  const activePositions =
+    selectedNode && selectedView === "focus" ? focusPositions : positions;
+
   const ghostNodes = useMemo(() => {
     if (!selectedNode) return [];
 
-    const allPrereqs =
-      MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
     const inGraphNodes = new Set(baseNodes.map((m) => m.id));
 
-    // Find the CURRENT position of the selected node in baseNodes
     const selectedBaseNode = baseNodes.find((n) => n.id === selectedNode);
-    const selectedPos = selectedBaseNode?.position ??
-      positions[selectedNode] ?? { x: 0, y: 0 };
+    const selectedPos = activePositions[selectedNode] ??
+      selectedBaseNode?.position ?? { x: 0, y: 0 };
 
     const baseX = Number.isFinite(selectedPos.x) ? selectedPos.x : 0;
     const baseY = Number.isFinite(selectedPos.y) ? selectedPos.y : 0;
 
     const ghostNodes = [];
 
-    allPrereqs.forEach((prereq, index) => {
+    selectedMissingPrereqs.forEach((prereq, index) => {
       if (inGraphNodes.has(prereq)) return;
       const modObj = modMap.get(prereq);
       if (!modObj) return;
+      const layoutPosition = activePositions[prereq];
 
       ghostNodes.push({
         id: prereq,
         type: "moduleNodeType",
-        position: { x: baseX + index * 160, y: baseY - 120 },
+        position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
         data: {
           label: prereq,
           title: modObj.title,
@@ -147,14 +188,20 @@ export default function Simple({
     });
 
     return ghostNodes;
-  }, [selectedNode, baseNodes, prereqMap, modMap, positions]);
+  }, [
+    selectedNode,
+    baseNodes,
+    selectedMissingPrereqs,
+    modMap,
+    activePositions,
+  ]);
 
   // ONLY re-runs when actual data changes, not on selection
   useEffect(() => {
     async function calculateNodes() {
-      const completedIds = localCompletedMods.map((m) => ({
+      const completedIdPayload = completedIds.map((id) => ({
         code: 2,
-        id: m.moduleId,
+        id,
       }));
       const compulsoryIds = (compulsoryMods || []).map((m) => ({
         code: 0,
@@ -164,7 +211,7 @@ export default function Simple({
       const takenIdSet = new Set(takenIds.map((m) => m.id));
 
       const final = await isPrecluded({
-        completedIds,
+        completedIds: completedIdPayload,
         takenIds,
         compulsoryIds,
       });
@@ -175,16 +222,16 @@ export default function Simple({
       }
       const finalNodes = [...uniques.values()];
 
-      const nodeForPositions = finalNodes
+      const availableNodes = showEligible
+        ? finalNodes
+        : finalNodes.filter((n) => !(takenIdSet.has(n.id) && n.code === 1));
+
+      const nodeForPositions = availableNodes
         .map((n) => modMap.get(n.id))
         .filter(Boolean);
 
       const computedPositions = computeNodePositions(nodeForPositions);
       setPositions(computedPositions);
-
-      let availableNodes = showEligible
-        ? finalNodes
-        : finalNodes.filter((n) => !(takenIdSet.has(n.id) && n.code === 1));
 
       const flowNodes = availableNodes.map((mod) => {
         const modObj = modMap.get(mod.id); // O(1) instead of filter()
@@ -209,7 +256,7 @@ export default function Simple({
     }
     calculateNodes();
   }, [
-    localCompletedMods,
+    completedIds,
     compulsoryMods,
     takenMods,
     showEligible,
@@ -219,18 +266,30 @@ export default function Simple({
 
   // Selection styling is pure derivation — no async, no rebuild
   const { nodes, edges } = useMemo(() => {
-    const styled = baseNodes.map((node) => ({
-      ...node,
-      style: {
-        color: "#000000",
-        backgroundColor: getNodeBackground(node.data.code),
-        borderRadius: "8px",
-        fontSize: "11px",
-        border: getNodeBorder(node.data.code),
-        opacity: selectedNode && node.id !== selectedNode ? 0.4 : 1,
-        cursor: "pointer",
-      },
-    }));
+    const isFocus = selectedNode && selectedView === "focus";
+    const visibleBaseNodes = isFocus
+      ? baseNodes.filter((node) => focusIds.has(node.id))
+      : baseNodes;
+
+    const styled = visibleBaseNodes.map((node) => {
+      const isSelected = node.id === selectedNode;
+      const isRelated = selectedNode && focusIds.has(node.id);
+      return {
+        ...node,
+        position: activePositions[node.id] ?? node.position,
+        style: {
+          color: "#000000",
+          backgroundColor: getNodeBackground(node.data.code),
+          borderRadius: "8px",
+          fontSize: "11px",
+          border: isSelected
+            ? `2px solid ${NODE_COLORS.selectedBorder}`
+            : getNodeBorder(node.data.code),
+          opacity: selectedNode && !isFocus && !isRelated ? 0.35 : 1,
+          cursor: "pointer",
+        },
+      };
+    });
 
     if (!selectedNode) {
       return { nodes: [...styled, ...ghostNodes], edges: [] };
@@ -256,7 +315,7 @@ export default function Simple({
           edgeSet,
           "and",
           junctionNodes,
-          positions,
+          activePositions,
         );
       } else {
         const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
@@ -299,16 +358,35 @@ export default function Simple({
   }, [
     baseNodes,
     selectedNode,
+    selectedView,
+    focusIds,
     ghostNodes,
     mods,
     modIds,
-    positions,
+    activePositions,
     measureGhostIds,
   ]);
 
   const handleNodeClick = useCallback((_, node) => {
-    setSelectedNode((prev) => (prev === node.id ? null : node.id));
+    setSelectedNode((prev) => {
+      if (prev === node.id) return null;
+      setSelectedView("focus");
+      return node.id;
+    });
   }, []);
+
+  useEffect(() => {
+    if (nodes.length === 0) return undefined;
+
+    const frameId = requestAnimationFrame(() => {
+      fitView({
+        duration: 300,
+        padding: selectedView === "focus" ? 0.3 : 0.15,
+      });
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [fitView, nodes.length, selectedNode, selectedView, showEligible]);
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -326,14 +404,16 @@ export default function Simple({
         (c) => c.type === "dimensions" && ghostIds.has(c.id),
       );
       if (ghostDimensionChanges.length > 0) {
-        setMeasuredGhostIds((prev) => {
-          const next = new Set(prev);
+        setMeasuredGhostState((prev) => {
+          const next = new Set(
+            prev.selectedNode === selectedNode ? prev.ids : [],
+          );
           ghostDimensionChanges.forEach((c) => next.add(c.id));
-          return next;
+          return { selectedNode, ids: next };
         });
       }
     },
-    [baseNodes, ghostNodes],
+    [baseNodes, ghostNodes, selectedNode],
   );
 
   return (
@@ -352,21 +432,52 @@ export default function Simple({
           onNodeClick={handleNodeClick}
           onNodesChange={onNodesChange}
           fitView
+          panOnScroll={true}
+          selectionOnDrag={true}
+          panOnDrag={false}
         >
           <Background />
           <Controls />
         </ReactFlow>
         <div className="absolute bottom-6 right-6 z-50">
-          <button
-            onClick={() => setShowEligible(!showEligible)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition-all border ${
-              showEligible
-                ? "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-400"
-                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border-zinc-700"
-            }`}
-          >
-            {showEligible ? "Hide Eligible Mods" : "Show Eligible Mods"}
-          </button>
+          <div className="flex flex-col items-end gap-2">
+            {selectedNode && (
+              <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => setSelectedView("focus")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                    selectedView === "focus"
+                      ? "bg-blue-500 text-white"
+                      : "text-zinc-200 hover:bg-zinc-800"
+                  }`}
+                >
+                  Focus
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedView("full")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                    selectedView === "full"
+                      ? "bg-blue-500 text-white"
+                      : "text-zinc-200 hover:bg-zinc-800"
+                  }`}
+                >
+                  Full Simple
+                </button>
+              </div>
+            )}
+            <button
+              onClick={() => setShowEligible(!showEligible)}
+              className={`px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition-all border ${
+                showEligible
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-400"
+                  : "bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border-zinc-700"
+              }`}
+            >
+              {showEligible ? "Hide Eligible Mods" : "Show Eligible Mods"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

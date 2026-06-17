@@ -261,6 +261,9 @@ export default function Graph({
             nodeTypes={nodeType}
             colorMode="dark"
             fitView
+            panOnScroll={true}
+            selectionOnDrag={true}
+            panOnDrag={false}
           >
             <Background />
             <Controls />
