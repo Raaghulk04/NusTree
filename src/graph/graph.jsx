@@ -8,6 +8,7 @@ import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
+import checkPrereqComplexity from "./complexitycheck";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -86,6 +87,9 @@ export default function Graph({
 
   const nodeType = useMemo(() => ({ moduleNodeType: ModuleNode }), []);
 
+  const res = checkPrereqComplexity(mods);
+  console.log(res);
+
   const graphAllMods = useMemo(
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
@@ -132,8 +136,52 @@ export default function Graph({
     [graphAllMods],
   );
 
+  // Computes edges and extraction of junction nodes simultaneously
+  const { edges, calculatedJunctionNodes } = useMemo(() => {
+    if (!selectedNode) return { edges: [], calculatedJunctionNodes: [] };
+
+    const result = [];
+    const edgeIds = new Set();
+    const junctionNodes1 = [];
+
+    graphAllMods.forEach((module) => {
+      if (!module.prereqTree) return;
+
+      const prereqs = [...new Set(extractMods(module.prereqTree))];
+      const isSelected = selectedNode === module.id;
+      const isPrereqOfSelected = prereqs.includes(selectedNode);
+
+      if (!isSelected && !isPrereqOfSelected) return;
+
+      if (isSelected) {
+        buildTree(
+          module.prereqTree,
+          module.id,
+          allModIds,
+          result,
+          edgeIds,
+          "and",
+          junctionNodes1,
+          nodePositions,
+        );
+      } else {
+        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
+        const edgeId = `${selectedNode}-${module.id}`;
+
+        if (!edgeIds.has(edgeId)) {
+          edgeIds.add(edgeId);
+          result.push(
+            createDirectDependencyEdge(selectedNode, module.id, edgeType),
+          );
+        }
+      }
+    });
+
+    return { edges: result, calculatedJunctionNodes: junctionNodes1 };
+  }, [selectedNode, graphAllMods, allModIds, nodePositions]); // Added nodePositions dependency
+
   const nodes = useMemo(() => {
-    return graphAllMods.map((module) => {
+    const base = graphAllMods.map((module) => {
       const isSelected = module.id === selectedNode;
       const isConnected = Boolean(
         selectedNode &&
@@ -163,40 +211,16 @@ export default function Graph({
         },
       };
     });
-  }, [graphAllMods, selectedNode, completedIds, takenIds, nodePositions]);
 
-  const edges = useMemo(() => {
-    if (!selectedNode) return [];
-
-    const result = [];
-    const edgeIds = new Set();
-
-    graphAllMods.forEach((module) => {
-      if (!module.prereqTree) return;
-
-      const prereqs = [...new Set(extractMods(module.prereqTree))];
-      const isSelected = selectedNode === module.id;
-      const isPrereqOfSelected = prereqs.includes(selectedNode);
-
-      if (!isSelected && !isPrereqOfSelected) return;
-
-      if (isSelected) {
-        buildTree(module.prereqTree, module.id, allModIds, result, edgeIds);
-      } else {
-        const edgeType = findEdgeType(module.prereqTree, selectedNode) || "and";
-        const edgeId = `${selectedNode}-${module.id}`;
-
-        if (!edgeIds.has(edgeId)) {
-          edgeIds.add(edgeId);
-          result.push(
-            createDirectDependencyEdge(selectedNode, module.id, edgeType),
-          );
-        }
-      }
-    });
-
-    return result;
-  }, [selectedNode, graphAllMods, allModIds]);
+    return [...base, ...calculatedJunctionNodes];
+  }, [
+    graphAllMods,
+    selectedNode,
+    completedIds,
+    takenIds,
+    nodePositions,
+    calculatedJunctionNodes,
+  ]);
 
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
@@ -211,7 +235,7 @@ export default function Graph({
         return;
       }
       console.log(mod.prereqTree);
-      map.set(mod.id, new Set(extractMods(mod.prereqTree)));
+      map.set(mod.id, mod.prereqTree);
     });
     return map;
   }, [mods]);
