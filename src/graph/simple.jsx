@@ -266,7 +266,9 @@ export default function Simple({
 
   // Selection styling is pure derivation — no async, no rebuild
   const { nodes, edges } = useMemo(() => {
+    // Determine if we are in focus mode
     const isFocus = selectedNode && selectedView === "focus";
+    // filter baseNodes depending on whether we are in focus mode or not
     const visibleBaseNodes = isFocus
       ? baseNodes.filter((node) => focusIds.has(node.id))
       : baseNodes;
@@ -371,7 +373,7 @@ export default function Simple({
   const handleNodeClick = useCallback((_, node) => {
     setSelectedNode((prev) => {
       if (prev === node.id) return null;
-      setSelectedView("focus");
+      setSelectedView("full");
       return node.id;
     });
   }, []);
