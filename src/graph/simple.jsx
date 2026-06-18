@@ -364,7 +364,6 @@ export default function Simple({
     focusIds,
     ghostNodes,
     mods,
-    modIds,
     activePositions,
     measureGhostIds,
   ]);

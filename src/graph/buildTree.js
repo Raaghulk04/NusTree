@@ -62,7 +62,7 @@ export default function buildTree(
   if (tree.or) {
     const childInGraph = tree.or.filter((child) => {
       if (typeof child != "string") {
-        return True;
+        return true;
       }
       let childId = child.split(":")[0];
       childId = childId.replace("%", "");
