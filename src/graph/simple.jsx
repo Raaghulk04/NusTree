@@ -91,6 +91,7 @@ export default function Simple({
     selectedNode: null,
     ids: new Set(),
   });
+  const [eligibleMods, setEligibleMods] = useState([]);
 
   const completedIds = useMemo(
     () => [
@@ -225,6 +226,11 @@ export default function Simple({
       const availableNodes = showEligible
         ? finalNodes
         : finalNodes.filter((n) => !(takenIdSet.has(n.id) && n.code === 1));
+
+      const eligibles = finalNodes
+        .filter((n) => takenIdSet.has(n.id) && n.code === 1)
+        .map((obj) => obj.id);
+      setEligibleMods(eligibles);
 
       const nodeForPositions = availableNodes
         .map((n) => modMap.get(n.id))
@@ -471,7 +477,16 @@ export default function Simple({
               </div>
             )}
             <button
-              onClick={() => setShowEligible(!showEligible)}
+              onClick={() => {
+                // if a node is selected and we are show eligible mod mode, unselect the node
+                // if its a eligible
+                console.log(eligibleMods);
+                console.log(selectedNode);
+                if (showEligible && eligibleMods.includes(selectedNode)) {
+                  setSelectedNode(null);
+                }
+                setShowEligible(!showEligible);
+              }}
               className={`px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition-all border ${
                 showEligible
                   ? "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-400"
