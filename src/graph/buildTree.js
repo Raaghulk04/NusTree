@@ -1,13 +1,15 @@
 export default function buildTree(
   tree,
   targetId,
-  allModIds,
+  allModIds, // only ids from the graph
   result,
   edgeIds,
   edgeType = "and",
   nodesResult,
   nodePositions, // <-- NEW: Pass down layout coordinates
 ) {
+  console.log("allModsIds", allModIds);
+
   if (!tree) return;
 
   // BASE CASE: It's a string module name (e.g., "CS1010S")
@@ -58,9 +60,37 @@ export default function buildTree(
 
   // RECURSIVE CASE B: Split pathways / alternative tracks (OR logic)
   if (tree.or) {
+    const childInGraph = tree.or.filter((child) => {
+      if (typeof child != "string") {
+        return True;
+      }
+      let childId = child.split(":")[0];
+      childId = childId.replace("%", "");
+
+      return allModIds.has(childId);
+    });
+
+    if (childInGraph.length === 0) {
+      return;
+    }
+    if (childInGraph.length === 1) {
+      buildTree(
+        childInGraph[0],
+        targetId,
+        allModIds,
+        result,
+        edgeIds,
+        "and",
+        nodesResult,
+        nodePositions,
+      );
+      return;
+    }
     // Generate a STABLE ID based on children to prevent infinite re-renders
     const childIds = tree.or
-      .map((c) => (typeof c === "string" ? c.split(":")[0].replace("%", "") : "nested"))
+      .map((c) =>
+        typeof c === "string" ? c.split(":")[0].replace("%", "") : "nested",
+      )
       .sort()
       .join("-");
     const junctionId = `junction-or-${targetId}-${childIds}`;

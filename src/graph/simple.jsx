@@ -299,6 +299,8 @@ export default function Simple({
     const edgeSet = new Set();
     const junctionNodes = [];
 
+    const inGraph = new Set(baseNodes.map((mod) => mod.id));
+
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
       const prereqs = [...new Set(extractMods(mod.prereqTree))];
@@ -310,7 +312,7 @@ export default function Simple({
         buildTree(
           mod.prereqTree,
           mod.id,
-          modIds,
+          inGraph,
           resultEdges,
           edgeSet,
           "and",
