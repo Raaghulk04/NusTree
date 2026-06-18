@@ -5,7 +5,13 @@ import { SidebarSearch } from "@/components/sidebar-search";
 // isOpen: boolean if sideBar is open
 // setIsOpen: function to open/close the sideBar
 // mods: module data
-export default function Sidebar({ isOpen, setIsOpen, mods, inGraph }) {
+export default function Sidebar({
+  isOpen,
+  setIsOpen,
+  mods,
+  inGraph,
+  centerNode,
+}) {
   const sidebarRef = useRef(null);
 
   //
@@ -40,7 +46,13 @@ export default function Sidebar({ isOpen, setIsOpen, mods, inGraph }) {
         <Search size={20} />
       </button>
       <h1 className="text-xl font-bold mb-8"></h1>
-      {isOpen && <SidebarSearch dataOptions={mods} inGraph={inGraph} />}
+      {isOpen && (
+        <SidebarSearch
+          dataOptions={mods}
+          inGraph={inGraph}
+          centerNode={centerNode}
+        />
+      )}
       <nav className="flex flex-col gap-2"></nav>
     </aside>
   );

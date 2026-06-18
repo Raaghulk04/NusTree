@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 export function SidebarSearch({
   dataOptions = [],
   inGraph = [],
+  centerNode,
   placeholder = "Search by module code...",
 }) {
   const [search, setSearch] = React.useState("");
@@ -89,6 +90,7 @@ export function SidebarSearch({
                 );
                 e.dataTransfer.effectAllowed = "move";
               }}
+              onClick={() => centerNode(opt.id)}
               className={cn(
                 "px-3 py-2 text-sm cursor-grab rounded text-slate-100 hover:bg-slate-700/50 select-none",
               )}

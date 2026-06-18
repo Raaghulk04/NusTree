@@ -464,6 +464,7 @@ export default function Simple({
         setIsOpen={setIsSideBarOpen}
         mods={allMods}
         inGraph={inGraph}
+        centerNode={centerNode}
       />
       <div className="flex-1 relative h-full">
         <ReactFlow
