@@ -18,6 +18,7 @@ import ModuleNode from "@/components/ModuleNode";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import MissingMods from "./missingmods";
+import "@/app/globals.css";
 
 const NODE_COLORS = {
   completed: "#86efac",
@@ -80,7 +81,7 @@ export default function Simple({
   setIsSideBarOpen,
   prereqMap,
 }) {
-  const { fitView } = useReactFlow();
+  const { fitView, setCenter, getNode, getZoom } = useReactFlow();
   const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedView, setSelectedView] = useState("focus");
@@ -92,6 +93,34 @@ export default function Simple({
     ids: new Set(),
   });
   const [eligibleMods, setEligibleMods] = useState([]);
+
+  const highlightNode = useCallback((nodeId) => {
+    const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
+
+    if (nodeElement) {
+      nodeElement.classList.add("node-flash-highlight");
+
+      console.log("nodeElement", nodeElement);
+
+      // 3. Remove it after 2 seconds
+      setTimeout(() => {
+        nodeElement.classList.remove("node-flash-highlight");
+      }, 2000);
+    }
+  }, []);
+
+  const centerNode = useCallback(
+    (moduleId) => {
+      const node = getNode(moduleId);
+      const x = getZoom();
+      if (!node) {
+        return;
+      }
+      setCenter(node.position.x, node.position.y, { zoom: x });
+      highlightNode(node);
+    },
+    [getNode, setCenter, getZoom, highlightNode],
+  );
 
   const completedIds = useMemo(
     () => [
@@ -424,6 +453,8 @@ export default function Simple({
     },
     [baseNodes, ghostNodes, selectedNode],
   );
+
+  centerNode("CS1101S");
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
