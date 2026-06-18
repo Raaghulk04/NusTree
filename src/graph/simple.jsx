@@ -100,8 +100,6 @@ export default function Simple({
     if (nodeElement) {
       nodeElement.classList.add("node-flash-highlight");
 
-      console.log("nodeElement", nodeElement);
-
       // 3. Remove it after 2 seconds
       setTimeout(() => {
         nodeElement.classList.remove("node-flash-highlight");
@@ -117,7 +115,7 @@ export default function Simple({
         return;
       }
       setCenter(node.position.x, node.position.y, { zoom: x });
-      highlightNode(node);
+      highlightNode(node.id);
     },
     [getNode, setCenter, getZoom, highlightNode],
   );
@@ -454,7 +452,10 @@ export default function Simple({
     [baseNodes, ghostNodes, selectedNode],
   );
 
-  centerNode("CS1101S");
+  const inGraph = nodes.map((n) => ({
+    id: n.id,
+    title: n.data.title,
+  }));
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
@@ -462,6 +463,7 @@ export default function Simple({
         isOpen={isSideBarOpen}
         setIsOpen={setIsSideBarOpen}
         mods={allMods}
+        inGraph={inGraph}
       />
       <div className="flex-1 relative h-full">
         <ReactFlow
