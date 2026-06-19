@@ -93,38 +93,48 @@ export default function Simple({
     ids: new Set(),
   });
   const [eligibleMods, setEligibleMods] = useState([]);
+  const [plannerMods, setPlannerMods] = useState([]);
+
+  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
+  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  const onDrop = useCallback((event) => {
-    event.preventDefault();
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
 
-    const data = JSON.parse(
-      event.dataTransfer.getData("application/reactflow"),
-    );
+      const data = JSON.parse(
+        event.dataTransfer.getData("application/reactflow"),
+      );
 
-    // check if the dropped element is valid
-    if (!data.id) {
-      return;
-    }
+      // check if the dropped element is valid
+      if (!data.id) {
+        return;
+      }
 
-    // details: https://reactflow.dev/whats-new/2023-11-10
-    const position = {
-      x: 0,
-      y: 0,
-    };
-    const newNode = {
-      id: data.id,
-      type: "moduleNodeType",
-      position,
-      data: { label: data.id },
-    };
+      const mod = modMap.get(data.id);
+      setPlannerMods((nds) => nds.concat(mod));
 
-    setBaseNodes((nds) => nds.concat(newNode));
-  }, []);
+      // details: https://reactflow.dev/whats-new/2023-11-10
+      // const position = {
+      //   x: 0,
+      //   y: 0,
+      // };
+      // const newNode = {
+      //   id: data.id,
+      //   type: "moduleNodeType",
+      //   position,
+      //   data: { label: data.id },
+      // };
+
+      // setBaseNodes((nds) => nds.concat(newNode));
+    },
+    [modMap],
+  );
 
   const highlightNode = useCallback((nodeId) => {
     const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
@@ -175,9 +185,6 @@ export default function Simple({
       prev.includes(moduleId) ? prev : [...prev, moduleId],
     );
   }, []);
-
-  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
-  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
   const selectedMissingPrereqs = useMemo(() => {
     if (!selectedNode) return [];
@@ -270,11 +277,17 @@ export default function Simple({
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
 
-      const final = await isPrecluded({
+      const plannedIds = (plannerMods || []).map((m) => ({
+        code: 1,
+        id: m.id,
+      }));
+
+      let final = await isPrecluded({
         completedIds: completedIdPayload,
         takenIds,
         compulsoryIds,
       });
+      final = final.concat(plannedIds);
 
       const uniques = new Map();
       for (const node of final) {
@@ -327,6 +340,7 @@ export default function Simple({
     showEligible,
     modMap,
     handleModuleCompleted,
+    plannerMods,
   ]);
 
   // Selection styling is pure derivation — no async, no rebuild
