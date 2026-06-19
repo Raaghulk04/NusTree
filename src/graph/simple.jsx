@@ -6,7 +6,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo, useEffect, useState, useCallback } from "react";
+import { useMemo, useEffect, useState, useCallback, useRef } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import {
   computeNodePositions,
@@ -157,7 +157,7 @@ export default function Simple({
         return;
       }
       setCenter(node.position.x, node.position.y, { zoom: x });
-      highlightNode(node.id);
+      highlightNode(moduleId);
     },
     [getNode, setCenter, getZoom, highlightNode],
   );

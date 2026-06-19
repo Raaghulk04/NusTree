@@ -78,7 +78,7 @@ export function SidebarSearch({
           {filteredGraph.map((opt) => (
             <div
               key={opt.id}
-              draggable
+              onClick={() => centerNode(opt.id)}
               className={cn(
                 "px-3 py-2 text-sm cursor-grab rounded text-slate-100 hover:bg-slate-700/50 select-none",
               )}
