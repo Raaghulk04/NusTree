@@ -6,7 +6,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo, useEffect, useState, useCallback } from "react";
+import { useMemo, useEffect, useState, useCallback, useRef } from "react";
 import isPrecluded from "@/graph/isPreclusion";
 import {
   computeNodePositions,
@@ -93,6 +93,7 @@ export default function Simple({
     ids: new Set(),
   });
   const [eligibleMods, setEligibleMods] = useState([]);
+  const hasCenteredInitialNode = useRef(false);
 
   const highlightNode = useCallback((nodeId) => {
     const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
@@ -100,9 +101,6 @@ export default function Simple({
     if (nodeElement) {
       nodeElement.classList.add("node-flash-highlight");
 
-      console.log("nodeElement", nodeElement);
-
-      // 3. Remove it after 2 seconds
       setTimeout(() => {
         nodeElement.classList.remove("node-flash-highlight");
       }, 2000);
@@ -117,7 +115,7 @@ export default function Simple({
         return;
       }
       setCenter(node.position.x, node.position.y, { zoom: x });
-      highlightNode(node);
+      highlightNode(moduleId);
     },
     [getNode, setCenter, getZoom, highlightNode],
   );
@@ -454,7 +452,17 @@ export default function Simple({
     [baseNodes, ghostNodes, selectedNode],
   );
 
-  centerNode("CS1101S");
+  useEffect(() => {
+    if (hasCenteredInitialNode.current) return undefined;
+    if (!nodes.some((node) => node.id === "CS1101S")) return undefined;
+
+    const frameId = requestAnimationFrame(() => {
+      hasCenteredInitialNode.current = true;
+      centerNode("CS1101S");
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [centerNode, nodes]);
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
