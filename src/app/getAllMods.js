@@ -1,6 +1,5 @@
-import prisma from "../lib/db"
+import { getModules } from "@/server/module.service";
 
 export default async function getAllMods() {
-    const mods = await prisma.module.findMany();
-    return mods;
+  return getModules();
 }
