@@ -93,7 +93,48 @@ export default function Simple({
     ids: new Set(),
   });
   const [eligibleMods, setEligibleMods] = useState([]);
-  const hasCenteredInitialNode = useRef(false);
+  const [plannerMods, setPlannerMods] = useState([]);
+
+  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
+  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const data = JSON.parse(
+        event.dataTransfer.getData("application/reactflow"),
+      );
+
+      // check if the dropped element is valid
+      if (!data.id) {
+        return;
+      }
+
+      const mod = modMap.get(data.id);
+      setPlannerMods((nds) => nds.concat(mod));
+
+      // details: https://reactflow.dev/whats-new/2023-11-10
+      // const position = {
+      //   x: 0,
+      //   y: 0,
+      // };
+      // const newNode = {
+      //   id: data.id,
+      //   type: "moduleNodeType",
+      //   position,
+      //   data: { label: data.id },
+      // };
+
+      // setBaseNodes((nds) => nds.concat(newNode));
+    },
+    [modMap],
+  );
 
   const highlightNode = useCallback((nodeId) => {
     const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
@@ -101,6 +142,7 @@ export default function Simple({
     if (nodeElement) {
       nodeElement.classList.add("node-flash-highlight");
 
+      // 3. Remove it after 2 seconds
       setTimeout(() => {
         nodeElement.classList.remove("node-flash-highlight");
       }, 2000);
@@ -143,9 +185,6 @@ export default function Simple({
       prev.includes(moduleId) ? prev : [...prev, moduleId],
     );
   }, []);
-
-  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
-  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
   const selectedMissingPrereqs = useMemo(() => {
     if (!selectedNode) return [];
@@ -238,11 +277,17 @@ export default function Simple({
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
 
-      const final = await isPrecluded({
+      const plannedIds = (plannerMods || []).map((m) => ({
+        code: 1,
+        id: m.id,
+      }));
+
+      let final = await isPrecluded({
         completedIds: completedIdPayload,
         takenIds,
         compulsoryIds,
       });
+      final = final.concat(plannedIds);
 
       const uniques = new Map();
       for (const node of final) {
@@ -295,6 +340,7 @@ export default function Simple({
     showEligible,
     modMap,
     handleModuleCompleted,
+    plannerMods,
   ]);
 
   // Selection styling is pure derivation — no async, no rebuild
@@ -452,17 +498,10 @@ export default function Simple({
     [baseNodes, ghostNodes, selectedNode],
   );
 
-  useEffect(() => {
-    if (hasCenteredInitialNode.current) return undefined;
-    if (!nodes.some((node) => node.id === "CS1101S")) return undefined;
-
-    const frameId = requestAnimationFrame(() => {
-      hasCenteredInitialNode.current = true;
-      centerNode("CS1101S");
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [centerNode, nodes]);
+  const inGraph = nodes.map((n) => ({
+    id: n.id,
+    title: n.data.title,
+  }));
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
@@ -470,6 +509,8 @@ export default function Simple({
         isOpen={isSideBarOpen}
         setIsOpen={setIsSideBarOpen}
         mods={allMods}
+        inGraph={inGraph}
+        centerNode={centerNode}
       />
       <div className="flex-1 relative h-full">
         <ReactFlow
@@ -483,6 +524,8 @@ export default function Simple({
           panOnScroll={true}
           selectionOnDrag={true}
           panOnDrag={false}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
         >
           <Background />
           <Controls />
