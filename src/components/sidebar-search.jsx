@@ -79,18 +79,6 @@ export function SidebarSearch({
             <div
               key={opt.id}
               draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData(
-                  "application/reactflow",
-                  JSON.stringify({
-                    id: opt.id,
-                    title: opt.title,
-                    status: opt.status,
-                  }),
-                );
-                e.dataTransfer.effectAllowed = "move";
-              }}
-              onClick={() => centerNode(opt.id)}
               className={cn(
                 "px-3 py-2 text-sm cursor-grab rounded text-slate-100 hover:bg-slate-700/50 select-none",
               )}

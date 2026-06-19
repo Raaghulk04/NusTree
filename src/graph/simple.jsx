@@ -94,6 +94,38 @@ export default function Simple({
   });
   const [eligibleMods, setEligibleMods] = useState([]);
 
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback((event) => {
+    event.preventDefault();
+
+    const data = JSON.parse(
+      event.dataTransfer.getData("application/reactflow"),
+    );
+
+    // check if the dropped element is valid
+    if (!data.id) {
+      return;
+    }
+
+    // details: https://reactflow.dev/whats-new/2023-11-10
+    const position = {
+      x: 0,
+      y: 0,
+    };
+    const newNode = {
+      id: data.id,
+      type: "moduleNodeType",
+      position,
+      data: { label: data.id },
+    };
+
+    setBaseNodes((nds) => nds.concat(newNode));
+  }, []);
+
   const highlightNode = useCallback((nodeId) => {
     const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
 
@@ -478,6 +510,8 @@ export default function Simple({
           panOnScroll={true}
           selectionOnDrag={true}
           panOnDrag={false}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
         >
           <Background />
           <Controls />
