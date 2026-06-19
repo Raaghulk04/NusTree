@@ -1,5 +1,5 @@
+import { getModules } from "@/server/module.service";
+
 export async function GET() {
-  return Response.json({
-    message: "Return module data here.",
-  });
+  return Response.json(await getModules());
 }

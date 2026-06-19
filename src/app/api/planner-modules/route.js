@@ -1,24 +1,12 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getCurrentUserId } from "@/server/session.service";
+import { getUserPlannedModules } from "@/server/planner.service";
 
 export async function GET() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const userId = await getCurrentUserId();
 
-  if (!session)
+  if (!userId)
     return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
-  const mods = await prisma.userPlanModule.findMany({
-    where: { userId: session.user.id },
-    orderBy: [
-      { planYear: "asc" },
-      { planSemester: "asc" },
-      { moduleId: "asc" },
-    ],
-  });
-
-  return NextResponse.json(mods);
+  return NextResponse.json(await getUserPlannedModules(userId));
 }

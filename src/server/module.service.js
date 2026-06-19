@@ -1,5 +1,5 @@
-async function getModules() {
-  return [];
-}
+import prisma from "@/lib/db";
 
-export { getModules };
+export async function getModules() {
+  return prisma.module.findMany();
+}

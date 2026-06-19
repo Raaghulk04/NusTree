@@ -1,7 +1,6 @@
-import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getAllDegreePresets } from "@/server/degree.service";
 
 export async function GET() {
-  const allDegreePreset = await prisma.degreePreset.findMany();
-  return NextResponse.json(allDegreePreset);
+  return NextResponse.json(await getAllDegreePresets());
 }
