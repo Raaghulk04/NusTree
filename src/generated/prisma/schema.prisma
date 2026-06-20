@@ -19,6 +19,7 @@ model Module {
   fulfillreqs       String[]
   userPlanModules   UserPlanModule[]
   degreePresetLinks DegreePresetModule[]
+  userAddModules    UserAddModule[]
 }
 
 model DegreePreset {
@@ -28,6 +29,7 @@ model DegreePreset {
   userPlanModules UserPlanModule[]
   moduleLinks     DegreePresetModule[]
   userPresets     UserPreset[]
+  userAddModules  UserAddModule[]
 }
 
 model DegreePresetModule {
@@ -66,6 +68,23 @@ model UserPreset {
   @@id([userId, degreePresetId])
 }
 
+model UserAddModule {
+  id             String        @id @default(cuid())
+  userId         String
+  moduleId       String
+  planYear       Int
+  planSemester   Int
+  isPresetModule Boolean       @default(false)
+  degreePresetId String?
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module         Module        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  degreePreset   DegreePreset? @relation(fields: [degreePresetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId, planYear, planSemester])
+  @@index([degreePresetId])
+}
+
 model User {
   id              String           @id
   name            String
@@ -78,6 +97,7 @@ model User {
   accounts        Account[]
   userPlanModules UserPlanModule[]
   userPresets     UserPreset[]
+  userAddModules  UserAddModule[]
 
   @@unique([email])
   @@map("user")
