@@ -14334,7 +14334,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateInput = {
-    id: string
+    id?: string
     planYear: number
     planSemester: number
     isPresetModule?: boolean
@@ -14344,7 +14344,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleUncheckedCreateInput = {
-    id: string
+    id?: string
     userId: string
     moduleId: string
     planYear: number
@@ -14374,7 +14374,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateManyInput = {
-    id: string
+    id?: string
     userId: string
     moduleId: string
     planYear: number
@@ -16386,7 +16386,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateWithoutModuleInput = {
-    id: string
+    id?: string
     planYear: number
     planSemester: number
     isPresetModule?: boolean
@@ -16395,7 +16395,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleUncheckedCreateWithoutModuleInput = {
-    id: string
+    id?: string
     userId: string
     planYear: number
     planSemester: number
@@ -16562,7 +16562,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateWithoutDegreePresetInput = {
-    id: string
+    id?: string
     planYear: number
     planSemester: number
     isPresetModule?: boolean
@@ -16571,7 +16571,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleUncheckedCreateWithoutDegreePresetInput = {
-    id: string
+    id?: string
     userId: string
     moduleId: string
     planYear: number
@@ -17421,7 +17421,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateWithoutUserInput = {
-    id: string
+    id?: string
     planYear: number
     planSemester: number
     isPresetModule?: boolean
@@ -17430,7 +17430,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleUncheckedCreateWithoutUserInput = {
-    id: string
+    id?: string
     moduleId: string
     planYear: number
     planSemester: number
@@ -17719,7 +17719,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateManyModuleInput = {
-    id: string
+    id?: string
     userId: string
     planYear: number
     planSemester: number
@@ -17812,7 +17812,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateManyDegreePresetInput = {
-    id: string
+    id?: string
     userId: string
     moduleId: string
     planYear: number
@@ -17941,7 +17941,7 @@ export namespace Prisma {
   }
 
   export type UserAddModuleCreateManyUserInput = {
-    id: string
+    id?: string
     moduleId: string
     planYear: number
     planSemester: number

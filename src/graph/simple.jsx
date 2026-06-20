@@ -23,6 +23,7 @@ import {
   getUserAddModules,
   upsertUserAddModule,
 } from "../server/planner.service";
+import { authClient } from "@/lib/auth-client";
 
 const NODE_COLORS = {
   completed: "#86efac",
@@ -99,6 +100,30 @@ export default function Simple({
   const [eligibleMods, setEligibleMods] = useState([]);
   const [plannerMods, setPlannerMods] = useState([]);
 
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      const userId = session.user.id;
+      getUserAddModules(userId).then(setPlannerMods);
+    }
+  }, [session]);
+
+  const handleNewAddModule = useCallback(
+    async (moduleId) => {
+      if (session?.user?.id) {
+        const userId = session.user.id;
+        upsertUserAddModule({
+          userId: userId,
+          moduleId: moduleId,
+          planYear: 1,
+          planSemester: 1,
+        });
+      }
+    },
+    [session],
+  );
+
   const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
   const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
 
@@ -122,7 +147,7 @@ export default function Simple({
 
       const mod = modMap.get(data.id);
       setPlannerMods((nds) => nds.concat(mod));
-
+      handleNewAddModule(data.id);
       // details: https://reactflow.dev/whats-new/2023-11-10
       // const position = {
       //   x: 0,
@@ -137,7 +162,7 @@ export default function Simple({
 
       // setBaseNodes((nds) => nds.concat(newNode));
     },
-    [modMap],
+    [modMap, handleNewAddModule],
   );
 
   const highlightNode = useCallback((nodeId) => {

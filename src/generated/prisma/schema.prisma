@@ -69,7 +69,7 @@ model UserPreset {
 }
 
 model UserAddModule {
-  id             String        @id
+  id             String        @id @default(cuid())
   userId         String
   moduleId       String
   planYear       Int

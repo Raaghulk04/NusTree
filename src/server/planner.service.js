@@ -1,12 +1,16 @@
+"use server";
 import prisma from "@/lib/db";
 
 const MODULE_CODE_REGEX = /[A-Z]{2,3}\d{4}[A-Z]*/g;
 
-export function normalizePlanTerm(planYear, planSemester) {
+function normalizePlanTerm(planYear, planSemester) {
+  console.log("planYear", planYear);
   const normalizedPlanYear = Number(planYear);
   const normalizedPlanSemester = Number(planSemester);
 
   if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear < 1) {
+    console.log("planYear", normalizedPlanYear);
+    console.log("planSem", normalizedPlanSemester);
     throw new Error("Invalid plan year");
   }
 
