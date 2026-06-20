@@ -39,6 +39,11 @@ export type UserPlanModule = $Result.DefaultSelection<Prisma.$UserPlanModulePayl
  */
 export type UserPreset = $Result.DefaultSelection<Prisma.$UserPresetPayload>
 /**
+ * Model UserAddModule
+ * 
+ */
+export type UserAddModule = $Result.DefaultSelection<Prisma.$UserAddModulePayload>
+/**
  * Model User
  * 
  */
@@ -229,6 +234,16 @@ export class PrismaClient<
     * ```
     */
   get userPreset(): Prisma.UserPresetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userAddModule`: Exposes CRUD operations for the **UserAddModule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserAddModules
+    * const userAddModules = await prisma.userAddModule.findMany()
+    * ```
+    */
+  get userAddModule(): Prisma.UserAddModuleDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
@@ -708,6 +723,7 @@ export namespace Prisma {
     DegreePresetModule: 'DegreePresetModule',
     UserPlanModule: 'UserPlanModule',
     UserPreset: 'UserPreset',
+    UserAddModule: 'UserAddModule',
     User: 'User',
     Session: 'Session',
     Account: 'Account',
@@ -727,7 +743,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "module" | "degreePreset" | "degreePresetModule" | "userPlanModule" | "userPreset" | "user" | "session" | "account" | "verification"
+      modelProps: "module" | "degreePreset" | "degreePresetModule" | "userPlanModule" | "userPreset" | "userAddModule" | "user" | "session" | "account" | "verification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1098,6 +1114,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserPresetCountArgs<ExtArgs>
             result: $Utils.Optional<UserPresetCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserAddModule: {
+        payload: Prisma.$UserAddModulePayload<ExtArgs>
+        fields: Prisma.UserAddModuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserAddModuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserAddModuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          findFirst: {
+            args: Prisma.UserAddModuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserAddModuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          findMany: {
+            args: Prisma.UserAddModuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>[]
+          }
+          create: {
+            args: Prisma.UserAddModuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          createMany: {
+            args: Prisma.UserAddModuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserAddModuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>[]
+          }
+          delete: {
+            args: Prisma.UserAddModuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          update: {
+            args: Prisma.UserAddModuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          deleteMany: {
+            args: Prisma.UserAddModuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserAddModuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserAddModuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>[]
+          }
+          upsert: {
+            args: Prisma.UserAddModuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAddModulePayload>
+          }
+          aggregate: {
+            args: Prisma.UserAddModuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserAddModule>
+          }
+          groupBy: {
+            args: Prisma.UserAddModuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserAddModuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserAddModuleCountArgs<ExtArgs>
+            result: $Utils.Optional<UserAddModuleCountAggregateOutputType> | number
           }
         }
       }
@@ -1510,6 +1600,7 @@ export namespace Prisma {
     degreePresetModule?: DegreePresetModuleOmit
     userPlanModule?: UserPlanModuleOmit
     userPreset?: UserPresetOmit
+    userAddModule?: UserAddModuleOmit
     user?: UserOmit
     session?: SessionOmit
     account?: AccountOmit
@@ -1596,11 +1687,13 @@ export namespace Prisma {
   export type ModuleCountOutputType = {
     userPlanModules: number
     degreePresetLinks: number
+    userAddModules: number
   }
 
   export type ModuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userPlanModules?: boolean | ModuleCountOutputTypeCountUserPlanModulesArgs
     degreePresetLinks?: boolean | ModuleCountOutputTypeCountDegreePresetLinksArgs
+    userAddModules?: boolean | ModuleCountOutputTypeCountUserAddModulesArgs
   }
 
   // Custom InputTypes
@@ -1628,6 +1721,13 @@ export namespace Prisma {
     where?: DegreePresetModuleWhereInput
   }
 
+  /**
+   * ModuleCountOutputType without action
+   */
+  export type ModuleCountOutputTypeCountUserAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAddModuleWhereInput
+  }
+
 
   /**
    * Count Type DegreePresetCountOutputType
@@ -1637,12 +1737,14 @@ export namespace Prisma {
     userPlanModules: number
     moduleLinks: number
     userPresets: number
+    userAddModules: number
   }
 
   export type DegreePresetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userPlanModules?: boolean | DegreePresetCountOutputTypeCountUserPlanModulesArgs
     moduleLinks?: boolean | DegreePresetCountOutputTypeCountModuleLinksArgs
     userPresets?: boolean | DegreePresetCountOutputTypeCountUserPresetsArgs
+    userAddModules?: boolean | DegreePresetCountOutputTypeCountUserAddModulesArgs
   }
 
   // Custom InputTypes
@@ -1677,6 +1779,13 @@ export namespace Prisma {
     where?: UserPresetWhereInput
   }
 
+  /**
+   * DegreePresetCountOutputType without action
+   */
+  export type DegreePresetCountOutputTypeCountUserAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAddModuleWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -1687,6 +1796,7 @@ export namespace Prisma {
     accounts: number
     userPlanModules: number
     userPresets: number
+    userAddModules: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1694,6 +1804,7 @@ export namespace Prisma {
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     userPlanModules?: boolean | UserCountOutputTypeCountUserPlanModulesArgs
     userPresets?: boolean | UserCountOutputTypeCountUserPresetsArgs
+    userAddModules?: boolean | UserCountOutputTypeCountUserAddModulesArgs
   }
 
   // Custom InputTypes
@@ -1733,6 +1844,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountUserPresetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserPresetWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAddModuleWhereInput
   }
 
 
@@ -1964,6 +2082,7 @@ export namespace Prisma {
     fulfillreqs?: boolean
     userPlanModules?: boolean | Module$userPlanModulesArgs<ExtArgs>
     degreePresetLinks?: boolean | Module$degreePresetLinksArgs<ExtArgs>
+    userAddModules?: boolean | Module$userAddModulesArgs<ExtArgs>
     _count?: boolean | ModuleCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["module"]>
 
@@ -2007,6 +2126,7 @@ export namespace Prisma {
   export type ModuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userPlanModules?: boolean | Module$userPlanModulesArgs<ExtArgs>
     degreePresetLinks?: boolean | Module$degreePresetLinksArgs<ExtArgs>
+    userAddModules?: boolean | Module$userAddModulesArgs<ExtArgs>
     _count?: boolean | ModuleCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ModuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2017,6 +2137,7 @@ export namespace Prisma {
     objects: {
       userPlanModules: Prisma.$UserPlanModulePayload<ExtArgs>[]
       degreePresetLinks: Prisma.$DegreePresetModulePayload<ExtArgs>[]
+      userAddModules: Prisma.$UserAddModulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2424,6 +2545,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     userPlanModules<T extends Module$userPlanModulesArgs<ExtArgs> = {}>(args?: Subset<T, Module$userPlanModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPlanModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     degreePresetLinks<T extends Module$degreePresetLinksArgs<ExtArgs> = {}>(args?: Subset<T, Module$degreePresetLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DegreePresetModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userAddModules<T extends Module$userAddModulesArgs<ExtArgs> = {}>(args?: Subset<T, Module$userAddModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2903,6 +3025,30 @@ export namespace Prisma {
   }
 
   /**
+   * Module.userAddModules
+   */
+  export type Module$userAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    where?: UserAddModuleWhereInput
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    cursor?: UserAddModuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
+  }
+
+  /**
    * Module without action
    */
   export type ModuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3072,6 +3218,7 @@ export namespace Prisma {
     userPlanModules?: boolean | DegreePreset$userPlanModulesArgs<ExtArgs>
     moduleLinks?: boolean | DegreePreset$moduleLinksArgs<ExtArgs>
     userPresets?: boolean | DegreePreset$userPresetsArgs<ExtArgs>
+    userAddModules?: boolean | DegreePreset$userAddModulesArgs<ExtArgs>
     _count?: boolean | DegreePresetCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["degreePreset"]>
 
@@ -3098,6 +3245,7 @@ export namespace Prisma {
     userPlanModules?: boolean | DegreePreset$userPlanModulesArgs<ExtArgs>
     moduleLinks?: boolean | DegreePreset$moduleLinksArgs<ExtArgs>
     userPresets?: boolean | DegreePreset$userPresetsArgs<ExtArgs>
+    userAddModules?: boolean | DegreePreset$userAddModulesArgs<ExtArgs>
     _count?: boolean | DegreePresetCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DegreePresetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3109,6 +3257,7 @@ export namespace Prisma {
       userPlanModules: Prisma.$UserPlanModulePayload<ExtArgs>[]
       moduleLinks: Prisma.$DegreePresetModulePayload<ExtArgs>[]
       userPresets: Prisma.$UserPresetPayload<ExtArgs>[]
+      userAddModules: Prisma.$UserAddModulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3511,6 +3660,7 @@ export namespace Prisma {
     userPlanModules<T extends DegreePreset$userPlanModulesArgs<ExtArgs> = {}>(args?: Subset<T, DegreePreset$userPlanModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPlanModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     moduleLinks<T extends DegreePreset$moduleLinksArgs<ExtArgs> = {}>(args?: Subset<T, DegreePreset$moduleLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DegreePresetModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userPresets<T extends DegreePreset$userPresetsArgs<ExtArgs> = {}>(args?: Subset<T, DegreePreset$userPresetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPresetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userAddModules<T extends DegreePreset$userAddModulesArgs<ExtArgs> = {}>(args?: Subset<T, DegreePreset$userAddModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4005,6 +4155,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserPresetScalarFieldEnum | UserPresetScalarFieldEnum[]
+  }
+
+  /**
+   * DegreePreset.userAddModules
+   */
+  export type DegreePreset$userAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    where?: UserAddModuleWhereInput
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    cursor?: UserAddModuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
   }
 
   /**
@@ -7266,6 +7440,1168 @@ export namespace Prisma {
 
 
   /**
+   * Model UserAddModule
+   */
+
+  export type AggregateUserAddModule = {
+    _count: UserAddModuleCountAggregateOutputType | null
+    _avg: UserAddModuleAvgAggregateOutputType | null
+    _sum: UserAddModuleSumAggregateOutputType | null
+    _min: UserAddModuleMinAggregateOutputType | null
+    _max: UserAddModuleMaxAggregateOutputType | null
+  }
+
+  export type UserAddModuleAvgAggregateOutputType = {
+    planYear: number | null
+    planSemester: number | null
+  }
+
+  export type UserAddModuleSumAggregateOutputType = {
+    planYear: number | null
+    planSemester: number | null
+  }
+
+  export type UserAddModuleMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    moduleId: string | null
+    planYear: number | null
+    planSemester: number | null
+    isPresetModule: boolean | null
+    degreePresetId: string | null
+  }
+
+  export type UserAddModuleMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    moduleId: string | null
+    planYear: number | null
+    planSemester: number | null
+    isPresetModule: boolean | null
+    degreePresetId: string | null
+  }
+
+  export type UserAddModuleCountAggregateOutputType = {
+    id: number
+    userId: number
+    moduleId: number
+    planYear: number
+    planSemester: number
+    isPresetModule: number
+    degreePresetId: number
+    _all: number
+  }
+
+
+  export type UserAddModuleAvgAggregateInputType = {
+    planYear?: true
+    planSemester?: true
+  }
+
+  export type UserAddModuleSumAggregateInputType = {
+    planYear?: true
+    planSemester?: true
+  }
+
+  export type UserAddModuleMinAggregateInputType = {
+    id?: true
+    userId?: true
+    moduleId?: true
+    planYear?: true
+    planSemester?: true
+    isPresetModule?: true
+    degreePresetId?: true
+  }
+
+  export type UserAddModuleMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    moduleId?: true
+    planYear?: true
+    planSemester?: true
+    isPresetModule?: true
+    degreePresetId?: true
+  }
+
+  export type UserAddModuleCountAggregateInputType = {
+    id?: true
+    userId?: true
+    moduleId?: true
+    planYear?: true
+    planSemester?: true
+    isPresetModule?: true
+    degreePresetId?: true
+    _all?: true
+  }
+
+  export type UserAddModuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserAddModule to aggregate.
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAddModules to fetch.
+     */
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserAddModuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAddModules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAddModules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserAddModules
+    **/
+    _count?: true | UserAddModuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserAddModuleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserAddModuleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserAddModuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserAddModuleMaxAggregateInputType
+  }
+
+  export type GetUserAddModuleAggregateType<T extends UserAddModuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserAddModule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserAddModule[P]>
+      : GetScalarType<T[P], AggregateUserAddModule[P]>
+  }
+
+
+
+
+  export type UserAddModuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAddModuleWhereInput
+    orderBy?: UserAddModuleOrderByWithAggregationInput | UserAddModuleOrderByWithAggregationInput[]
+    by: UserAddModuleScalarFieldEnum[] | UserAddModuleScalarFieldEnum
+    having?: UserAddModuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserAddModuleCountAggregateInputType | true
+    _avg?: UserAddModuleAvgAggregateInputType
+    _sum?: UserAddModuleSumAggregateInputType
+    _min?: UserAddModuleMinAggregateInputType
+    _max?: UserAddModuleMaxAggregateInputType
+  }
+
+  export type UserAddModuleGroupByOutputType = {
+    id: string
+    userId: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule: boolean
+    degreePresetId: string | null
+    _count: UserAddModuleCountAggregateOutputType | null
+    _avg: UserAddModuleAvgAggregateOutputType | null
+    _sum: UserAddModuleSumAggregateOutputType | null
+    _min: UserAddModuleMinAggregateOutputType | null
+    _max: UserAddModuleMaxAggregateOutputType | null
+  }
+
+  type GetUserAddModuleGroupByPayload<T extends UserAddModuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserAddModuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserAddModuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserAddModuleGroupByOutputType[P]>
+            : GetScalarType<T[P], UserAddModuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserAddModuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    moduleId?: boolean
+    planYear?: boolean
+    planSemester?: boolean
+    isPresetModule?: boolean
+    degreePresetId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }, ExtArgs["result"]["userAddModule"]>
+
+  export type UserAddModuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    moduleId?: boolean
+    planYear?: boolean
+    planSemester?: boolean
+    isPresetModule?: boolean
+    degreePresetId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }, ExtArgs["result"]["userAddModule"]>
+
+  export type UserAddModuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    moduleId?: boolean
+    planYear?: boolean
+    planSemester?: boolean
+    isPresetModule?: boolean
+    degreePresetId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }, ExtArgs["result"]["userAddModule"]>
+
+  export type UserAddModuleSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    moduleId?: boolean
+    planYear?: boolean
+    planSemester?: boolean
+    isPresetModule?: boolean
+    degreePresetId?: boolean
+  }
+
+  export type UserAddModuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "moduleId" | "planYear" | "planSemester" | "isPresetModule" | "degreePresetId", ExtArgs["result"]["userAddModule"]>
+  export type UserAddModuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }
+  export type UserAddModuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }
+  export type UserAddModuleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    module?: boolean | ModuleDefaultArgs<ExtArgs>
+    degreePreset?: boolean | UserAddModule$degreePresetArgs<ExtArgs>
+  }
+
+  export type $UserAddModulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserAddModule"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      module: Prisma.$ModulePayload<ExtArgs>
+      degreePreset: Prisma.$DegreePresetPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      moduleId: string
+      planYear: number
+      planSemester: number
+      isPresetModule: boolean
+      degreePresetId: string | null
+    }, ExtArgs["result"]["userAddModule"]>
+    composites: {}
+  }
+
+  type UserAddModuleGetPayload<S extends boolean | null | undefined | UserAddModuleDefaultArgs> = $Result.GetResult<Prisma.$UserAddModulePayload, S>
+
+  type UserAddModuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserAddModuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserAddModuleCountAggregateInputType | true
+    }
+
+  export interface UserAddModuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserAddModule'], meta: { name: 'UserAddModule' } }
+    /**
+     * Find zero or one UserAddModule that matches the filter.
+     * @param {UserAddModuleFindUniqueArgs} args - Arguments to find a UserAddModule
+     * @example
+     * // Get one UserAddModule
+     * const userAddModule = await prisma.userAddModule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserAddModuleFindUniqueArgs>(args: SelectSubset<T, UserAddModuleFindUniqueArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserAddModule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserAddModuleFindUniqueOrThrowArgs} args - Arguments to find a UserAddModule
+     * @example
+     * // Get one UserAddModule
+     * const userAddModule = await prisma.userAddModule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserAddModuleFindUniqueOrThrowArgs>(args: SelectSubset<T, UserAddModuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserAddModule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleFindFirstArgs} args - Arguments to find a UserAddModule
+     * @example
+     * // Get one UserAddModule
+     * const userAddModule = await prisma.userAddModule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserAddModuleFindFirstArgs>(args?: SelectSubset<T, UserAddModuleFindFirstArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserAddModule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleFindFirstOrThrowArgs} args - Arguments to find a UserAddModule
+     * @example
+     * // Get one UserAddModule
+     * const userAddModule = await prisma.userAddModule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserAddModuleFindFirstOrThrowArgs>(args?: SelectSubset<T, UserAddModuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserAddModules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserAddModules
+     * const userAddModules = await prisma.userAddModule.findMany()
+     * 
+     * // Get first 10 UserAddModules
+     * const userAddModules = await prisma.userAddModule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userAddModuleWithIdOnly = await prisma.userAddModule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserAddModuleFindManyArgs>(args?: SelectSubset<T, UserAddModuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserAddModule.
+     * @param {UserAddModuleCreateArgs} args - Arguments to create a UserAddModule.
+     * @example
+     * // Create one UserAddModule
+     * const UserAddModule = await prisma.userAddModule.create({
+     *   data: {
+     *     // ... data to create a UserAddModule
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserAddModuleCreateArgs>(args: SelectSubset<T, UserAddModuleCreateArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserAddModules.
+     * @param {UserAddModuleCreateManyArgs} args - Arguments to create many UserAddModules.
+     * @example
+     * // Create many UserAddModules
+     * const userAddModule = await prisma.userAddModule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserAddModuleCreateManyArgs>(args?: SelectSubset<T, UserAddModuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserAddModules and returns the data saved in the database.
+     * @param {UserAddModuleCreateManyAndReturnArgs} args - Arguments to create many UserAddModules.
+     * @example
+     * // Create many UserAddModules
+     * const userAddModule = await prisma.userAddModule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserAddModules and only return the `id`
+     * const userAddModuleWithIdOnly = await prisma.userAddModule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserAddModuleCreateManyAndReturnArgs>(args?: SelectSubset<T, UserAddModuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserAddModule.
+     * @param {UserAddModuleDeleteArgs} args - Arguments to delete one UserAddModule.
+     * @example
+     * // Delete one UserAddModule
+     * const UserAddModule = await prisma.userAddModule.delete({
+     *   where: {
+     *     // ... filter to delete one UserAddModule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserAddModuleDeleteArgs>(args: SelectSubset<T, UserAddModuleDeleteArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserAddModule.
+     * @param {UserAddModuleUpdateArgs} args - Arguments to update one UserAddModule.
+     * @example
+     * // Update one UserAddModule
+     * const userAddModule = await prisma.userAddModule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserAddModuleUpdateArgs>(args: SelectSubset<T, UserAddModuleUpdateArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserAddModules.
+     * @param {UserAddModuleDeleteManyArgs} args - Arguments to filter UserAddModules to delete.
+     * @example
+     * // Delete a few UserAddModules
+     * const { count } = await prisma.userAddModule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserAddModuleDeleteManyArgs>(args?: SelectSubset<T, UserAddModuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserAddModules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserAddModules
+     * const userAddModule = await prisma.userAddModule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserAddModuleUpdateManyArgs>(args: SelectSubset<T, UserAddModuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserAddModules and returns the data updated in the database.
+     * @param {UserAddModuleUpdateManyAndReturnArgs} args - Arguments to update many UserAddModules.
+     * @example
+     * // Update many UserAddModules
+     * const userAddModule = await prisma.userAddModule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserAddModules and only return the `id`
+     * const userAddModuleWithIdOnly = await prisma.userAddModule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserAddModuleUpdateManyAndReturnArgs>(args: SelectSubset<T, UserAddModuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserAddModule.
+     * @param {UserAddModuleUpsertArgs} args - Arguments to update or create a UserAddModule.
+     * @example
+     * // Update or create a UserAddModule
+     * const userAddModule = await prisma.userAddModule.upsert({
+     *   create: {
+     *     // ... data to create a UserAddModule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserAddModule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserAddModuleUpsertArgs>(args: SelectSubset<T, UserAddModuleUpsertArgs<ExtArgs>>): Prisma__UserAddModuleClient<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserAddModules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleCountArgs} args - Arguments to filter UserAddModules to count.
+     * @example
+     * // Count the number of UserAddModules
+     * const count = await prisma.userAddModule.count({
+     *   where: {
+     *     // ... the filter for the UserAddModules we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserAddModuleCountArgs>(
+      args?: Subset<T, UserAddModuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserAddModuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserAddModule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserAddModuleAggregateArgs>(args: Subset<T, UserAddModuleAggregateArgs>): Prisma.PrismaPromise<GetUserAddModuleAggregateType<T>>
+
+    /**
+     * Group by UserAddModule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAddModuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserAddModuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserAddModuleGroupByArgs['orderBy'] }
+        : { orderBy?: UserAddModuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserAddModuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserAddModuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserAddModule model
+   */
+  readonly fields: UserAddModuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserAddModule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserAddModuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    module<T extends ModuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ModuleDefaultArgs<ExtArgs>>): Prisma__ModuleClient<$Result.GetResult<Prisma.$ModulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    degreePreset<T extends UserAddModule$degreePresetArgs<ExtArgs> = {}>(args?: Subset<T, UserAddModule$degreePresetArgs<ExtArgs>>): Prisma__DegreePresetClient<$Result.GetResult<Prisma.$DegreePresetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserAddModule model
+   */
+  interface UserAddModuleFieldRefs {
+    readonly id: FieldRef<"UserAddModule", 'String'>
+    readonly userId: FieldRef<"UserAddModule", 'String'>
+    readonly moduleId: FieldRef<"UserAddModule", 'String'>
+    readonly planYear: FieldRef<"UserAddModule", 'Int'>
+    readonly planSemester: FieldRef<"UserAddModule", 'Int'>
+    readonly isPresetModule: FieldRef<"UserAddModule", 'Boolean'>
+    readonly degreePresetId: FieldRef<"UserAddModule", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserAddModule findUnique
+   */
+  export type UserAddModuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAddModule to fetch.
+     */
+    where: UserAddModuleWhereUniqueInput
+  }
+
+  /**
+   * UserAddModule findUniqueOrThrow
+   */
+  export type UserAddModuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAddModule to fetch.
+     */
+    where: UserAddModuleWhereUniqueInput
+  }
+
+  /**
+   * UserAddModule findFirst
+   */
+  export type UserAddModuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAddModule to fetch.
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAddModules to fetch.
+     */
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserAddModules.
+     */
+    cursor?: UserAddModuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAddModules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAddModules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAddModules.
+     */
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
+  }
+
+  /**
+   * UserAddModule findFirstOrThrow
+   */
+  export type UserAddModuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAddModule to fetch.
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAddModules to fetch.
+     */
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserAddModules.
+     */
+    cursor?: UserAddModuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAddModules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAddModules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAddModules.
+     */
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
+  }
+
+  /**
+   * UserAddModule findMany
+   */
+  export type UserAddModuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAddModules to fetch.
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAddModules to fetch.
+     */
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserAddModules.
+     */
+    cursor?: UserAddModuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAddModules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAddModules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAddModules.
+     */
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
+  }
+
+  /**
+   * UserAddModule create
+   */
+  export type UserAddModuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserAddModule.
+     */
+    data: XOR<UserAddModuleCreateInput, UserAddModuleUncheckedCreateInput>
+  }
+
+  /**
+   * UserAddModule createMany
+   */
+  export type UserAddModuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserAddModules.
+     */
+    data: UserAddModuleCreateManyInput | UserAddModuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserAddModule createManyAndReturn
+   */
+  export type UserAddModuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserAddModules.
+     */
+    data: UserAddModuleCreateManyInput | UserAddModuleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserAddModule update
+   */
+  export type UserAddModuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserAddModule.
+     */
+    data: XOR<UserAddModuleUpdateInput, UserAddModuleUncheckedUpdateInput>
+    /**
+     * Choose, which UserAddModule to update.
+     */
+    where: UserAddModuleWhereUniqueInput
+  }
+
+  /**
+   * UserAddModule updateMany
+   */
+  export type UserAddModuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserAddModules.
+     */
+    data: XOR<UserAddModuleUpdateManyMutationInput, UserAddModuleUncheckedUpdateManyInput>
+    /**
+     * Filter which UserAddModules to update
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * Limit how many UserAddModules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserAddModule updateManyAndReturn
+   */
+  export type UserAddModuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * The data used to update UserAddModules.
+     */
+    data: XOR<UserAddModuleUpdateManyMutationInput, UserAddModuleUncheckedUpdateManyInput>
+    /**
+     * Filter which UserAddModules to update
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * Limit how many UserAddModules to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserAddModule upsert
+   */
+  export type UserAddModuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserAddModule to update in case it exists.
+     */
+    where: UserAddModuleWhereUniqueInput
+    /**
+     * In case the UserAddModule found by the `where` argument doesn't exist, create a new UserAddModule with this data.
+     */
+    create: XOR<UserAddModuleCreateInput, UserAddModuleUncheckedCreateInput>
+    /**
+     * In case the UserAddModule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserAddModuleUpdateInput, UserAddModuleUncheckedUpdateInput>
+  }
+
+  /**
+   * UserAddModule delete
+   */
+  export type UserAddModuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    /**
+     * Filter which UserAddModule to delete.
+     */
+    where: UserAddModuleWhereUniqueInput
+  }
+
+  /**
+   * UserAddModule deleteMany
+   */
+  export type UserAddModuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserAddModules to delete
+     */
+    where?: UserAddModuleWhereInput
+    /**
+     * Limit how many UserAddModules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserAddModule.degreePreset
+   */
+  export type UserAddModule$degreePresetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DegreePreset
+     */
+    select?: DegreePresetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DegreePreset
+     */
+    omit?: DegreePresetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DegreePresetInclude<ExtArgs> | null
+    where?: DegreePresetWhereInput
+  }
+
+  /**
+   * UserAddModule without action
+   */
+  export type UserAddModuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model User
    */
 
@@ -7449,6 +8785,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     userPlanModules?: boolean | User$userPlanModulesArgs<ExtArgs>
     userPresets?: boolean | User$userPresetsArgs<ExtArgs>
+    userAddModules?: boolean | User$userAddModulesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7488,6 +8825,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     userPlanModules?: boolean | User$userPlanModulesArgs<ExtArgs>
     userPresets?: boolean | User$userPresetsArgs<ExtArgs>
+    userAddModules?: boolean | User$userAddModulesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7500,6 +8838,7 @@ export namespace Prisma {
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       userPlanModules: Prisma.$UserPlanModulePayload<ExtArgs>[]
       userPresets: Prisma.$UserPresetPayload<ExtArgs>[]
+      userAddModules: Prisma.$UserAddModulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7907,6 +9246,7 @@ export namespace Prisma {
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userPlanModules<T extends User$userPlanModulesArgs<ExtArgs> = {}>(args?: Subset<T, User$userPlanModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPlanModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userPresets<T extends User$userPresetsArgs<ExtArgs> = {}>(args?: Subset<T, User$userPresetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPresetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userAddModules<T extends User$userAddModulesArgs<ExtArgs> = {}>(args?: Subset<T, User$userAddModulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAddModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8429,6 +9769,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserPresetScalarFieldEnum | UserPresetScalarFieldEnum[]
+  }
+
+  /**
+   * User.userAddModules
+   */
+  export type User$userAddModulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserAddModule
+     */
+    select?: UserAddModuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserAddModule
+     */
+    omit?: UserAddModuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAddModuleInclude<ExtArgs> | null
+    where?: UserAddModuleWhereInput
+    orderBy?: UserAddModuleOrderByWithRelationInput | UserAddModuleOrderByWithRelationInput[]
+    cursor?: UserAddModuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAddModuleScalarFieldEnum | UserAddModuleScalarFieldEnum[]
   }
 
   /**
@@ -11800,6 +13164,19 @@ export namespace Prisma {
   export type UserPresetScalarFieldEnum = (typeof UserPresetScalarFieldEnum)[keyof typeof UserPresetScalarFieldEnum]
 
 
+  export const UserAddModuleScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    moduleId: 'moduleId',
+    planYear: 'planYear',
+    planSemester: 'planSemester',
+    isPresetModule: 'isPresetModule',
+    degreePresetId: 'degreePresetId'
+  };
+
+  export type UserAddModuleScalarFieldEnum = (typeof UserAddModuleScalarFieldEnum)[keyof typeof UserAddModuleScalarFieldEnum]
+
+
   export const UserScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -11999,6 +13376,7 @@ export namespace Prisma {
     fulfillreqs?: StringNullableListFilter<"Module">
     userPlanModules?: UserPlanModuleListRelationFilter
     degreePresetLinks?: DegreePresetModuleListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }
 
   export type ModuleOrderByWithRelationInput = {
@@ -12013,6 +13391,7 @@ export namespace Prisma {
     fulfillreqs?: SortOrder
     userPlanModules?: UserPlanModuleOrderByRelationAggregateInput
     degreePresetLinks?: DegreePresetModuleOrderByRelationAggregateInput
+    userAddModules?: UserAddModuleOrderByRelationAggregateInput
   }
 
   export type ModuleWhereUniqueInput = Prisma.AtLeast<{
@@ -12030,6 +13409,7 @@ export namespace Prisma {
     fulfillreqs?: StringNullableListFilter<"Module">
     userPlanModules?: UserPlanModuleListRelationFilter
     degreePresetLinks?: DegreePresetModuleListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }, "id">
 
   export type ModuleOrderByWithAggregationInput = {
@@ -12074,6 +13454,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleListRelationFilter
     moduleLinks?: DegreePresetModuleListRelationFilter
     userPresets?: UserPresetListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }
 
   export type DegreePresetOrderByWithRelationInput = {
@@ -12083,6 +13464,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleOrderByRelationAggregateInput
     moduleLinks?: DegreePresetModuleOrderByRelationAggregateInput
     userPresets?: UserPresetOrderByRelationAggregateInput
+    userAddModules?: UserAddModuleOrderByRelationAggregateInput
   }
 
   export type DegreePresetWhereUniqueInput = Prisma.AtLeast<{
@@ -12095,6 +13477,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleListRelationFilter
     moduleLinks?: DegreePresetModuleListRelationFilter
     userPresets?: UserPresetListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }, "id" | "degreeCode">
 
   export type DegreePresetOrderByWithAggregationInput = {
@@ -12282,6 +13665,80 @@ export namespace Prisma {
     importedAt?: DateTimeWithAggregatesFilter<"UserPreset"> | Date | string
   }
 
+  export type UserAddModuleWhereInput = {
+    AND?: UserAddModuleWhereInput | UserAddModuleWhereInput[]
+    OR?: UserAddModuleWhereInput[]
+    NOT?: UserAddModuleWhereInput | UserAddModuleWhereInput[]
+    id?: StringFilter<"UserAddModule"> | string
+    userId?: StringFilter<"UserAddModule"> | string
+    moduleId?: StringFilter<"UserAddModule"> | string
+    planYear?: IntFilter<"UserAddModule"> | number
+    planSemester?: IntFilter<"UserAddModule"> | number
+    isPresetModule?: BoolFilter<"UserAddModule"> | boolean
+    degreePresetId?: StringNullableFilter<"UserAddModule"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    module?: XOR<ModuleScalarRelationFilter, ModuleWhereInput>
+    degreePreset?: XOR<DegreePresetNullableScalarRelationFilter, DegreePresetWhereInput> | null
+  }
+
+  export type UserAddModuleOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    moduleId?: SortOrder
+    planYear?: SortOrder
+    planSemester?: SortOrder
+    isPresetModule?: SortOrder
+    degreePresetId?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    module?: ModuleOrderByWithRelationInput
+    degreePreset?: DegreePresetOrderByWithRelationInput
+  }
+
+  export type UserAddModuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_moduleId?: UserAddModuleUserIdModuleIdCompoundUniqueInput
+    AND?: UserAddModuleWhereInput | UserAddModuleWhereInput[]
+    OR?: UserAddModuleWhereInput[]
+    NOT?: UserAddModuleWhereInput | UserAddModuleWhereInput[]
+    userId?: StringFilter<"UserAddModule"> | string
+    moduleId?: StringFilter<"UserAddModule"> | string
+    planYear?: IntFilter<"UserAddModule"> | number
+    planSemester?: IntFilter<"UserAddModule"> | number
+    isPresetModule?: BoolFilter<"UserAddModule"> | boolean
+    degreePresetId?: StringNullableFilter<"UserAddModule"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    module?: XOR<ModuleScalarRelationFilter, ModuleWhereInput>
+    degreePreset?: XOR<DegreePresetNullableScalarRelationFilter, DegreePresetWhereInput> | null
+  }, "id" | "userId_moduleId">
+
+  export type UserAddModuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    moduleId?: SortOrder
+    planYear?: SortOrder
+    planSemester?: SortOrder
+    isPresetModule?: SortOrder
+    degreePresetId?: SortOrderInput | SortOrder
+    _count?: UserAddModuleCountOrderByAggregateInput
+    _avg?: UserAddModuleAvgOrderByAggregateInput
+    _max?: UserAddModuleMaxOrderByAggregateInput
+    _min?: UserAddModuleMinOrderByAggregateInput
+    _sum?: UserAddModuleSumOrderByAggregateInput
+  }
+
+  export type UserAddModuleScalarWhereWithAggregatesInput = {
+    AND?: UserAddModuleScalarWhereWithAggregatesInput | UserAddModuleScalarWhereWithAggregatesInput[]
+    OR?: UserAddModuleScalarWhereWithAggregatesInput[]
+    NOT?: UserAddModuleScalarWhereWithAggregatesInput | UserAddModuleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserAddModule"> | string
+    userId?: StringWithAggregatesFilter<"UserAddModule"> | string
+    moduleId?: StringWithAggregatesFilter<"UserAddModule"> | string
+    planYear?: IntWithAggregatesFilter<"UserAddModule"> | number
+    planSemester?: IntWithAggregatesFilter<"UserAddModule"> | number
+    isPresetModule?: BoolWithAggregatesFilter<"UserAddModule"> | boolean
+    degreePresetId?: StringNullableWithAggregatesFilter<"UserAddModule"> | string | null
+  }
+
   export type UserWhereInput = {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
@@ -12297,6 +13754,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     userPlanModules?: UserPlanModuleListRelationFilter
     userPresets?: UserPresetListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -12311,6 +13769,7 @@ export namespace Prisma {
     accounts?: AccountOrderByRelationAggregateInput
     userPlanModules?: UserPlanModuleOrderByRelationAggregateInput
     userPresets?: UserPresetOrderByRelationAggregateInput
+    userAddModules?: UserAddModuleOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -12328,6 +13787,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     userPlanModules?: UserPlanModuleListRelationFilter
     userPresets?: UserPresetListRelationFilter
+    userAddModules?: UserAddModuleListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -12590,6 +14050,7 @@ export namespace Prisma {
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutModuleInput
     degreePresetLinks?: DegreePresetModuleCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleUncheckedCreateInput = {
@@ -12604,6 +14065,7 @@ export namespace Prisma {
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput
     degreePresetLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleUpdateInput = {
@@ -12618,6 +14080,7 @@ export namespace Prisma {
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUpdateManyWithoutModuleNestedInput
     degreePresetLinks?: DegreePresetModuleUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutModuleNestedInput
   }
 
   export type ModuleUncheckedUpdateInput = {
@@ -12632,6 +14095,7 @@ export namespace Prisma {
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput
     degreePresetLinks?: DegreePresetModuleUncheckedUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
 
   export type ModuleCreateManyInput = {
@@ -12677,6 +14141,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutDegreePresetInput
     moduleLinks?: DegreePresetModuleCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetUncheckedCreateInput = {
@@ -12686,6 +14151,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutDegreePresetInput
     moduleLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetUpdateInput = {
@@ -12695,6 +14161,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleUpdateManyWithoutDegreePresetNestedInput
     moduleLinks?: DegreePresetModuleUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type DegreePresetUncheckedUpdateInput = {
@@ -12704,6 +14171,7 @@ export namespace Prisma {
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
     moduleLinks?: DegreePresetModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type DegreePresetCreateManyInput = {
@@ -12865,6 +14333,73 @@ export namespace Prisma {
     importedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserAddModuleCreateInput = {
+    id: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    user: UserCreateNestedOneWithoutUserAddModulesInput
+    module: ModuleCreateNestedOneWithoutUserAddModulesInput
+    degreePreset?: DegreePresetCreateNestedOneWithoutUserAddModulesInput
+  }
+
+  export type UserAddModuleUncheckedCreateInput = {
+    id: string
+    userId: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
+  }
+
+  export type UserAddModuleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutUserAddModulesNestedInput
+    module?: ModuleUpdateOneRequiredWithoutUserAddModulesNestedInput
+    degreePreset?: DegreePresetUpdateOneWithoutUserAddModulesNestedInput
+  }
+
+  export type UserAddModuleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UserAddModuleCreateManyInput = {
+    id: string
+    userId: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
+  }
+
+  export type UserAddModuleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type UserAddModuleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type UserCreateInput = {
     id: string
     name: string
@@ -12877,6 +14412,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutUserInput
     userPresets?: UserPresetCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -12891,6 +14427,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutUserInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -12905,6 +14442,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -12919,6 +14457,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -13285,6 +14824,12 @@ export namespace Prisma {
     none?: DegreePresetModuleWhereInput
   }
 
+  export type UserAddModuleListRelationFilter = {
+    every?: UserAddModuleWhereInput
+    some?: UserAddModuleWhereInput
+    none?: UserAddModuleWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -13295,6 +14840,10 @@ export namespace Prisma {
   }
 
   export type DegreePresetModuleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserAddModuleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13617,6 +15166,51 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type UserAddModuleUserIdModuleIdCompoundUniqueInput = {
+    userId: string
+    moduleId: string
+  }
+
+  export type UserAddModuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    moduleId?: SortOrder
+    planYear?: SortOrder
+    planSemester?: SortOrder
+    isPresetModule?: SortOrder
+    degreePresetId?: SortOrder
+  }
+
+  export type UserAddModuleAvgOrderByAggregateInput = {
+    planYear?: SortOrder
+    planSemester?: SortOrder
+  }
+
+  export type UserAddModuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    moduleId?: SortOrder
+    planYear?: SortOrder
+    planSemester?: SortOrder
+    isPresetModule?: SortOrder
+    degreePresetId?: SortOrder
+  }
+
+  export type UserAddModuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    moduleId?: SortOrder
+    planYear?: SortOrder
+    planSemester?: SortOrder
+    isPresetModule?: SortOrder
+    degreePresetId?: SortOrder
+  }
+
+  export type UserAddModuleSumOrderByAggregateInput = {
+    planYear?: SortOrder
+    planSemester?: SortOrder
+  }
+
   export type SessionListRelationFilter = {
     every?: SessionWhereInput
     some?: SessionWhereInput
@@ -13818,6 +15412,13 @@ export namespace Prisma {
     connect?: DegreePresetModuleWhereUniqueInput | DegreePresetModuleWhereUniqueInput[]
   }
 
+  export type UserAddModuleCreateNestedManyWithoutModuleInput = {
+    create?: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput> | UserAddModuleCreateWithoutModuleInput[] | UserAddModuleUncheckedCreateWithoutModuleInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutModuleInput | UserAddModuleCreateOrConnectWithoutModuleInput[]
+    createMany?: UserAddModuleCreateManyModuleInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+  }
+
   export type UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput = {
     create?: XOR<UserPlanModuleCreateWithoutModuleInput, UserPlanModuleUncheckedCreateWithoutModuleInput> | UserPlanModuleCreateWithoutModuleInput[] | UserPlanModuleUncheckedCreateWithoutModuleInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutModuleInput | UserPlanModuleCreateOrConnectWithoutModuleInput[]
@@ -13830,6 +15431,13 @@ export namespace Prisma {
     connectOrCreate?: DegreePresetModuleCreateOrConnectWithoutModuleInput | DegreePresetModuleCreateOrConnectWithoutModuleInput[]
     createMany?: DegreePresetModuleCreateManyModuleInputEnvelope
     connect?: DegreePresetModuleWhereUniqueInput | DegreePresetModuleWhereUniqueInput[]
+  }
+
+  export type UserAddModuleUncheckedCreateNestedManyWithoutModuleInput = {
+    create?: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput> | UserAddModuleCreateWithoutModuleInput[] | UserAddModuleUncheckedCreateWithoutModuleInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutModuleInput | UserAddModuleCreateOrConnectWithoutModuleInput[]
+    createMany?: UserAddModuleCreateManyModuleInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -13881,6 +15489,20 @@ export namespace Prisma {
     deleteMany?: DegreePresetModuleScalarWhereInput | DegreePresetModuleScalarWhereInput[]
   }
 
+  export type UserAddModuleUpdateManyWithoutModuleNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput> | UserAddModuleCreateWithoutModuleInput[] | UserAddModuleUncheckedCreateWithoutModuleInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutModuleInput | UserAddModuleCreateOrConnectWithoutModuleInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutModuleInput | UserAddModuleUpsertWithWhereUniqueWithoutModuleInput[]
+    createMany?: UserAddModuleCreateManyModuleInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutModuleInput | UserAddModuleUpdateWithWhereUniqueWithoutModuleInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutModuleInput | UserAddModuleUpdateManyWithWhereWithoutModuleInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+  }
+
   export type UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput = {
     create?: XOR<UserPlanModuleCreateWithoutModuleInput, UserPlanModuleUncheckedCreateWithoutModuleInput> | UserPlanModuleCreateWithoutModuleInput[] | UserPlanModuleUncheckedCreateWithoutModuleInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutModuleInput | UserPlanModuleCreateOrConnectWithoutModuleInput[]
@@ -13909,6 +15531,20 @@ export namespace Prisma {
     deleteMany?: DegreePresetModuleScalarWhereInput | DegreePresetModuleScalarWhereInput[]
   }
 
+  export type UserAddModuleUncheckedUpdateManyWithoutModuleNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput> | UserAddModuleCreateWithoutModuleInput[] | UserAddModuleUncheckedCreateWithoutModuleInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutModuleInput | UserAddModuleCreateOrConnectWithoutModuleInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutModuleInput | UserAddModuleUpsertWithWhereUniqueWithoutModuleInput[]
+    createMany?: UserAddModuleCreateManyModuleInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutModuleInput | UserAddModuleUpdateWithWhereUniqueWithoutModuleInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutModuleInput | UserAddModuleUpdateManyWithWhereWithoutModuleInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+  }
+
   export type UserPlanModuleCreateNestedManyWithoutDegreePresetInput = {
     create?: XOR<UserPlanModuleCreateWithoutDegreePresetInput, UserPlanModuleUncheckedCreateWithoutDegreePresetInput> | UserPlanModuleCreateWithoutDegreePresetInput[] | UserPlanModuleUncheckedCreateWithoutDegreePresetInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutDegreePresetInput | UserPlanModuleCreateOrConnectWithoutDegreePresetInput[]
@@ -13930,6 +15566,13 @@ export namespace Prisma {
     connect?: UserPresetWhereUniqueInput | UserPresetWhereUniqueInput[]
   }
 
+  export type UserAddModuleCreateNestedManyWithoutDegreePresetInput = {
+    create?: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput> | UserAddModuleCreateWithoutDegreePresetInput[] | UserAddModuleUncheckedCreateWithoutDegreePresetInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutDegreePresetInput | UserAddModuleCreateOrConnectWithoutDegreePresetInput[]
+    createMany?: UserAddModuleCreateManyDegreePresetInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+  }
+
   export type UserPlanModuleUncheckedCreateNestedManyWithoutDegreePresetInput = {
     create?: XOR<UserPlanModuleCreateWithoutDegreePresetInput, UserPlanModuleUncheckedCreateWithoutDegreePresetInput> | UserPlanModuleCreateWithoutDegreePresetInput[] | UserPlanModuleUncheckedCreateWithoutDegreePresetInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutDegreePresetInput | UserPlanModuleCreateOrConnectWithoutDegreePresetInput[]
@@ -13949,6 +15592,13 @@ export namespace Prisma {
     connectOrCreate?: UserPresetCreateOrConnectWithoutDegreePresetInput | UserPresetCreateOrConnectWithoutDegreePresetInput[]
     createMany?: UserPresetCreateManyDegreePresetInputEnvelope
     connect?: UserPresetWhereUniqueInput | UserPresetWhereUniqueInput[]
+  }
+
+  export type UserAddModuleUncheckedCreateNestedManyWithoutDegreePresetInput = {
+    create?: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput> | UserAddModuleCreateWithoutDegreePresetInput[] | UserAddModuleUncheckedCreateWithoutDegreePresetInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutDegreePresetInput | UserAddModuleCreateOrConnectWithoutDegreePresetInput[]
+    createMany?: UserAddModuleCreateManyDegreePresetInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
   }
 
   export type UserPlanModuleUpdateManyWithoutDegreePresetNestedInput = {
@@ -13993,6 +15643,20 @@ export namespace Prisma {
     deleteMany?: UserPresetScalarWhereInput | UserPresetScalarWhereInput[]
   }
 
+  export type UserAddModuleUpdateManyWithoutDegreePresetNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput> | UserAddModuleCreateWithoutDegreePresetInput[] | UserAddModuleUncheckedCreateWithoutDegreePresetInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutDegreePresetInput | UserAddModuleCreateOrConnectWithoutDegreePresetInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutDegreePresetInput | UserAddModuleUpsertWithWhereUniqueWithoutDegreePresetInput[]
+    createMany?: UserAddModuleCreateManyDegreePresetInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutDegreePresetInput | UserAddModuleUpdateWithWhereUniqueWithoutDegreePresetInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutDegreePresetInput | UserAddModuleUpdateManyWithWhereWithoutDegreePresetInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+  }
+
   export type UserPlanModuleUncheckedUpdateManyWithoutDegreePresetNestedInput = {
     create?: XOR<UserPlanModuleCreateWithoutDegreePresetInput, UserPlanModuleUncheckedCreateWithoutDegreePresetInput> | UserPlanModuleCreateWithoutDegreePresetInput[] | UserPlanModuleUncheckedCreateWithoutDegreePresetInput[]
     connectOrCreate?: UserPlanModuleCreateOrConnectWithoutDegreePresetInput | UserPlanModuleCreateOrConnectWithoutDegreePresetInput[]
@@ -14033,6 +15697,20 @@ export namespace Prisma {
     update?: UserPresetUpdateWithWhereUniqueWithoutDegreePresetInput | UserPresetUpdateWithWhereUniqueWithoutDegreePresetInput[]
     updateMany?: UserPresetUpdateManyWithWhereWithoutDegreePresetInput | UserPresetUpdateManyWithWhereWithoutDegreePresetInput[]
     deleteMany?: UserPresetScalarWhereInput | UserPresetScalarWhereInput[]
+  }
+
+  export type UserAddModuleUncheckedUpdateManyWithoutDegreePresetNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput> | UserAddModuleCreateWithoutDegreePresetInput[] | UserAddModuleUncheckedCreateWithoutDegreePresetInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutDegreePresetInput | UserAddModuleCreateOrConnectWithoutDegreePresetInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutDegreePresetInput | UserAddModuleUpsertWithWhereUniqueWithoutDegreePresetInput[]
+    createMany?: UserAddModuleCreateManyDegreePresetInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutDegreePresetInput | UserAddModuleUpdateWithWhereUniqueWithoutDegreePresetInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutDegreePresetInput | UserAddModuleUpdateManyWithWhereWithoutDegreePresetInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
   }
 
   export type DegreePresetCreateNestedOneWithoutModuleLinksInput = {
@@ -14151,6 +15829,50 @@ export namespace Prisma {
     update?: XOR<XOR<DegreePresetUpdateToOneWithWhereWithoutUserPresetsInput, DegreePresetUpdateWithoutUserPresetsInput>, DegreePresetUncheckedUpdateWithoutUserPresetsInput>
   }
 
+  export type UserCreateNestedOneWithoutUserAddModulesInput = {
+    create?: XOR<UserCreateWithoutUserAddModulesInput, UserUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserAddModulesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ModuleCreateNestedOneWithoutUserAddModulesInput = {
+    create?: XOR<ModuleCreateWithoutUserAddModulesInput, ModuleUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: ModuleCreateOrConnectWithoutUserAddModulesInput
+    connect?: ModuleWhereUniqueInput
+  }
+
+  export type DegreePresetCreateNestedOneWithoutUserAddModulesInput = {
+    create?: XOR<DegreePresetCreateWithoutUserAddModulesInput, DegreePresetUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: DegreePresetCreateOrConnectWithoutUserAddModulesInput
+    connect?: DegreePresetWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserAddModulesNestedInput = {
+    create?: XOR<UserCreateWithoutUserAddModulesInput, UserUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserAddModulesInput
+    upsert?: UserUpsertWithoutUserAddModulesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserAddModulesInput, UserUpdateWithoutUserAddModulesInput>, UserUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
+  export type ModuleUpdateOneRequiredWithoutUserAddModulesNestedInput = {
+    create?: XOR<ModuleCreateWithoutUserAddModulesInput, ModuleUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: ModuleCreateOrConnectWithoutUserAddModulesInput
+    upsert?: ModuleUpsertWithoutUserAddModulesInput
+    connect?: ModuleWhereUniqueInput
+    update?: XOR<XOR<ModuleUpdateToOneWithWhereWithoutUserAddModulesInput, ModuleUpdateWithoutUserAddModulesInput>, ModuleUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
+  export type DegreePresetUpdateOneWithoutUserAddModulesNestedInput = {
+    create?: XOR<DegreePresetCreateWithoutUserAddModulesInput, DegreePresetUncheckedCreateWithoutUserAddModulesInput>
+    connectOrCreate?: DegreePresetCreateOrConnectWithoutUserAddModulesInput
+    upsert?: DegreePresetUpsertWithoutUserAddModulesInput
+    disconnect?: DegreePresetWhereInput | boolean
+    delete?: DegreePresetWhereInput | boolean
+    connect?: DegreePresetWhereUniqueInput
+    update?: XOR<XOR<DegreePresetUpdateToOneWithWhereWithoutUserAddModulesInput, DegreePresetUpdateWithoutUserAddModulesInput>, DegreePresetUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
   export type SessionCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -14179,6 +15901,13 @@ export namespace Prisma {
     connect?: UserPresetWhereUniqueInput | UserPresetWhereUniqueInput[]
   }
 
+  export type UserAddModuleCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput> | UserAddModuleCreateWithoutUserInput[] | UserAddModuleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutUserInput | UserAddModuleCreateOrConnectWithoutUserInput[]
+    createMany?: UserAddModuleCreateManyUserInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -14205,6 +15934,13 @@ export namespace Prisma {
     connectOrCreate?: UserPresetCreateOrConnectWithoutUserInput | UserPresetCreateOrConnectWithoutUserInput[]
     createMany?: UserPresetCreateManyUserInputEnvelope
     connect?: UserPresetWhereUniqueInput | UserPresetWhereUniqueInput[]
+  }
+
+  export type UserAddModuleUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput> | UserAddModuleCreateWithoutUserInput[] | UserAddModuleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutUserInput | UserAddModuleCreateOrConnectWithoutUserInput[]
+    createMany?: UserAddModuleCreateManyUserInputEnvelope
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
   }
 
   export type SessionUpdateManyWithoutUserNestedInput = {
@@ -14263,6 +15999,20 @@ export namespace Prisma {
     deleteMany?: UserPresetScalarWhereInput | UserPresetScalarWhereInput[]
   }
 
+  export type UserAddModuleUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput> | UserAddModuleCreateWithoutUserInput[] | UserAddModuleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutUserInput | UserAddModuleCreateOrConnectWithoutUserInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutUserInput | UserAddModuleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserAddModuleCreateManyUserInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutUserInput | UserAddModuleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutUserInput | UserAddModuleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -14317,6 +16067,20 @@ export namespace Prisma {
     update?: UserPresetUpdateWithWhereUniqueWithoutUserInput | UserPresetUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UserPresetUpdateManyWithWhereWithoutUserInput | UserPresetUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UserPresetScalarWhereInput | UserPresetScalarWhereInput[]
+  }
+
+  export type UserAddModuleUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput> | UserAddModuleCreateWithoutUserInput[] | UserAddModuleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAddModuleCreateOrConnectWithoutUserInput | UserAddModuleCreateOrConnectWithoutUserInput[]
+    upsert?: UserAddModuleUpsertWithWhereUniqueWithoutUserInput | UserAddModuleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserAddModuleCreateManyUserInputEnvelope
+    set?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    disconnect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    delete?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    connect?: UserAddModuleWhereUniqueInput | UserAddModuleWhereUniqueInput[]
+    update?: UserAddModuleUpdateWithWhereUniqueWithoutUserInput | UserAddModuleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserAddModuleUpdateManyWithWhereWithoutUserInput | UserAddModuleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -14621,6 +16385,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserAddModuleCreateWithoutModuleInput = {
+    id: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    user: UserCreateNestedOneWithoutUserAddModulesInput
+    degreePreset?: DegreePresetCreateNestedOneWithoutUserAddModulesInput
+  }
+
+  export type UserAddModuleUncheckedCreateWithoutModuleInput = {
+    id: string
+    userId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
+  }
+
+  export type UserAddModuleCreateOrConnectWithoutModuleInput = {
+    where: UserAddModuleWhereUniqueInput
+    create: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput>
+  }
+
+  export type UserAddModuleCreateManyModuleInputEnvelope = {
+    data: UserAddModuleCreateManyModuleInput | UserAddModuleCreateManyModuleInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserPlanModuleUpsertWithWhereUniqueWithoutModuleInput = {
     where: UserPlanModuleWhereUniqueInput
     update: XOR<UserPlanModuleUpdateWithoutModuleInput, UserPlanModuleUncheckedUpdateWithoutModuleInput>
@@ -14672,6 +16464,35 @@ export namespace Prisma {
     NOT?: DegreePresetModuleScalarWhereInput | DegreePresetModuleScalarWhereInput[]
     degreePresetId?: StringFilter<"DegreePresetModule"> | string
     moduleId?: StringFilter<"DegreePresetModule"> | string
+  }
+
+  export type UserAddModuleUpsertWithWhereUniqueWithoutModuleInput = {
+    where: UserAddModuleWhereUniqueInput
+    update: XOR<UserAddModuleUpdateWithoutModuleInput, UserAddModuleUncheckedUpdateWithoutModuleInput>
+    create: XOR<UserAddModuleCreateWithoutModuleInput, UserAddModuleUncheckedCreateWithoutModuleInput>
+  }
+
+  export type UserAddModuleUpdateWithWhereUniqueWithoutModuleInput = {
+    where: UserAddModuleWhereUniqueInput
+    data: XOR<UserAddModuleUpdateWithoutModuleInput, UserAddModuleUncheckedUpdateWithoutModuleInput>
+  }
+
+  export type UserAddModuleUpdateManyWithWhereWithoutModuleInput = {
+    where: UserAddModuleScalarWhereInput
+    data: XOR<UserAddModuleUpdateManyMutationInput, UserAddModuleUncheckedUpdateManyWithoutModuleInput>
+  }
+
+  export type UserAddModuleScalarWhereInput = {
+    AND?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+    OR?: UserAddModuleScalarWhereInput[]
+    NOT?: UserAddModuleScalarWhereInput | UserAddModuleScalarWhereInput[]
+    id?: StringFilter<"UserAddModule"> | string
+    userId?: StringFilter<"UserAddModule"> | string
+    moduleId?: StringFilter<"UserAddModule"> | string
+    planYear?: IntFilter<"UserAddModule"> | number
+    planSemester?: IntFilter<"UserAddModule"> | number
+    isPresetModule?: BoolFilter<"UserAddModule"> | boolean
+    degreePresetId?: StringNullableFilter<"UserAddModule"> | string | null
   }
 
   export type UserPlanModuleCreateWithoutDegreePresetInput = {
@@ -14740,6 +16561,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserAddModuleCreateWithoutDegreePresetInput = {
+    id: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    user: UserCreateNestedOneWithoutUserAddModulesInput
+    module: ModuleCreateNestedOneWithoutUserAddModulesInput
+  }
+
+  export type UserAddModuleUncheckedCreateWithoutDegreePresetInput = {
+    id: string
+    userId: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+  }
+
+  export type UserAddModuleCreateOrConnectWithoutDegreePresetInput = {
+    where: UserAddModuleWhereUniqueInput
+    create: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput>
+  }
+
+  export type UserAddModuleCreateManyDegreePresetInputEnvelope = {
+    data: UserAddModuleCreateManyDegreePresetInput | UserAddModuleCreateManyDegreePresetInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserPlanModuleUpsertWithWhereUniqueWithoutDegreePresetInput = {
     where: UserPlanModuleWhereUniqueInput
     update: XOR<UserPlanModuleUpdateWithoutDegreePresetInput, UserPlanModuleUncheckedUpdateWithoutDegreePresetInput>
@@ -14797,12 +16646,29 @@ export namespace Prisma {
     importedAt?: DateTimeFilter<"UserPreset"> | Date | string
   }
 
+  export type UserAddModuleUpsertWithWhereUniqueWithoutDegreePresetInput = {
+    where: UserAddModuleWhereUniqueInput
+    update: XOR<UserAddModuleUpdateWithoutDegreePresetInput, UserAddModuleUncheckedUpdateWithoutDegreePresetInput>
+    create: XOR<UserAddModuleCreateWithoutDegreePresetInput, UserAddModuleUncheckedCreateWithoutDegreePresetInput>
+  }
+
+  export type UserAddModuleUpdateWithWhereUniqueWithoutDegreePresetInput = {
+    where: UserAddModuleWhereUniqueInput
+    data: XOR<UserAddModuleUpdateWithoutDegreePresetInput, UserAddModuleUncheckedUpdateWithoutDegreePresetInput>
+  }
+
+  export type UserAddModuleUpdateManyWithWhereWithoutDegreePresetInput = {
+    where: UserAddModuleScalarWhereInput
+    data: XOR<UserAddModuleUpdateManyMutationInput, UserAddModuleUncheckedUpdateManyWithoutDegreePresetInput>
+  }
+
   export type DegreePresetCreateWithoutModuleLinksInput = {
     id?: string
     degreeCode: string
     degreeName: string
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetUncheckedCreateWithoutModuleLinksInput = {
@@ -14811,6 +16677,7 @@ export namespace Prisma {
     degreeName: string
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetCreateOrConnectWithoutModuleLinksInput = {
@@ -14829,6 +16696,7 @@ export namespace Prisma {
     prerequisite?: string | null
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleUncheckedCreateWithoutDegreePresetLinksInput = {
@@ -14842,6 +16710,7 @@ export namespace Prisma {
     prerequisite?: string | null
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleCreateOrConnectWithoutDegreePresetLinksInput = {
@@ -14866,6 +16735,7 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     userPlanModules?: UserPlanModuleUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type DegreePresetUncheckedUpdateWithoutModuleLinksInput = {
@@ -14874,6 +16744,7 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type ModuleUpsertWithoutDegreePresetLinksInput = {
@@ -14898,6 +16769,7 @@ export namespace Prisma {
     prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutModuleNestedInput
   }
 
   export type ModuleUncheckedUpdateWithoutDegreePresetLinksInput = {
@@ -14911,6 +16783,7 @@ export namespace Prisma {
     prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
 
   export type UserCreateWithoutUserPlanModulesInput = {
@@ -14924,6 +16797,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     userPresets?: UserPresetCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserPlanModulesInput = {
@@ -14937,6 +16811,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserPlanModulesInput = {
@@ -14955,6 +16830,7 @@ export namespace Prisma {
     prerequisite?: string | null
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleUncheckedCreateWithoutUserPlanModulesInput = {
@@ -14968,6 +16844,7 @@ export namespace Prisma {
     prerequisite?: string | null
     fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutModuleInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutModuleInput
   }
 
   export type ModuleCreateOrConnectWithoutUserPlanModulesInput = {
@@ -14981,6 +16858,7 @@ export namespace Prisma {
     degreeName: string
     moduleLinks?: DegreePresetModuleCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetUncheckedCreateWithoutUserPlanModulesInput = {
@@ -14989,6 +16867,7 @@ export namespace Prisma {
     degreeName: string
     moduleLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutDegreePresetInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetCreateOrConnectWithoutUserPlanModulesInput = {
@@ -15018,6 +16897,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserPlanModulesInput = {
@@ -15031,6 +16911,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ModuleUpsertWithoutUserPlanModulesInput = {
@@ -15055,6 +16936,7 @@ export namespace Prisma {
     prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutModuleNestedInput
   }
 
   export type ModuleUncheckedUpdateWithoutUserPlanModulesInput = {
@@ -15068,6 +16950,7 @@ export namespace Prisma {
     prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
     fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
     degreePresetLinks?: DegreePresetModuleUncheckedUpdateManyWithoutModuleNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutModuleNestedInput
   }
 
   export type DegreePresetUpsertWithoutUserPlanModulesInput = {
@@ -15087,6 +16970,7 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     moduleLinks?: DegreePresetModuleUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type DegreePresetUncheckedUpdateWithoutUserPlanModulesInput = {
@@ -15095,6 +16979,7 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     moduleLinks?: DegreePresetModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type UserCreateWithoutUserPresetsInput = {
@@ -15108,6 +16993,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserPresetsInput = {
@@ -15121,6 +17007,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserPresetsInput = {
@@ -15134,6 +17021,7 @@ export namespace Prisma {
     degreeName: string
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutDegreePresetInput
     moduleLinks?: DegreePresetModuleCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetUncheckedCreateWithoutUserPresetsInput = {
@@ -15142,6 +17030,7 @@ export namespace Prisma {
     degreeName: string
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutDegreePresetInput
     moduleLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutDegreePresetInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutDegreePresetInput
   }
 
   export type DegreePresetCreateOrConnectWithoutUserPresetsInput = {
@@ -15171,6 +17060,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserPresetsInput = {
@@ -15184,6 +17074,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type DegreePresetUpsertWithoutUserPresetsInput = {
@@ -15203,6 +17094,7 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     userPlanModules?: UserPlanModuleUpdateManyWithoutDegreePresetNestedInput
     moduleLinks?: DegreePresetModuleUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type DegreePresetUncheckedUpdateWithoutUserPresetsInput = {
@@ -15211,6 +17103,203 @@ export namespace Prisma {
     degreeName?: StringFieldUpdateOperationsInput | string
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
     moduleLinks?: DegreePresetModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
+  }
+
+  export type UserCreateWithoutUserAddModulesInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    userPlanModules?: UserPlanModuleCreateNestedManyWithoutUserInput
+    userPresets?: UserPresetCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserAddModulesInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutUserInput
+    userPresets?: UserPresetUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserAddModulesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserAddModulesInput, UserUncheckedCreateWithoutUserAddModulesInput>
+  }
+
+  export type ModuleCreateWithoutUserAddModulesInput = {
+    id: string
+    title: string
+    description?: string | null
+    department?: string | null
+    workload?: number | null
+    prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
+    userPlanModules?: UserPlanModuleCreateNestedManyWithoutModuleInput
+    degreePresetLinks?: DegreePresetModuleCreateNestedManyWithoutModuleInput
+  }
+
+  export type ModuleUncheckedCreateWithoutUserAddModulesInput = {
+    id: string
+    title: string
+    description?: string | null
+    department?: string | null
+    workload?: number | null
+    prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: string | null
+    prerequisite?: string | null
+    fulfillreqs?: ModuleCreatefulfillreqsInput | string[]
+    userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutModuleInput
+    degreePresetLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutModuleInput
+  }
+
+  export type ModuleCreateOrConnectWithoutUserAddModulesInput = {
+    where: ModuleWhereUniqueInput
+    create: XOR<ModuleCreateWithoutUserAddModulesInput, ModuleUncheckedCreateWithoutUserAddModulesInput>
+  }
+
+  export type DegreePresetCreateWithoutUserAddModulesInput = {
+    id?: string
+    degreeCode: string
+    degreeName: string
+    userPlanModules?: UserPlanModuleCreateNestedManyWithoutDegreePresetInput
+    moduleLinks?: DegreePresetModuleCreateNestedManyWithoutDegreePresetInput
+    userPresets?: UserPresetCreateNestedManyWithoutDegreePresetInput
+  }
+
+  export type DegreePresetUncheckedCreateWithoutUserAddModulesInput = {
+    id?: string
+    degreeCode: string
+    degreeName: string
+    userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutDegreePresetInput
+    moduleLinks?: DegreePresetModuleUncheckedCreateNestedManyWithoutDegreePresetInput
+    userPresets?: UserPresetUncheckedCreateNestedManyWithoutDegreePresetInput
+  }
+
+  export type DegreePresetCreateOrConnectWithoutUserAddModulesInput = {
+    where: DegreePresetWhereUniqueInput
+    create: XOR<DegreePresetCreateWithoutUserAddModulesInput, DegreePresetUncheckedCreateWithoutUserAddModulesInput>
+  }
+
+  export type UserUpsertWithoutUserAddModulesInput = {
+    update: XOR<UserUpdateWithoutUserAddModulesInput, UserUncheckedUpdateWithoutUserAddModulesInput>
+    create: XOR<UserCreateWithoutUserAddModulesInput, UserUncheckedCreateWithoutUserAddModulesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserAddModulesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserAddModulesInput, UserUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
+  export type UserUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    userPlanModules?: UserPlanModuleUpdateManyWithoutUserNestedInput
+    userPresets?: UserPresetUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutUserNestedInput
+    userPresets?: UserPresetUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ModuleUpsertWithoutUserAddModulesInput = {
+    update: XOR<ModuleUpdateWithoutUserAddModulesInput, ModuleUncheckedUpdateWithoutUserAddModulesInput>
+    create: XOR<ModuleCreateWithoutUserAddModulesInput, ModuleUncheckedCreateWithoutUserAddModulesInput>
+    where?: ModuleWhereInput
+  }
+
+  export type ModuleUpdateToOneWithWhereWithoutUserAddModulesInput = {
+    where?: ModuleWhereInput
+    data: XOR<ModuleUpdateWithoutUserAddModulesInput, ModuleUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
+  export type ModuleUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    workload?: NullableFloatFieldUpdateOperationsInput | number | null
+    prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
+    userPlanModules?: UserPlanModuleUpdateManyWithoutModuleNestedInput
+    degreePresetLinks?: DegreePresetModuleUpdateManyWithoutModuleNestedInput
+  }
+
+  export type ModuleUncheckedUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    workload?: NullableFloatFieldUpdateOperationsInput | number | null
+    prereqTree?: NullableJsonNullValueInput | InputJsonValue
+    preclusion?: NullableStringFieldUpdateOperationsInput | string | null
+    prerequisite?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfillreqs?: ModuleUpdatefulfillreqsInput | string[]
+    userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutModuleNestedInput
+    degreePresetLinks?: DegreePresetModuleUncheckedUpdateManyWithoutModuleNestedInput
+  }
+
+  export type DegreePresetUpsertWithoutUserAddModulesInput = {
+    update: XOR<DegreePresetUpdateWithoutUserAddModulesInput, DegreePresetUncheckedUpdateWithoutUserAddModulesInput>
+    create: XOR<DegreePresetCreateWithoutUserAddModulesInput, DegreePresetUncheckedCreateWithoutUserAddModulesInput>
+    where?: DegreePresetWhereInput
+  }
+
+  export type DegreePresetUpdateToOneWithWhereWithoutUserAddModulesInput = {
+    where?: DegreePresetWhereInput
+    data: XOR<DegreePresetUpdateWithoutUserAddModulesInput, DegreePresetUncheckedUpdateWithoutUserAddModulesInput>
+  }
+
+  export type DegreePresetUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    degreeCode?: StringFieldUpdateOperationsInput | string
+    degreeName?: StringFieldUpdateOperationsInput | string
+    userPlanModules?: UserPlanModuleUpdateManyWithoutDegreePresetNestedInput
+    moduleLinks?: DegreePresetModuleUpdateManyWithoutDegreePresetNestedInput
+    userPresets?: UserPresetUpdateManyWithoutDegreePresetNestedInput
+  }
+
+  export type DegreePresetUncheckedUpdateWithoutUserAddModulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    degreeCode?: StringFieldUpdateOperationsInput | string
+    degreeName?: StringFieldUpdateOperationsInput | string
+    userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
+    moduleLinks?: DegreePresetModuleUncheckedUpdateManyWithoutDegreePresetNestedInput
+    userPresets?: UserPresetUncheckedUpdateManyWithoutDegreePresetNestedInput
   }
 
   export type SessionCreateWithoutUserInput = {
@@ -15331,6 +17420,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserAddModuleCreateWithoutUserInput = {
+    id: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    module: ModuleCreateNestedOneWithoutUserAddModulesInput
+    degreePreset?: DegreePresetCreateNestedOneWithoutUserAddModulesInput
+  }
+
+  export type UserAddModuleUncheckedCreateWithoutUserInput = {
+    id: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
+  }
+
+  export type UserAddModuleCreateOrConnectWithoutUserInput = {
+    where: UserAddModuleWhereUniqueInput
+    create: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserAddModuleCreateManyUserInputEnvelope = {
+    data: UserAddModuleCreateManyUserInput | UserAddModuleCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
     where: SessionWhereUniqueInput
     update: XOR<SessionUpdateWithoutUserInput, SessionUncheckedUpdateWithoutUserInput>
@@ -15428,6 +17545,22 @@ export namespace Prisma {
     data: XOR<UserPresetUpdateManyMutationInput, UserPresetUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type UserAddModuleUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserAddModuleWhereUniqueInput
+    update: XOR<UserAddModuleUpdateWithoutUserInput, UserAddModuleUncheckedUpdateWithoutUserInput>
+    create: XOR<UserAddModuleCreateWithoutUserInput, UserAddModuleUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserAddModuleUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserAddModuleWhereUniqueInput
+    data: XOR<UserAddModuleUpdateWithoutUserInput, UserAddModuleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserAddModuleUpdateManyWithWhereWithoutUserInput = {
+    where: UserAddModuleScalarWhereInput
+    data: XOR<UserAddModuleUpdateManyMutationInput, UserAddModuleUncheckedUpdateManyWithoutUserInput>
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id: string
     name: string
@@ -15439,6 +17572,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutUserInput
     userPresets?: UserPresetCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -15452,6 +17586,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutUserInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -15481,6 +17616,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -15494,6 +17630,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -15507,6 +17644,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleCreateNestedManyWithoutUserInput
     userPresets?: UserPresetCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -15520,6 +17658,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     userPlanModules?: UserPlanModuleUncheckedCreateNestedManyWithoutUserInput
     userPresets?: UserPresetUncheckedCreateNestedManyWithoutUserInput
+    userAddModules?: UserAddModuleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -15549,6 +17688,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -15562,6 +17702,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     userPlanModules?: UserPlanModuleUncheckedUpdateManyWithoutUserNestedInput
     userPresets?: UserPresetUncheckedUpdateManyWithoutUserNestedInput
+    userAddModules?: UserAddModuleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserPlanModuleCreateManyModuleInput = {
@@ -15575,6 +17716,15 @@ export namespace Prisma {
 
   export type DegreePresetModuleCreateManyModuleInput = {
     degreePresetId: string
+  }
+
+  export type UserAddModuleCreateManyModuleInput = {
+    id: string
+    userId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
   }
 
   export type UserPlanModuleUpdateWithoutModuleInput = {
@@ -15616,6 +17766,33 @@ export namespace Prisma {
     degreePresetId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type UserAddModuleUpdateWithoutModuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutUserAddModulesNestedInput
+    degreePreset?: DegreePresetUpdateOneWithoutUserAddModulesNestedInput
+  }
+
+  export type UserAddModuleUncheckedUpdateWithoutModuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UserAddModuleUncheckedUpdateManyWithoutModuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type UserPlanModuleCreateManyDegreePresetInput = {
     id?: string
     userId: string
@@ -15632,6 +17809,15 @@ export namespace Prisma {
   export type UserPresetCreateManyDegreePresetInput = {
     userId: string
     importedAt?: Date | string
+  }
+
+  export type UserAddModuleCreateManyDegreePresetInput = {
+    id: string
+    userId: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
   }
 
   export type UserPlanModuleUpdateWithoutDegreePresetInput = {
@@ -15688,6 +17874,33 @@ export namespace Prisma {
     importedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserAddModuleUpdateWithoutDegreePresetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutUserAddModulesNestedInput
+    module?: ModuleUpdateOneRequiredWithoutUserAddModulesNestedInput
+  }
+
+  export type UserAddModuleUncheckedUpdateWithoutDegreePresetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type UserAddModuleUncheckedUpdateManyWithoutDegreePresetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type SessionCreateManyUserInput = {
     id: string
     expiresAt: Date | string
@@ -15725,6 +17938,15 @@ export namespace Prisma {
   export type UserPresetCreateManyUserInput = {
     degreePresetId: string
     importedAt?: Date | string
+  }
+
+  export type UserAddModuleCreateManyUserInput = {
+    id: string
+    moduleId: string
+    planYear: number
+    planSemester: number
+    isPresetModule?: boolean
+    degreePresetId?: string | null
   }
 
   export type SessionUpdateWithoutUserInput = {
@@ -15842,6 +18064,33 @@ export namespace Prisma {
   export type UserPresetUncheckedUpdateManyWithoutUserInput = {
     degreePresetId?: StringFieldUpdateOperationsInput | string
     importedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAddModuleUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    module?: ModuleUpdateOneRequiredWithoutUserAddModulesNestedInput
+    degreePreset?: DegreePresetUpdateOneWithoutUserAddModulesNestedInput
+  }
+
+  export type UserAddModuleUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UserAddModuleUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moduleId?: StringFieldUpdateOperationsInput | string
+    planYear?: IntFieldUpdateOperationsInput | number
+    planSemester?: IntFieldUpdateOperationsInput | number
+    isPresetModule?: BoolFieldUpdateOperationsInput | boolean
+    degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

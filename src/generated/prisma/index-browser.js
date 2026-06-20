@@ -159,6 +159,16 @@ exports.Prisma.UserPresetScalarFieldEnum = {
   importedAt: 'importedAt'
 };
 
+exports.Prisma.UserAddModuleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  moduleId: 'moduleId',
+  planYear: 'planYear',
+  planSemester: 'planSemester',
+  isPresetModule: 'isPresetModule',
+  degreePresetId: 'degreePresetId'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -238,6 +248,7 @@ exports.Prisma.ModelName = {
   DegreePresetModule: 'DegreePresetModule',
   UserPlanModule: 'UserPlanModule',
   UserPreset: 'UserPreset',
+  UserAddModule: 'UserAddModule',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
