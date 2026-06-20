@@ -23,6 +23,42 @@ export function normalizePlanTerm(planYear, planSemester) {
   };
 }
 
+export async function upsertUserAddModule({
+  userId,
+  moduleId,
+  planYear,
+  planSemester,
+}) {
+  const normalisedTerm = normalizePlanTerm(planYear, planSemester);
+
+  return prisma.userAddModule.upsert({
+    where: {
+      userId_moduleId: {
+        userId,
+        moduleId,
+      },
+    },
+    update: normalisedTerm,
+    create: {
+      userId,
+      moduleId,
+      ...normalisedTerm,
+      isPresetModule: false,
+    },
+  });
+}
+
+export async function getUserAddModules(userId) {
+  return prisma.userAddModule.findMany({
+    where: { userId },
+    orderBy: [
+      { planYear: "asc" },
+      { planSemester: "asc" },
+      { moduleId: "asc" },
+    ],
+  });
+}
+
 export async function getUserPlannedModules(userId) {
   return prisma.userPlanModule.findMany({
     where: { userId },
