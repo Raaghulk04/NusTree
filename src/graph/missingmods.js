@@ -24,7 +24,7 @@ export default function MissingMods(Tree, completedIds) {
       return [];
     } else {
       // Otherwise, we need all options (flattened)
-      return missingOptions.flat();
+      return [missingOptions.flat()];
     }
   }
 
