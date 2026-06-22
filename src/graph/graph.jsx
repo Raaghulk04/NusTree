@@ -1,6 +1,6 @@
-import { ReactFlow, Background, Controls } from "@xyflow/react";
+import { ReactFlow, Background, Controls, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import ModeToggle from "./modeToggle";
 import Simple from "@/graph/simple";
 import buildTree from "@/graph/buildTree";
@@ -81,14 +81,38 @@ export default function Graph({
   compulsoryMods,
   initialMode = "Simple",
 }) {
+  const { fitView, setCenter, getNode, getZoom } = useReactFlow();
   const [selectedNode, setSelectedNode] = useState(null);
   const [mode, setMode] = useState(initialMode);
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
   const nodeType = useMemo(() => ({ moduleNodeType: ModuleNode }), []);
 
-  const res = checkPrereqComplexity(mods);
-  console.log(res);
+  const highlightNode = useCallback((nodeId) => {
+    const nodeElement = document.querySelector(`[data-id="${nodeId}"]`);
+
+    if (nodeElement) {
+      nodeElement.classList.add("node-flash-highlight");
+
+      // 3. Remove it after 2 seconds
+      setTimeout(() => {
+        nodeElement.classList.remove("node-flash-highlight");
+      }, 2000);
+    }
+  }, []);
+
+  const centerNode = useCallback(
+    (moduleId) => {
+      const node = getNode(moduleId);
+      const x = getZoom();
+      if (!node) {
+        return;
+      }
+      setCenter(node.position.x, node.position.y, { zoom: x });
+      highlightNode(node.id);
+    },
+    [getNode, setCenter, getZoom, highlightNode],
+  );
 
   const graphAllMods = useMemo(
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
@@ -226,6 +250,11 @@ export default function Graph({
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
+  const inGraph = allMods.map((mod) => ({
+    id: mod.id,
+    title: mod.title,
+  }));
+
   // pre computes the mod to its prereqTree
   const prereqMap = useMemo(() => {
     const map = new Map();
@@ -253,21 +282,30 @@ export default function Graph({
       <ModeToggle mode={mode} setMode={setMode} />
 
       {mode === "All" && (
-        <div className="flex-1 relative">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodeClick={handleNodeClick}
-            nodeTypes={nodeType}
-            colorMode="dark"
-            fitView
-            panOnScroll={true}
-            selectionOnDrag={true}
-            panOnDrag={false}
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
+        <div className="flex flex-row h-full w-full overflow-hidden">
+          <Sidebar
+            isOpen={isSideBarOpen}
+            setIsOpen={setIsSideBarOpen}
+            mods={allMods}
+            inGraph={inGraph}
+            centerNode={centerNode}
+          />
+          <div className="flex-1 relative h-full">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodeClick={handleNodeClick}
+              nodeTypes={nodeType}
+              colorMode="dark"
+              fitView
+              panOnScroll={true}
+              selectionOnDrag={true}
+              panOnDrag={false}
+            >
+              <Background />
+              <Controls />
+            </ReactFlow>
+          </div>
         </div>
       )}
 

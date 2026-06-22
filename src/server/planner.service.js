@@ -1,12 +1,16 @@
+"use server";
 import prisma from "@/lib/db";
 
 const MODULE_CODE_REGEX = /[A-Z]{2,3}\d{4}[A-Z]*/g;
 
-export function normalizePlanTerm(planYear, planSemester) {
+function normalizePlanTerm(planYear, planSemester) {
+  console.log("planYear", planYear);
   const normalizedPlanYear = Number(planYear);
   const normalizedPlanSemester = Number(planSemester);
 
   if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear < 1) {
+    console.log("planYear", normalizedPlanYear);
+    console.log("planSem", normalizedPlanSemester);
     throw new Error("Invalid plan year");
   }
 
@@ -21,6 +25,42 @@ export function normalizePlanTerm(planYear, planSemester) {
     planYear: normalizedPlanYear,
     planSemester: normalizedPlanSemester,
   };
+}
+
+export async function upsertUserAddModule({
+  userId,
+  moduleId,
+  planYear,
+  planSemester,
+}) {
+  const normalisedTerm = normalizePlanTerm(planYear, planSemester);
+
+  return prisma.userAddModule.upsert({
+    where: {
+      userId_moduleId: {
+        userId,
+        moduleId,
+      },
+    },
+    update: normalisedTerm,
+    create: {
+      userId,
+      moduleId,
+      ...normalisedTerm,
+      isPresetModule: false,
+    },
+  });
+}
+
+export async function getUserAddModules(userId) {
+  return prisma.userAddModule.findMany({
+    where: { userId },
+    orderBy: [
+      { planYear: "asc" },
+      { planSemester: "asc" },
+      { moduleId: "asc" },
+    ],
+  });
 }
 
 export async function getUserPlannedModules(userId) {
