@@ -133,6 +133,12 @@ The app will start on the default Next.js development port.
 - `npm run start` - run the production server
 - `npm run lint` - run ESLint
 - `npm run seed` - seed modules and degree presets into PostgreSQL
+- `npm run test` - run the default fast suite (`unit` + `ui`)
+- `npm run test:watch` - run Vitest in watch mode
+- `npm run test:unit` - run Node-based unit tests under `src/server` and `src/graph`
+- `npm run test:ui` - run component tests under `src/components` in jsdom
+- `npm run test:auth` - run authentication integration tests against the test database
+- `npm run test:all` - run all Vitest projects, including auth
 
 ## Data Model
 
@@ -148,6 +154,25 @@ The main application models are defined in [prisma/schema.prisma](./prisma/schem
 An ER diagram is available at [docs/er-diagram.svg](./docs/er-diagram.svg).
 
 ## Architecture Notes
+
+## Testing
+
+Vitest is split into three projects:
+
+- `unit` for logic tests in `src/server` and `src/graph`
+- `ui` for component tests in `src/components`
+- `auth` for authentication tests in files named `*.auth.test.ts`
+
+Authentication tests automatically:
+
+- use a Node test environment
+- load `.env.test`
+- validate that `DATABASE_URL` points at a dedicated test database
+- truncate the test database before each test
+
+Start auth test work in [src/lib/auth.auth.test.ts](./src/lib/auth.auth.test.ts). That file is wired to the shared auth test client in [src/tests/auth-test-client.ts](./src/tests/auth-test-client.ts), so new authentication cases only need to focus on the scenario being tested.
+
+Before running `npm run test:auth`, create a local `.env.test` from [.env.test.example](./.env.test.example) and point it at a real PostgreSQL database such as `nustree_test`.
 
 ### Updating degree presets from curriculum links
 

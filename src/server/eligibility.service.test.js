@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isPrereqTreeSatisfied } from "./eligibility.service";
 
+// test prereqTree 1:
 // {
 //       "and": [
 //         {
@@ -22,6 +23,32 @@ import { isPrereqTreeSatisfied } from "./eligibility.service";
 //             "CS2040S:D",
 //             "CS2040DE:D",
 //             "CS2040HS:D"
+//           ]
+//         }
+//       ]
+//     }
+
+// test prereqTree 2
+// {
+//       "or": [
+//         "CS2040C:D",
+//         {
+//           "and": [
+//             {
+//               "or": [
+//                 "CS2030:D",
+//                 "CS2030S:D",
+//                 "CS2030DE:D"
+//               ]
+//             },
+//             {
+//               "or": [
+//                 "CS2040S:D",
+//                 "CS2040:D",
+//                 "CS2040HS:D",
+//                 "CS2040DE:D"
+//               ]
+//             }
 //           ]
 //         }
 //       ]
@@ -82,5 +109,28 @@ describe("isPrereqTreeSatisified", () => {
         ["CS1231S"],
       ),
     ).toEqual(false);
+  });
+
+  it("pass test nested AND in OR mods", () => {
+    expect(
+      isPrereqTreeSatisfied(
+        {
+          or: [
+            "CS2040C:D",
+            {
+              and: [
+                {
+                  or: ["CS2030:D", "CS2030S:D", "CS2030DE:D"],
+                },
+                {
+                  or: ["CS2040S:D", "CS2040:D", "CS2040HS:D", "CS2040DE:D"],
+                },
+              ],
+            },
+          ],
+        },
+        ["CS2030S", "CS2040S"],
+      ),
+    ).toBe(true);
   });
 });
