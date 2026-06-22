@@ -1,6 +1,5 @@
 import { DegreePresetPicker } from "../../components/degree-preset-picker";
 import ModuleTracker from "../../components/module-tracker";
-import { ModuleGraph } from "../../components/module-graph";
 import getAllMods from "../getAllMods";
 import { Navbar } from "@/components/navbar";
 
@@ -22,7 +21,7 @@ export default async function PlannerPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-1 space-y-8">
             <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-bold mb-4">Degree Preset</h2>
+              <h2 className="text-xl font-bold mb-4">Degree Presets</h2>
               <DegreePresetPicker />
             </section>
           </div>

@@ -1,38 +1,35 @@
 "use client";
 import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
-import { MajorSearchDropdown } from "@/components/major-search-dropdown";
+import { DegreePresetSearchDropdown } from "@/components/degree-preset-search-dropdown";
 
 export function DegreePresetPicker() {
   const { data, isPending } = authClient.useSession();
-  const [majors, setMajors] = useState([]);
+  const [degreePresets, setDegreePresets] = useState([]);
   const [refresh, setRefresh] = useState(0);
-  const [takenMajors, setTakenMajors] = useState([]);
+  const [selectedDegreePresets, setSelectedDegreePresets] = useState([]);
 
   useEffect(() => {
     if (!data?.user?.id) return;
-    fetch("/api/allDegreePreset")
+    fetch("/api/degree-presets")
       .then((res) => res.json())
-      .then((d) => setMajors(d));
+      .then((d) => setDegreePresets(d));
   }, [data?.user?.id, refresh]);
 
   useEffect(() => {
-    async function fetchUserDegree() {
+    async function fetchUserDegreePresets() {
       if (!data?.user?.id) return;
 
-      const response = await fetch("/api/getUserDegree");
+      const response = await fetch("/api/user-degree-presets");
       let result = await response.json();
-      console.log(result);
       result = result.map((res) => res.degreePreset.degreeName);
-      setTakenMajors(result);
+      setSelectedDegreePresets(result);
     }
-    fetchUserDegree();
+    fetchUserDegreePresets();
   }, [data?.user?.id, refresh]);
 
   if (isPending) return <p>loading...</p>;
   if (!data) return <p>not logged in</p>;
-
-  console.log(takenMajors);
 
   return (
     <section>
@@ -42,17 +39,17 @@ export function DegreePresetPicker() {
       </p>
       <br></br>
       <form>
-        <MajorSearchDropdown
-          degreePresets={majors}
+        <DegreePresetSearchDropdown
+          degreePresets={degreePresets}
           onAdd={() => setRefresh((r) => r + 1)}
         />
       </form>
       <br></br>
       <h2>
-        <b>Majors Taken so far</b>
+        <b>Selected Degree Presets</b>
       </h2>
-      {takenMajors.map((major) => (
-        <p key={major}>{major}</p>
+      {selectedDegreePresets.map((degreePreset) => (
+        <p key={degreePreset}>{degreePreset}</p>
       ))}
       <br></br>
     </section>
