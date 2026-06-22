@@ -10,7 +10,12 @@
     "seed": "node prisma/seed.js",
     "scrape:degree": "node scripts/scrape-degree-preset.js",
     "test:scraper": "node --test scripts/degree-scraper.test.js",
-    "test": "vitest"
+    "test": "vitest run --project unit --project ui",
+    "test:watch": "vitest",
+    "test:unit": "vitest run --project unit",
+    "test:ui": "vitest run --project ui",
+    "test:auth": "vitest run --project auth",
+    "test:all": "vitest run"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -42,8 +47,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "eslint": "^9",
     "eslint-config-next": "^16.2.4",
+    "jsdom": "^29.1.1",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
