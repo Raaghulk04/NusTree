@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig, defineProject } from "vitest/config";
+import react from "@vitejs/plugin-react";
 
 const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 const alias = {
@@ -29,6 +30,7 @@ export default defineConfig({
         },
       }),
       defineProject({
+        plugins: [react()],
         resolve: {
           alias,
         },
