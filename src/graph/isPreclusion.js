@@ -3,7 +3,6 @@ export default async function isPrecluded({
   takenIds,
   compulsoryIds,
 }) {
-  console.log(compulsoryIds);
   let precluded = await fetch("/api/preclusions");
   precluded = await precluded.json();
 
