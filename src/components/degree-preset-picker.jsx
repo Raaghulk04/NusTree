@@ -3,12 +3,14 @@ import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { DegreePresetSearchDropdown } from "@/components/degree-preset-search-dropdown";
 import { MAX_USER_DEGREE_PRESETS } from "@/lib/constants";
+import removePlannedDegreePreset from "@/components/remove-planned-degree-preset";
 
 export function DegreePresetPicker() {
   const { data, isPending } = authClient.useSession();
   const [degreePresets, setDegreePresets] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const [selectedDegreePresets, setSelectedDegreePresets] = useState([]);
+  const [removingDegreeCode, setRemovingDegreeCode] = useState(null);
 
   useEffect(() => {
     if (!data?.user?.id) return;
@@ -23,7 +25,7 @@ export function DegreePresetPicker() {
 
       const response = await fetch("/api/user-degree-presets");
       let result = await response.json();
-      result = result.map((res) => res.degreePreset.degreeName);
+      result = result.map((res) => res.degreePreset);
       setSelectedDegreePresets(result);
     }
     fetchUserDegreePresets();
@@ -34,6 +36,19 @@ export function DegreePresetPicker() {
 
   const hasReachedPresetLimit =
     selectedDegreePresets.length >= MAX_USER_DEGREE_PRESETS;
+
+  const handleRemoveDegreePreset = async (degreeCode) => {
+    setRemovingDegreeCode(degreeCode);
+    try {
+      await removePlannedDegreePreset(degreeCode);
+      setRefresh((r) => r + 1);
+    } catch (error) {
+      console.error("Failed to remove degree preset:", error);
+      alert("Failed to remove degree preset. Please try again.");
+    } finally {
+      setRemovingDegreeCode(null);
+    }
+  };
 
   return (
     <section>
@@ -57,7 +72,22 @@ export function DegreePresetPicker() {
         <b>Selected Degree Presets</b>
       </h2>
       {selectedDegreePresets.map((degreePreset) => (
-        <p key={degreePreset}>{degreePreset}</p>
+        <div
+          key={degreePreset.degreeCode}
+          className="flex items-center justify-between gap-2 py-1"
+        >
+          <p>{degreePreset.degreeName}</p>
+          <button
+            type="button"
+            onClick={() => handleRemoveDegreePreset(degreePreset.degreeCode)}
+            disabled={removingDegreeCode === degreePreset.degreeCode}
+            className="px-2 py-1 text-sm bg-red-100 text-red-600 rounded hover:bg-red-200 disabled:opacity-50"
+          >
+            {removingDegreeCode === degreePreset.degreeCode
+              ? "Removing..."
+              : "Remove"}
+          </button>
+        </div>
       ))}
       <br></br>
     </section>

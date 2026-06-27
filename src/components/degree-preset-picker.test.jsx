@@ -1,13 +1,20 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  fireEvent,
   findAllByText,
   findByText,
+  getAllByText,
   queryByTestId,
+  queryByText,
   waitFor,
 } from "@testing-library/dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DegreePresetPicker } from "./degree-preset-picker";
+
+const { removePlannedDegreePresetMock } = vi.hoisted(() => ({
+  removePlannedDegreePresetMock: vi.fn(),
+}));
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -31,6 +38,10 @@ vi.mock("@/components/degree-preset-search-dropdown", () => ({
         ))}
       </div>
     ),
+}));
+
+vi.mock("@/components/remove-planned-degree-preset", () => ({
+  default: removePlannedDegreePresetMock,
 }));
 
 describe("DegreePresetPicker", () => {
@@ -79,6 +90,7 @@ describe("DegreePresetPicker", () => {
             Promise.resolve([
               {
                 degreePreset: {
+                  degreeCode: "computer-science",
                   degreeName: "Computer Science",
                 },
               },
@@ -128,11 +140,13 @@ describe("DegreePresetPicker", () => {
             Promise.resolve([
               {
                 degreePreset: {
+                  degreeCode: "computer-science",
                   degreeName: "Computer Science",
                 },
               },
               {
                 degreePreset: {
+                  degreeCode: "information-security",
                   degreeName: "Information Security",
                 },
               },
@@ -155,5 +169,88 @@ describe("DegreePresetPicker", () => {
     expect(
       queryByTestId(container, "degree-preset-search"),
     ).not.toBeInTheDocument();
+  });
+
+  it("removes a selected degree preset and refreshes the selected degree list", async () => {
+    removePlannedDegreePresetMock.mockResolvedValue();
+    let selectedFetchCount = 0;
+
+    const fetchMock = vi.fn((url) => {
+      if (url === "/api/degree-presets") {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              {
+                degreeCode: "computer-science",
+                degreeName: "Computer Science",
+              },
+              {
+                degreeCode: "information-security",
+                degreeName: "Information Security",
+              },
+            ]),
+        });
+      }
+
+      if (url === "/api/user-degree-presets") {
+        selectedFetchCount += 1;
+        const selectedPresets =
+          selectedFetchCount === 1
+            ? [
+                {
+                  degreePreset: {
+                    degreeCode: "computer-science",
+                    degreeName: "Computer Science",
+                  },
+                },
+                {
+                  degreePreset: {
+                    degreeCode: "information-security",
+                    degreeName: "Information Security",
+                  },
+                },
+              ]
+            : [
+                {
+                  degreePreset: {
+                    degreeCode: "computer-science",
+                    degreeName: "Computer Science",
+                  },
+                },
+              ];
+
+        return Promise.resolve({
+          json: () => Promise.resolve(selectedPresets),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderDegreePresetPicker();
+
+    expect(await findByText(container, "Information Security")).toBeInTheDocument();
+    expect(
+      queryByTestId(container, "degree-preset-search"),
+    ).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(getAllByText(container, "Remove")[1]);
+    });
+
+    expect(removePlannedDegreePresetMock).toHaveBeenCalledWith(
+      "information-security",
+    );
+
+    await waitFor(() => {
+      expect(
+        queryByText(
+          container,
+          "You have selected the maximum of two degree presets.",
+        ),
+      ).not.toBeInTheDocument();
+      expect(queryByTestId(container, "degree-preset-search")).toBeInTheDocument();
+    });
   });
 });

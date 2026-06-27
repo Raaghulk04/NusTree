@@ -19,6 +19,7 @@ import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import MissingMods from "./missingmods";
 import "@/app/globals.css";
+import { getPlannerModuleId } from "@/graph/plannerModuleIds";
 import {
   getUserAddModules,
   upsertUserAddModule,
@@ -306,10 +307,12 @@ export default function Simple({
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
 
-      const plannedIds = (plannerMods || []).map((m) => ({
-        code: 1,
-        id: m.id,
-      }));
+      const plannedIds = (plannerMods || [])
+        .map((m) => ({
+          code: 1,
+          id: getPlannerModuleId(m),
+        }))
+        .filter((m) => m.id);
 
       let final = await isPrecluded({
         completedIds: completedIdPayload,

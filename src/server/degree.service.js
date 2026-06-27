@@ -64,6 +64,21 @@ export async function addUserDegreePreset(userId, degreeCode) {
   );
 }
 
+export async function removeUserDegreePreset(userId, degreeCode) {
+  const degreePreset = await prisma.degreePreset.findUnique({
+    where: { degreeCode },
+  });
+
+  if (!degreePreset) throw new Error("Degree preset not found");
+
+  return prisma.userPreset.deleteMany({
+    where: {
+      userId,
+      degreePresetId: degreePreset.id,
+    },
+  });
+}
+
 export async function getUserDegreePresetSummaries(userId) {
   const userPresets = await prisma.userPreset.findMany({
     where: { userId },
@@ -98,5 +113,5 @@ export async function getCompulsoryModuleIdsForPresets(degreePresetIds) {
     },
   });
 
-  return compulsoryModules.map(({ moduleId }) => moduleId);
+  return [...new Set(compulsoryModules.map(({ moduleId }) => moduleId))];
 }
