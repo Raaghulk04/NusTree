@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { authClient } from "@/lib/auth-client";
 import removePlannedModule from "./remove-planned-module";
 import PlannedModulesList from "./planned-modules-list";
@@ -15,6 +15,16 @@ export default function ModuleTracker({ mods }) {
   const [removingModuleId, setRemovingModuleId] = useState(null);
 
   const { data, isPending } = authClient.useSession();
+
+  const visiblePlannedModules = useMemo(
+    () =>
+      plannedModules.filter(
+        (mod) =>
+          Number(mod.planYear) === Number(planYear) &&
+          Number(mod.planSemester) === Number(planSemester),
+      ),
+    [plannedModules, planYear, planSemester],
+  );
 
   useEffect(() => {
     if (!data?.user?.id) return;
@@ -82,7 +92,7 @@ export default function ModuleTracker({ mods }) {
         onAdd={() => setRefresh((r) => r + 1)}
       />
       <PlannedModulesList
-        plannedModules={plannedModules}
+        plannedModules={visiblePlannedModules}
         onRemove={handleRemoveMod}
         removingModuleId={removingModuleId}
       />
