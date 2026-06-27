@@ -1,6 +1,11 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { findAllByText, findByText, waitFor } from "@testing-library/dom";
+import {
+  findAllByText,
+  findByText,
+  queryByTestId,
+  waitFor,
+} from "@testing-library/dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DegreePresetPicker } from "./degree-preset-picker";
 
@@ -18,13 +23,14 @@ vi.mock("@/lib/auth-client", () => ({
 }));
 
 vi.mock("@/components/degree-preset-search-dropdown", () => ({
-  DegreePresetSearchDropdown: ({ degreePresets }) => (
-    <div data-testid="degree-preset-search">
-      {degreePresets.map((degreePreset) => (
-        <span key={degreePreset.degreeCode}>{degreePreset.degreeName}</span>
-      ))}
-    </div>
-  ),
+  DegreePresetSearchDropdown: ({ degreePresets, disabled }) =>
+    disabled ? null : (
+      <div data-testid="degree-preset-search">
+        {degreePresets.map((degreePreset) => (
+          <span key={degreePreset.degreeCode}>{degreePreset.degreeName}</span>
+        ))}
+      </div>
+    ),
 }));
 
 describe("DegreePresetPicker", () => {
@@ -90,10 +96,64 @@ describe("DegreePresetPicker", () => {
       await findByText(container, "Selected Degree Presets"),
     ).toBeInTheDocument();
     expect(await findAllByText(container, "Computer Science")).toHaveLength(2);
+    expect(queryByTestId(container, "degree-preset-search")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/degree-presets");
       expect(fetchMock).toHaveBeenCalledWith("/api/user-degree-presets");
     });
+  });
+
+  it("hides the degree preset search when two degree presets are already selected", async () => {
+    const fetchMock = vi.fn((url) => {
+      if (url === "/api/degree-presets") {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              {
+                degreeCode: "computer-science",
+                degreeName: "Computer Science",
+              },
+              {
+                degreeCode: "information-security",
+                degreeName: "Information Security",
+              },
+            ]),
+        });
+      }
+
+      if (url === "/api/user-degree-presets") {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              {
+                degreePreset: {
+                  degreeName: "Computer Science",
+                },
+              },
+              {
+                degreePreset: {
+                  degreeName: "Information Security",
+                },
+              },
+            ]),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderDegreePresetPicker();
+
+    expect(
+      await findByText(
+        container,
+        "You have selected the maximum of two degree presets.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      queryByTestId(container, "degree-preset-search"),
+    ).not.toBeInTheDocument();
   });
 });

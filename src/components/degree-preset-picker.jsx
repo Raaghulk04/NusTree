@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { DegreePresetSearchDropdown } from "@/components/degree-preset-search-dropdown";
+import { MAX_USER_DEGREE_PRESETS } from "@/lib/constants";
 
 export function DegreePresetPicker() {
   const { data, isPending } = authClient.useSession();
@@ -31,6 +32,9 @@ export function DegreePresetPicker() {
   if (isPending) return <p>loading...</p>;
   if (!data) return <p>not logged in</p>;
 
+  const hasReachedPresetLimit =
+    selectedDegreePresets.length >= MAX_USER_DEGREE_PRESETS;
+
   return (
     <section>
       <p>
@@ -41,9 +45,13 @@ export function DegreePresetPicker() {
       <form>
         <DegreePresetSearchDropdown
           degreePresets={degreePresets}
+          disabled={hasReachedPresetLimit}
           onAdd={() => setRefresh((r) => r + 1)}
         />
       </form>
+      {hasReachedPresetLimit && (
+        <p>You have selected the maximum of two degree presets.</p>
+      )}
       <br></br>
       <h2>
         <b>Selected Degree Presets</b>
