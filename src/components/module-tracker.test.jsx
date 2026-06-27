@@ -192,7 +192,27 @@ describe("PlannerWorkspace", () => {
     },
   ];
 
-  const refreshedPlannedModules = [
+  const createdPlannedModules = [
+    {
+      id: "planned-1",
+      moduleId: "CS1101S",
+      planYear: 1,
+      planSemester: 1,
+      isPresetModule: false,
+    },
+  ];
+
+  const updatedPlannedModules = [
+    {
+      id: "planned-1",
+      moduleId: "CS1101S",
+      planYear: 1,
+      planSemester: 2,
+      isPresetModule: false,
+    },
+  ];
+
+  const deleteRefreshedPlannedModules = [
     {
       id: "planned-2",
       moduleId: "CS2030S",
@@ -209,6 +229,18 @@ describe("PlannerWorkspace", () => {
     },
   ];
 
+  function stubPlannerModuleFetch(...responses) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => {
+        const response = responses.shift() || responses.at(-1) || [];
+        return Promise.resolve({
+          json: () => Promise.resolve(response),
+        });
+      }),
+    );
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
     authState.session = {
@@ -221,17 +253,6 @@ describe("PlannerWorkspace", () => {
       isPending: false,
     };
     vi.mocked(removePlannedModule).mockResolvedValue(undefined);
-    vi.stubGlobal(
-      "fetch",
-      vi
-        .fn()
-        .mockResolvedValueOnce({
-          json: () => Promise.resolve(initialPlannedModules),
-        })
-        .mockResolvedValue({
-          json: () => Promise.resolve(refreshedPlannedModules),
-        }),
-    );
     container = document.createElement("div");
     document.body.innerHTML = "";
     document.body.appendChild(container);
@@ -252,7 +273,9 @@ describe("PlannerWorkspace", () => {
     });
   }
 
-  it("passes filtered modules to the tracker card and all modules to the timeline card", async () => {
+  it("reads planned modules into the tracker card and the timeline card", async () => {
+    stubPlannerModuleFetch(initialPlannedModules);
+
     renderPlannerWorkspace();
 
     expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
@@ -261,24 +284,59 @@ describe("PlannerWorkspace", () => {
     expect(await findByText(container, "timeline-CS2030S")).toBeInTheDocument();
   });
 
-  it("refreshes shared planner data after adding a module", async () => {
+  it("creates a planned module by refreshing shared planner data after add", async () => {
+    stubPlannerModuleFetch([], createdPlannedModules);
+
     renderPlannerWorkspace();
 
-    expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith("/api/planner-modules");
+    });
+    expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
 
     await act(async () => {
       fireEvent.click(getByText(container, "Add mocked module"));
     });
 
     await waitFor(() => {
-      expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS1101S")).not.toBeInTheDocument();
-      expect(queryByText(container, "list-CS2040S")).toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS2040S")).toBeInTheDocument();
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(queryByText(container, "list-CS1101S")).toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS1101S")).toBeInTheDocument();
     });
   });
 
-  it("refreshes shared planner data after removing a module", async () => {
+  it("updates a planned module by refreshing shared planner data after add in a new term", async () => {
+    stubPlannerModuleFetch(createdPlannedModules, updatedPlannedModules);
+
+    renderPlannerWorkspace();
+
+    expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(getByLabelText(container, /semester/i), {
+        target: { value: "2" },
+      });
+    });
+
+    await waitFor(() => {
+      expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS1101S")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(getByText(container, "Add mocked module"));
+    });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(queryByText(container, "list-CS1101S")).toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS1101S")).toBeInTheDocument();
+    });
+  });
+
+  it("deletes a planned module by refreshing shared planner data after remove", async () => {
+    stubPlannerModuleFetch(initialPlannedModules, deleteRefreshedPlannedModules);
+
     renderPlannerWorkspace();
 
     expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
@@ -289,6 +347,7 @@ describe("PlannerWorkspace", () => {
 
     await waitFor(() => {
       expect(removePlannedModule).toHaveBeenCalledWith("CS1101S");
+      expect(fetch).toHaveBeenCalledTimes(2);
       expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
       expect(queryByText(container, "timeline-CS1101S")).not.toBeInTheDocument();
       expect(queryByText(container, "list-CS2040S")).toBeInTheDocument();
