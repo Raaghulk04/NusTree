@@ -44,7 +44,12 @@ const getMissingPrereqs = (module, plannedIndex, currentIndex) => {
   });
 };
 
-export default function SemesterTimeline({ plannedModules, mods }) {
+export default function SemesterTimeline({
+  plannedModules,
+  mods,
+  showTitle = true,
+  className = "mt-6",
+}) {
   if (!Array.isArray(plannedModules) || plannedModules.length === 0) return null;
 
   const modMap = new Map((mods || []).map((mod) => [mod.id, mod]));
@@ -62,10 +67,12 @@ export default function SemesterTimeline({ plannedModules, mods }) {
   });
 
   return (
-    <section className="mt-6">
-      <h3 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-        Semester Timeline
-      </h3>
+    <section className={className}>
+      {showTitle && (
+        <h3 className="mb-3 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          Semester Timeline
+        </h3>
+      )}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {YEARS.flatMap((year) =>
           SEMESTERS.map((semester) => {

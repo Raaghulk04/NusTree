@@ -4,11 +4,26 @@ import {
   fireEvent,
   findByText,
   getByLabelText,
+  getByText,
   queryByText,
   waitFor,
 } from "@testing-library/dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ModuleTracker from "./module-tracker";
+import PlannerWorkspace from "./planner-workspace";
+import removePlannedModule from "./remove-planned-module";
+
+const authState = vi.hoisted(() => ({
+  session: {
+    data: {
+      user: {
+        id: "user-1",
+        name: "Test User",
+      },
+    },
+    isPending: false,
+  },
+}));
 
 vi.mock("next/link", () => ({
   default: ({ children, href }) => <a href={href.pathname}>{children}</a>,
@@ -16,15 +31,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
-    useSession: vi.fn(() => ({
-      data: {
-        user: {
-          id: "user-1",
-          name: "Test User",
-        },
-      },
-      isPending: false,
-    })),
+    useSession: vi.fn(() => authState.session),
   },
 }));
 
@@ -33,17 +40,27 @@ vi.mock("./remove-planned-module", () => ({
 }));
 
 vi.mock("@/components/module-search-dropdown", () => ({
-  ModuleSearchDropdown: ({ year, sem }) => (
-    <div data-testid="module-search">{`Y${year}S${sem}`}</div>
+  ModuleSearchDropdown: ({ year, sem, onAdd }) => (
+    <div>
+      <div data-testid="module-search">{`Y${year}S${sem}`}</div>
+      <button type="button" onClick={onAdd}>
+        Add mocked module
+      </button>
+    </div>
   ),
 }));
 
 vi.mock("./planned-modules-list", () => ({
-  default: ({ plannedModules }) => (
+  default: ({ plannedModules, onRemove }) => (
     <div>
       <h2>Filtered Planned Modules</h2>
       {plannedModules.map((mod) => (
-        <div key={mod.id}>{`list-${mod.moduleId}`}</div>
+        <div key={mod.id}>
+          <span>{`list-${mod.moduleId}`}</span>
+          <button type="button" onClick={() => onRemove(mod.moduleId)}>
+            {`remove-${mod.moduleId}`}
+          </button>
+        </div>
       ))}
     </div>
   ),
@@ -90,18 +107,6 @@ describe("ModuleTracker", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn((url) => {
-        if (url === "/api/planner-modules") {
-          return Promise.resolve({
-            json: () => Promise.resolve(plannedModules),
-          });
-        }
-
-        return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
-      }),
-    );
     container = document.createElement("div");
     document.body.innerHTML = "";
     document.body.appendChild(container);
@@ -118,19 +123,24 @@ describe("ModuleTracker", () => {
 
   function renderModuleTracker() {
     act(() => {
-      root.render(<ModuleTracker mods={[]} />);
+      root.render(
+        <ModuleTracker
+          mods={[]}
+          plannedModules={plannedModules}
+          onAddModule={vi.fn()}
+          onRemoveModule={vi.fn()}
+          removingModuleId={null}
+        />,
+      );
     });
   }
 
-  it("filters the planned module list by selected year and semester without filtering the timeline", async () => {
+  it("filters the planned module list by selected year and semester", async () => {
     renderModuleTracker();
 
     expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
     expect(queryByText(container, "list-CS2030S")).not.toBeInTheDocument();
     expect(queryByText(container, "list-CS2040S")).not.toBeInTheDocument();
-    expect(await findByText(container, "timeline-CS1101S")).toBeInTheDocument();
-    expect(await findByText(container, "timeline-CS2030S")).toBeInTheDocument();
-    expect(await findByText(container, "timeline-CS2040S")).toBeInTheDocument();
 
     await act(async () => {
       fireEvent.change(getByLabelText(container, /semester/i), {
@@ -142,9 +152,6 @@ describe("ModuleTracker", () => {
       expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
       expect(queryByText(container, "list-CS2030S")).toBeInTheDocument();
       expect(queryByText(container, "list-CS2040S")).not.toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS1101S")).toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS2030S")).toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS2040S")).toBeInTheDocument();
     });
 
     await act(async () => {
@@ -160,8 +167,131 @@ describe("ModuleTracker", () => {
       expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
       expect(queryByText(container, "list-CS2030S")).not.toBeInTheDocument();
       expect(queryByText(container, "list-CS2040S")).toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS1101S")).toBeInTheDocument();
-      expect(queryByText(container, "timeline-CS2030S")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("PlannerWorkspace", () => {
+  let container;
+  let root;
+
+  const initialPlannedModules = [
+    {
+      id: "planned-1",
+      moduleId: "CS1101S",
+      planYear: 1,
+      planSemester: 1,
+      isPresetModule: false,
+    },
+    {
+      id: "planned-2",
+      moduleId: "CS2030S",
+      planYear: 1,
+      planSemester: 2,
+      isPresetModule: false,
+    },
+  ];
+
+  const refreshedPlannedModules = [
+    {
+      id: "planned-2",
+      moduleId: "CS2030S",
+      planYear: 1,
+      planSemester: 2,
+      isPresetModule: false,
+    },
+    {
+      id: "planned-3",
+      moduleId: "CS2040S",
+      planYear: 1,
+      planSemester: 1,
+      isPresetModule: false,
+    },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    authState.session = {
+      data: {
+        user: {
+          id: "user-1",
+          name: "Test User",
+        },
+      },
+      isPending: false,
+    };
+    vi.mocked(removePlannedModule).mockResolvedValue(undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          json: () => Promise.resolve(initialPlannedModules),
+        })
+        .mockResolvedValue({
+          json: () => Promise.resolve(refreshedPlannedModules),
+        }),
+    );
+    container = document.createElement("div");
+    document.body.innerHTML = "";
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(() => {
+    act(() => {
+      root.unmount();
+    });
+    document.body.innerHTML = "";
+    vi.restoreAllMocks();
+  });
+
+  function renderPlannerWorkspace() {
+    act(() => {
+      root.render(<PlannerWorkspace mods={[]} />);
+    });
+  }
+
+  it("passes filtered modules to the tracker card and all modules to the timeline card", async () => {
+    renderPlannerWorkspace();
+
+    expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
+    expect(queryByText(container, "list-CS2030S")).not.toBeInTheDocument();
+    expect(await findByText(container, "timeline-CS1101S")).toBeInTheDocument();
+    expect(await findByText(container, "timeline-CS2030S")).toBeInTheDocument();
+  });
+
+  it("refreshes shared planner data after adding a module", async () => {
+    renderPlannerWorkspace();
+
+    expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(getByText(container, "Add mocked module"));
+    });
+
+    await waitFor(() => {
+      expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS1101S")).not.toBeInTheDocument();
+      expect(queryByText(container, "list-CS2040S")).toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS2040S")).toBeInTheDocument();
+    });
+  });
+
+  it("refreshes shared planner data after removing a module", async () => {
+    renderPlannerWorkspace();
+
+    expect(await findByText(container, "list-CS1101S")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(getByText(container, "remove-CS1101S"));
+    });
+
+    await waitFor(() => {
+      expect(removePlannedModule).toHaveBeenCalledWith("CS1101S");
+      expect(queryByText(container, "list-CS1101S")).not.toBeInTheDocument();
+      expect(queryByText(container, "timeline-CS1101S")).not.toBeInTheDocument();
+      expect(queryByText(container, "list-CS2040S")).toBeInTheDocument();
       expect(queryByText(container, "timeline-CS2040S")).toBeInTheDocument();
     });
   });
