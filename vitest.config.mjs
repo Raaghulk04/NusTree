@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig, defineProject } from "vitest/config";
+import react from "@vitejs/plugin-react";
 
 const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 const alias = {
@@ -20,6 +21,7 @@ export default defineConfig({
         },
         test: {
           name: "unit",
+          globals: true,
           include: ["src/{server,graph}/**/*.test.{js,jsx,ts,tsx}"],
           exclude: ["src/**/*.auth.test.{js,jsx,ts,tsx}"],
           environment: "node",
@@ -28,11 +30,13 @@ export default defineConfig({
         },
       }),
       defineProject({
+        plugins: [react()],
         resolve: {
           alias,
         },
         test: {
           name: "ui",
+          globals: true,
           include: ["src/components/**/*.test.{js,jsx,ts,tsx}"],
           environment: "jsdom",
           setupFiles: ["./src/tests/setup-env.js", "./src/tests/setup-ui.js"],
@@ -45,6 +49,7 @@ export default defineConfig({
         },
         test: {
           name: "auth",
+          globals: true,
           include: ["src/**/*.auth.test.{js,jsx,ts,tsx}"],
           environment: "node",
           setupFiles: ["./src/tests/setup-env.js", "./src/tests/setup-auth.js"],

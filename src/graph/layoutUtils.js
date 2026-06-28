@@ -103,7 +103,11 @@ export const computeNodePositions = (allMods, options = {}) => {
     });
 
     const layers = [];
-    for (let index = 0; index < row.nodes.length; index += MAX_NODES_PER_LAYER) {
+    for (
+      let index = 0;
+      index < row.nodes.length;
+      index += MAX_NODES_PER_LAYER
+    ) {
       layers.push(row.nodes.slice(index, index + MAX_NODES_PER_LAYER));
     }
 

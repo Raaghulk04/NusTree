@@ -110,15 +110,31 @@ export default function Simple({
     }
   }, [session]);
 
+  console.log("plannerMods", plannerMods);
+
   const handleNewAddModule = useCallback(
     async (moduleId) => {
       if (session?.user?.id) {
         const userId = session.user.id;
-        upsertUserAddModule({
+        const savedModule = await upsertUserAddModule({
           userId: userId,
           moduleId: moduleId,
           planYear: 1,
           planSemester: 1,
+        });
+
+        setPlannerMods((prev) => {
+          const existingIndex = prev.findIndex(
+            (mod) => mod.moduleId === savedModule.moduleId,
+          );
+
+          if (existingIndex === -1) {
+            return [...prev, savedModule];
+          }
+
+          const next = [...prev];
+          next[existingIndex] = savedModule;
+          return next;
         });
       }
     },
@@ -147,8 +163,9 @@ export default function Simple({
       }
 
       const mod = modMap.get(data.id);
-      setPlannerMods((nds) => nds.concat(mod));
-      handleNewAddModule(data.id);
+      console.log("mod", mod);
+      //setPlannerMods((nds) => nds.concat(mod));
+      void handleNewAddModule(data.id);
       // details: https://reactflow.dev/whats-new/2023-11-10
       // const position = {
       //   x: 0,
@@ -307,12 +324,12 @@ export default function Simple({
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
 
-      const plannedIds = (plannerMods || [])
-        .map((m) => ({
-          code: 1,
-          id: getPlannerModuleId(m),
-        }))
-        .filter((m) => m.id);
+      const plannedIds = (plannerMods || []).map((m) => ({
+        code: 1,
+        id: m.moduleId,
+      }));
+
+      console.log("plannedIds", plannedIds);
 
       let final = await isPrecluded({
         completedIds: completedIdPayload,

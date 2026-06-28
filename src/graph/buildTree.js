@@ -1,12 +1,12 @@
 export default function buildTree(
-  tree,
-  targetId,
-  allModIds, // only ids from the graph
-  result,
-  edgeIds,
+  tree, // prereqTree
+  targetId, // mod id
+  allModIds, // only ids from the graph, Set<any>
+  result, // array
+  edgeIds, // empty set
   edgeType = "and",
-  nodesResult,
-  nodePositions, // <-- NEW: Pass down layout coordinates
+  nodesResult, // any[]
+  nodePositions, // position map
 ) {
   console.log("allModsIds", allModIds);
 
