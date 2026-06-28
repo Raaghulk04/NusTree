@@ -19,6 +19,7 @@ import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
 import MissingMods from "./missingmods";
 import "@/app/globals.css";
+import { getPlannerModuleId } from "@/graph/plannerModuleIds";
 import {
   getUserAddModules,
   upsertUserAddModule,

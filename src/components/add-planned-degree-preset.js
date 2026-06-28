@@ -2,7 +2,7 @@
 import { addUserDegreePreset } from "@/server/degree.service";
 import { requireCurrentUserId } from "@/server/session.service";
 
-export default async function addPlannedMajor(degree) {
+export default async function addPlannedDegreePreset(degreeCode) {
   const userId = await requireCurrentUserId();
-  await addUserDegreePreset(userId, degree);
+  await addUserDegreePreset(userId, degreeCode);
 }

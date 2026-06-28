@@ -1,4 +1,6 @@
 import prisma from "@/lib/db";
+import { Prisma } from "@/generated/prisma";
+import { MAX_USER_DEGREE_PRESETS } from "@/lib/constants";
 
 export async function getAllDegreePresets() {
   return prisma.degreePreset.findMany();
@@ -22,21 +24,55 @@ export async function getUserDegreePresets(userId) {
 }
 
 export async function addUserDegreePreset(userId, degreeCode) {
+  return prisma.$transaction(
+    async (tx) => {
+      const degreePreset = await tx.degreePreset.findUnique({
+        where: { degreeCode },
+      });
+
+      if (!degreePreset) throw new Error("Degree preset not found");
+
+      const existingPreset = await tx.userPreset.findUnique({
+        where: {
+          userId_degreePresetId: {
+            userId,
+            degreePresetId: degreePreset.id,
+          },
+        },
+      });
+
+      if (existingPreset) return existingPreset;
+
+      const selectedPresetCount = await tx.userPreset.count({
+        where: { userId },
+      });
+
+      if (selectedPresetCount >= MAX_USER_DEGREE_PRESETS) {
+        throw new Error(
+          `You can select up to ${MAX_USER_DEGREE_PRESETS} degree presets`,
+        );
+      }
+
+      return tx.userPreset.create({
+        data: {
+          userId,
+          degreePresetId: degreePreset.id,
+        },
+      });
+    },
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+  );
+}
+
+export async function removeUserDegreePreset(userId, degreeCode) {
   const degreePreset = await prisma.degreePreset.findUnique({
     where: { degreeCode },
   });
 
   if (!degreePreset) throw new Error("Degree preset not found");
 
-  return prisma.userPreset.upsert({
+  return prisma.userPreset.deleteMany({
     where: {
-      userId_degreePresetId: {
-        userId,
-        degreePresetId: degreePreset.id,
-      },
-    },
-    update: {},
-    create: {
       userId,
       degreePresetId: degreePreset.id,
     },
@@ -77,5 +113,5 @@ export async function getCompulsoryModuleIdsForPresets(degreePresetIds) {
     },
   });
 
-  return compulsoryModules.map(({ moduleId }) => moduleId);
+  return [...new Set(compulsoryModules.map(({ moduleId }) => moduleId))];
 }

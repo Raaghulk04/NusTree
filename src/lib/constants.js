@@ -1,3 +1,4 @@
 const APP_NAME = "NusTree";
+const MAX_USER_DEGREE_PRESETS = 2;
 
-export { APP_NAME };
+export { APP_NAME, MAX_USER_DEGREE_PRESETS };

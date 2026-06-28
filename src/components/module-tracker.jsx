@@ -1,32 +1,28 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { authClient } from "@/lib/auth-client";
-import removePlannedModule from "./remove-planned-module";
+import { useState, useMemo } from "react";
 import PlannedModulesList from "./planned-modules-list";
 import { ModuleSearchDropdown } from "@/components/module-search-dropdown";
-import SemesterTimeline from "@/components/semester-timeline";
 
-export default function ModuleTracker({ mods }) {
-  const [plannedModules, setPlannedModules] = useState([]);
+export default function ModuleTracker({
+  mods,
+  plannedModules,
+  onAddModule,
+  onRemoveModule,
+  removingModuleId,
+}) {
   const [planYear, setPlanYear] = useState("1");
   const [planSemester, setPlanSemester] = useState("1");
-  const [refresh, setRefresh] = useState(0);
-  const [removingModuleId, setRemovingModuleId] = useState(null);
 
-  const { data, isPending } = authClient.useSession();
-
-  useEffect(() => {
-    if (!data?.user?.id) return;
-    fetch("/api/planner-modules")
-      .then((res) => res.json())
-      .then((d) => {
-        if (Array.isArray(d)) setPlannedModules(d);
-      });
-  }, [data?.user?.id, refresh]);
-
-  if (isPending) return <p>loading...</p>;
-  if (!data) return <p>not logged in</p>;
+  const visiblePlannedModules = useMemo(
+    () =>
+      (plannedModules || []).filter(
+        (mod) =>
+          Number(mod.planYear) === Number(planYear) &&
+          Number(mod.planSemester) === Number(planSemester),
+      ),
+    [plannedModules, planYear, planSemester],
+  );
 
   const handlePlanYearChange = (event) => {
     setPlanYear(event.target.value);
@@ -36,25 +32,8 @@ export default function ModuleTracker({ mods }) {
     setPlanSemester(event.target.value);
   };
 
-  const handleRemoveMod = async (moduleId) => {
-    setRemovingModuleId(moduleId);
-    try {
-      await removePlannedModule(moduleId);
-      setRefresh((r) => r + 1);
-    } catch (error) {
-      console.error("Failed to delete module: ", error);
-      alert("Failed to remove module. Please try again.");
-    } finally {
-      setRemovingModuleId(null);
-    }
-  };
-
   return (
     <section>
-      <p>
-        Welcome Back <b>{data.user.name}</b>
-      </p>
-      <br></br>
       <div>
         <label htmlFor="plan-year"> Year: </label>
         <select id="plan-year" value={planYear} onChange={handlePlanYearChange}>
@@ -79,14 +58,13 @@ export default function ModuleTracker({ mods }) {
         mods={mods}
         sem={planSemester}
         year={planYear}
-        onAdd={() => setRefresh((r) => r + 1)}
+        onAdd={onAddModule}
       />
       <PlannedModulesList
-        plannedModules={plannedModules}
-        onRemove={handleRemoveMod}
+        plannedModules={visiblePlannedModules}
+        onRemove={onRemoveModule}
         removingModuleId={removingModuleId}
       />
-      <SemesterTimeline plannedModules={plannedModules} mods={mods} />
       <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
     </section>
   );
