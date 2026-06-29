@@ -11,6 +11,7 @@ import isPrecluded from "@/graph/isPreclusion";
 import {
   computeNodePositions,
   extractMods,
+  getDirectDependents,
   getModuleNeighborhood,
 } from "./layoutUtils";
 import Sidebar from "@/components/sideBar";
@@ -392,6 +393,14 @@ export default function Simple({
     plannerMods,
   ]);
 
+  const inGraph = useMemo(
+    () =>
+      new Set(
+        baseNodes.map((mod) => mod.id),
+        [baseNodes],
+      ),
+  );
+
   // Selection styling is pure derivation — no async, no rebuild
   const { nodes, edges } = useMemo(() => {
     // Determine if we are in focus mode
@@ -401,9 +410,33 @@ export default function Simple({
       ? baseNodes.filter((node) => focusIds.has(node.id))
       : baseNodes;
 
+    console.log("ingraph", inGraph);
+
+    const oneDepthNodes =
+      selectedNode === null
+        ? new Set()
+        : new Set([
+            ...extractMods(modMap.get(selectedNode)?.prereqTree).filter((n) =>
+              inGraph.has(n),
+            ),
+            ...getDirectDependents(selectedNode, mods).filter((n) =>
+              inGraph.has(n),
+            ),
+          ]);
+    console.log("oneDepthNodes", oneDepthNodes);
     const styled = visibleBaseNodes.map((node) => {
       const isSelected = node.id === selectedNode;
       const isRelated = selectedNode && focusIds.has(node.id);
+      const isOneDepth = oneDepthNodes.has(node.id);
+      const brightness = !selectedNode
+        ? 1
+        : isFocus
+          ? isRelated
+            ? 1
+            : 0.35
+          : isOneDepth || isSelected
+            ? 1
+            : 0.35;
       return {
         ...node,
         position: activePositions[node.id] ?? node.position,
@@ -415,7 +448,7 @@ export default function Simple({
           border: isSelected
             ? `2px solid ${NODE_COLORS.selectedBorder}`
             : getNodeBorder(node.data.code),
-          opacity: selectedNode && !isFocus && !isRelated ? 0.35 : 1,
+          opacity: brightness,
           cursor: "pointer",
         },
       };
@@ -428,8 +461,6 @@ export default function Simple({
     const resultEdges = [];
     const edgeSet = new Set();
     const junctionNodes = [];
-
-    const inGraph = new Set(baseNodes.map((mod) => mod.id));
 
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
@@ -496,6 +527,8 @@ export default function Simple({
     mods,
     activePositions,
     measureGhostIds,
+    modMap,
+    inGraph,
   ]);
 
   const handleNodeClick = useCallback((_, node) => {
@@ -546,11 +579,6 @@ export default function Simple({
     },
     [baseNodes, ghostNodes, selectedNode],
   );
-
-  const inGraph = nodes.map((n) => ({
-    id: n.id,
-    title: n.data.title,
-  }));
 
   return (
     <div className="flex flex-row h-full w-full overflow-hidden">
