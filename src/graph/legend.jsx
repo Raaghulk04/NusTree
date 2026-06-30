@@ -14,6 +14,12 @@ export default function Legend() {
             <span>{item.label}</span>
           </div>
         ))}
+        <div className="flex items-center gap-1.5">
+          <div className="flex h-3.5 w-3.5 items-center justify-center text-2xl leading-none font-bold text-violet-400 translate-y-0.75">
+            *
+          </div>
+          <span>Compulsory</span>
+        </div>
       </div>
       <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
       <span className="italic">Click a module to see prerequisites</span>
