@@ -401,6 +401,7 @@ export default function Simple({
       ),
   );
 
+  console.log("inGraph", inGraph);
   // Selection styling is pure derivation — no async, no rebuild
   const { nodes, edges } = useMemo(() => {
     // Determine if we are in focus mode

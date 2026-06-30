@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function SidebarSearch({
   dataOptions = [],
-  inGraph = [],
+  inGraph,
   centerNode,
   placeholder = "Search by module code...",
 }) {
@@ -13,8 +13,8 @@ export function SidebarSearch({
   const [open, setOpen] = React.useState(false);
 
   let safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
-  const inGraphIds = new Set(inGraph.map((n) => n.id));
-  safeOptions = safeOptions.filter((opt) => !inGraphIds.has(opt.id));
+  const safeInGraph = safeOptions.filter((opt) => inGraph.has(opt.id));
+  safeOptions = safeOptions.filter((opt) => !inGraph.has(opt.id));
 
   //safeOptions = safeOptions.map((mod) => mod.id);
   const filteredOptions = safeOptions
@@ -38,7 +38,8 @@ export function SidebarSearch({
     })
     .slice(0, 5);
 
-  const filteredGraph = inGraph
+  console.log("safeInGraph", safeInGraph);
+  const filteredGraph = safeInGraph
     .filter((opt) => {
       if (!opt) return false;
 
