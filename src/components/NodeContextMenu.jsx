@@ -1,6 +1,7 @@
 // NodeContextMenu.jsx
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import addPlannedModule from "@/components/add-planned-module";
 
 export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
@@ -17,6 +18,9 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
 
     console.log("click done");
   };
+
+  const handleNusModsClicked = () =>
+    window.open(`https://nusmods.com/courses/${data.label}`, "_blank");
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -40,46 +44,111 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
         top: y,
         left: x,
         zIndex: 99999,
-        width: "140px",
-        background: "#151e2d",
-        border: "1px solid #334155",
-        borderRadius: "6px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-        padding: "6px",
+        width: "250px",
+        background:
+          "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(9,9,11,0.98) 100%)",
+        border: "1px solid rgba(82,82,91,0.9)",
+        borderRadius: "14px",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
+        padding: "12px",
         display: "flex",
         flexDirection: "column",
-        gap: "4px",
+        gap: "10px",
+        backdropFilter: "blur(14px)",
       }}
     >
       <div
         style={{
-          fontSize: "10px",
-          fontWeight: 700,
-          color: "#f1f5f9",
-          lineHeight: 1.2,
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+          paddingBottom: "8px",
+          borderBottom: "1px solid rgba(63,63,70,0.9)",
         }}
       >
-        {data.label}
+        <div
+          style={{
+            fontSize: "13px",
+            fontWeight: 800,
+            color: "#f8fafc",
+            lineHeight: 1.1,
+            letterSpacing: "0.02em",
+          }}
+        >
+          {data.label}
+        </div>
+        <div
+          style={{
+            fontSize: "11px",
+            color: "#a1a1aa",
+            lineHeight: 1.35,
+          }}
+        >
+          {data.title}
+        </div>
       </div>
-      <div style={{ fontSize: "9px", color: "#9ca3af", lineHeight: 1.2 }}>
-        {data.title}
-      </div>
-      <button
-        onClick={handleMarked}
+      <div
         style={{
-          marginTop: "2px",
-          width: "100%",
-          height: "22px",
-          fontSize: "9px",
-          background: "transparent",
-          border: "1px solid #4b5563",
-          borderRadius: "4px",
-          color: "#f1f5f9",
-          cursor: "pointer",
+          display: "flex",
+          alignItems: "stretch",
+          gap: "10px",
         }}
       >
-        Mark as completed
-      </button>
+        <button
+          onClick={handleNusModsClicked}
+          style={{
+            width: "68px",
+            minHeight: "64px",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0",
+            flexShrink: 0,
+          }}
+          title="Open in NusMods"
+        >
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              position: "relative",
+            }}
+          >
+            <Image
+              src="/images/NusMods.png"
+              alt="Open in NusMods"
+              width={64}
+              height={64}
+              sizes="64px"
+              priority
+              style={{ objectFit: "contain", width: "100%", height: "100%" }}
+            />
+          </div>
+        </button>
+        <button
+          onClick={handleMarked}
+          style={{
+            flex: 1,
+            minHeight: "64px",
+            fontSize: "12px",
+            fontWeight: 700,
+            background:
+              "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(15,23,42,0.98) 100%)",
+            border: "1px solid rgba(63,63,70,1)",
+            borderRadius: "12px",
+            color: "#f8fafc",
+            cursor: "pointer",
+            padding: "10px 12px",
+            textAlign: "center",
+            lineHeight: 1.15,
+          }}
+        >
+          Mark as completed
+        </button>
+      </div>
     </div>,
     document.body,
   );
