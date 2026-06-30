@@ -9,6 +9,7 @@ import {
 } from "@xyflow/react";
 
 export default function ModuleNode({ id, data }) {
+  console.log("data", data);
   const [menuPos, setMenuPos] = useState(null);
   const nodeRef = useRef(null);
   const { setNodes } = useReactFlow();
@@ -71,6 +72,11 @@ export default function ModuleNode({ id, data }) {
     >
       <Handle type="target" position={Position.Top} />
       <div style={{ fontWeight: 600 }}>{data.label}</div>
+      {data.showAsterisk && (
+        <div className="absolute top-1 right-1 text-purple-400 font-bold text-2xl leading-none">
+          *
+        </div>
+      )}
       <Handle type="source" position={Position.Bottom} />
 
       {menuPos && (

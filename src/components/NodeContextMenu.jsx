@@ -68,15 +68,59 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
       >
         <div
           style={{
-            fontSize: "13px",
-            fontWeight: 800,
-            color: "#f8fafc",
-            lineHeight: 1.1,
-            letterSpacing: "0.02em",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "10px",
           }}
         >
-          {data.label}
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: 800,
+              color: "#f8fafc",
+              lineHeight: 1.1,
+              letterSpacing: "0.02em",
+            }}
+          >
+            {data.label}
+          </div>
+          <button
+            onClick={handleNusModsClicked}
+            style={{
+              width: "48px",
+              height: "48px",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0",
+              flexShrink: 0,
+            }}
+            title="Open in NusMods"
+          >
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                position: "relative",
+              }}
+            >
+              <Image
+                src="/images/NusMods.png"
+                alt="Open in NusMods"
+                width={44}
+                height={44}
+                sizes="44px"
+                priority
+                style={{ objectFit: "contain", width: "100%", height: "100%" }}
+              />
+            </div>
+          </button>
         </div>
+
         <div
           style={{
             fontSize: "11px",
@@ -94,40 +138,6 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
           gap: "10px",
         }}
       >
-        <button
-          onClick={handleNusModsClicked}
-          style={{
-            width: "68px",
-            minHeight: "64px",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "0",
-            flexShrink: 0,
-          }}
-          title="Open in NusMods"
-        >
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              position: "relative",
-            }}
-          >
-            <Image
-              src="/images/NusMods.png"
-              alt="Open in NusMods"
-              width={64}
-              height={64}
-              sizes="64px"
-              priority
-              style={{ objectFit: "contain", width: "100%", height: "100%" }}
-            />
-          </div>
-        </button>
         <button
           onClick={handleMarked}
           style={{

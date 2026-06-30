@@ -212,12 +212,13 @@ export default function Graph({
         extractMods(module.prereqTree || null).includes(selectedNode),
       );
       const position = nodePositions[module.id] || DEFAULT_NODE_POSITION;
-
+      const isCompulsory = compulsoryMods.includes(module.id);
+      console.log("compulsory mods", compulsoryMods);
       return {
         id: module.id,
         position,
         type: "moduleNodeType",
-        data: { label: module.id },
+        data: { label: module.id, showAsterisk: isCompulsory },
         style: {
           color: "#000000",
           backgroundColor: getNodeBackground(module.id, completedIds, takenIds),
@@ -244,16 +245,21 @@ export default function Graph({
     takenIds,
     nodePositions,
     calculatedJunctionNodes,
+    compulsoryMods,
   ]);
 
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
-  const inGraph = allMods.map((mod) => ({
-    id: mod.id,
-    title: mod.title,
-  }));
+  const inGraph = new Set(
+    allMods.map((mod) => ({
+      id: mod.id,
+      title: mod.title,
+    })),
+  );
+
+  const sideBarInGraph = new Set(allMods.map((mod) => mod.id));
 
   // pre computes the mod to its prereqTree
   const prereqMap = useMemo(() => {
@@ -287,7 +293,7 @@ export default function Graph({
             isOpen={isSideBarOpen}
             setIsOpen={setIsSideBarOpen}
             mods={allMods}
-            inGraph={inGraph}
+            inGraph={sideBarInGraph}
             centerNode={centerNode}
           />
           <div className="flex-1 relative h-full">

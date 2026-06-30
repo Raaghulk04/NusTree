@@ -363,6 +363,10 @@ export default function Simple({
 
       const flowNodes = availableNodes.map((mod) => {
         const modObj = modMap.get(mod.id); // O(1) instead of filter()
+        const isCompulsory = compulsoryIds
+          .map((obj) => obj.id)
+          .includes(mod.id);
+
         return {
           id: mod.id,
           type: "moduleNodeType",
@@ -376,6 +380,7 @@ export default function Simple({
             description: modObj?.description,
             onCompleted: (moduleId) => handleModuleCompleted(moduleId),
             code: mod.code, // store code so useMemo can use it for styling
+            showAsterisk: isCompulsory,
           },
         };
       });
@@ -411,8 +416,6 @@ export default function Simple({
       ? baseNodes.filter((node) => focusIds.has(node.id))
       : baseNodes;
 
-    console.log("ingraph", inGraph);
-
     const oneDepthNodes =
       selectedNode === null
         ? new Set()
@@ -424,7 +427,6 @@ export default function Simple({
               inGraph.has(n),
             ),
           ]);
-    console.log("oneDepthNodes", oneDepthNodes);
     const styled = visibleBaseNodes.map((node) => {
       const isSelected = node.id === selectedNode;
       const isRelated = selectedNode && focusIds.has(node.id);

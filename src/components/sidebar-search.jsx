@@ -11,7 +11,7 @@ export function SidebarSearch({
 }) {
   const [search, setSearch] = React.useState("");
   const [open, setOpen] = React.useState(false);
-
+  console.log("inGraph", inGraph);
   let safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
   const safeInGraph = safeOptions.filter((opt) => inGraph.has(opt.id));
   safeOptions = safeOptions.filter((opt) => !inGraph.has(opt.id));
