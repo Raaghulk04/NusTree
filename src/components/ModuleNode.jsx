@@ -73,7 +73,10 @@ export default function ModuleNode({ id, data }) {
       <Handle type="target" position={Position.Top} />
       <div style={{ fontWeight: 600 }}>{data.label}</div>
       {data.showAsterisk && (
-        <div className="absolute top-1 right-1 text-purple-400 font-bold text-2xl leading-none">
+        <div
+          className="absolute top-1 right-1 text-purple-400 font-bold text-2xl leading-none"
+          style={{ textShadow: "0 0 8px #c084fc, 0 0 20px #a855f7" }}
+        >
           *
         </div>
       )}
