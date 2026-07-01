@@ -63,9 +63,9 @@ export default function ModuleNode({ id, data }) {
       style={{
         padding: "10px 16px",
         borderRadius: "8px",
-        background: "#1e293b",
-        border: "1px solid #334155",
-        color: "#f1f5f9",
+        background: "inherit",
+        border: "inherit",
+        color: "inherit",
         minWidth: 120,
         cursor: "context-menu",
       }}

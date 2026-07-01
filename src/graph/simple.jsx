@@ -330,14 +330,13 @@ export default function Simple({
         id: m.moduleId,
       }));
 
-      console.log("plannedIds", plannedIds);
-
       let final = await isPrecluded({
         completedIds: completedIdPayload,
         takenIds,
         compulsoryIds,
       });
       final = final.concat(plannedIds);
+      final.sort((a, b) => b.code - a.code);
 
       const uniques = new Map();
       for (const node of final) {
@@ -345,9 +344,15 @@ export default function Simple({
       }
       const finalNodes = [...uniques.values()];
 
+      const compulsoryIdSet = new Set(compulsoryMods || []);
+
       const availableNodes = showEligible
         ? finalNodes
-        : finalNodes.filter((n) => !(takenIdSet.has(n.id) && n.code === 1));
+        : finalNodes.filter(
+            (n) =>
+              !(takenIdSet.has(n.id) && n.code === 1) ||
+              compulsoryIdSet.has(n.id),
+          );
 
       const eligibles = finalNodes
         .filter((n) => takenIdSet.has(n.id) && n.code === 1)
@@ -399,11 +404,8 @@ export default function Simple({
   ]);
 
   const inGraph = useMemo(
-    () =>
-      new Set(
-        baseNodes.map((mod) => mod.id),
-        [baseNodes],
-      ),
+    () => new Set(baseNodes.map((mod) => mod.id)),
+    [baseNodes],
   );
 
   console.log("inGraph", inGraph);
