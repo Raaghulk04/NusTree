@@ -95,6 +95,7 @@ export default function Simple({
   const [showEligible, setShowEligible] = useState(false);
   const [localCompletedModIds, setLocalCompletedModIds] = useState([]);
   const [positions, setPositions] = useState({});
+  const [customPositions, setCustomPositions] = useState({});
   const [measuredGhostState, setMeasuredGhostState] = useState({
     selectedNode: null,
     ids: new Set(),
@@ -111,7 +112,6 @@ export default function Simple({
     }
   }, [session]);
 
-  console.log("plannerMods", plannerMods);
 
   const handleNewAddModule = useCallback(
     async (moduleId) => {
@@ -257,8 +257,13 @@ export default function Simple({
     return computeNodePositions(layoutMods, { anchorId: selectedNode });
   }, [selectedNode, selectedView, focusIds, modMap]);
 
-  const activePositions =
-    selectedNode && selectedView === "focus" ? focusPositions : positions;
+  const activePositions = useMemo(() => {
+    const base = selectedNode && selectedView === "focus" ? focusPositions : positions;
+    return {
+      ...base,
+      ...customPositions,
+    };
+  }, [selectedNode, selectedView, focusPositions, positions, customPositions]);
 
   const ghostNodes = useMemo(() => {
     if (!selectedNode) return [];
@@ -275,31 +280,88 @@ export default function Simple({
     const ghostNodes = [];
 
     selectedMissingPrereqs.forEach((prereq, index) => {
-      if (inGraphNodes.has(prereq)) return;
-      const modObj = modMap.get(prereq);
-      if (!modObj) return;
-      const layoutPosition = activePositions[prereq];
+      if (Array.isArray(prereq)) {
+        // Handle nested OR array (e.g. ['MA1301X', 'MA1301'])
+        const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+        ghostNodes.push({
+          id: junctionId,
+          type: "default",
+          position: { x: baseX - 80, y: baseY - 60 },
+          data: { label: "OR" },
+          style: {
+            width: 35,
+            height: 35,
+            borderRadius: "50%",
+            backgroundColor: "#fef08a",
+            color: "#000",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "10px",
+            fontWeight: "bold",
+            border: "2px dashed #ca8a04",
+            opacity: 0.85,
+          },
+        });
 
-      ghostNodes.push({
-        id: prereq,
-        type: "moduleNodeType",
-        position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
-        data: {
-          label: prereq,
-          title: modObj.title,
-          description: modObj.description,
-          isGhost: true, // flag for styling
-        },
-        style: {
-          color: "#000000",
-          backgroundColor: "#fef08a", // yellow — "you still need this"
-          borderRadius: "8px",
-          fontSize: "11px",
-          border: "2px dashed #ca8a04",
-          opacity: 0.85,
-          cursor: "pointer",
-        },
-      });
+        prereq.forEach((subPrereq, subIndex) => {
+          if (inGraphNodes.has(subPrereq)) return;
+          const modObj = modMap.get(subPrereq);
+          if (!modObj) return;
+          const layoutPosition = activePositions[subPrereq];
+
+          ghostNodes.push({
+            id: subPrereq,
+            type: "moduleNodeType",
+            position: layoutPosition ?? {
+              x: baseX - 160 + subIndex * 160,
+              y: baseY - 120,
+            },
+            data: {
+              label: subPrereq,
+              title: modObj.title,
+              description: modObj.description,
+              isGhost: true,
+            },
+            style: {
+              color: "#000000",
+              backgroundColor: "#fef08a",
+              borderRadius: "8px",
+              fontSize: "11px",
+              border: "2px dashed #ca8a04",
+              opacity: 0.85,
+              cursor: "pointer",
+            },
+          });
+        });
+      } else {
+        // Handle single string prerequisite
+        if (inGraphNodes.has(prereq)) return;
+        const modObj = modMap.get(prereq);
+        if (!modObj) return;
+        const layoutPosition = activePositions[prereq];
+
+        ghostNodes.push({
+          id: prereq,
+          type: "moduleNodeType",
+          position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
+          data: {
+            label: prereq,
+            title: modObj.title,
+            description: modObj.description,
+            isGhost: true,
+          },
+          style: {
+            color: "#000000",
+            backgroundColor: "#fef08a",
+            borderRadius: "8px",
+            fontSize: "11px",
+            border: "2px dashed #ca8a04",
+            opacity: 0.85,
+            cursor: "pointer",
+          },
+        });
+      }
     });
 
     return ghostNodes;
@@ -324,7 +386,6 @@ export default function Simple({
       }));
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
-
       const plannedIds = (plannerMods || []).map((m) => ({
         code: 1,
         id: m.moduleId,
@@ -365,6 +426,7 @@ export default function Simple({
 
       const computedPositions = computeNodePositions(nodeForPositions);
       setPositions(computedPositions);
+      setCustomPositions({});
 
       const flowNodes = availableNodes.map((mod) => {
         const modObj = modMap.get(mod.id); // O(1) instead of filter()
@@ -401,6 +463,7 @@ export default function Simple({
     modMap,
     handleModuleCompleted,
     plannerMods,
+    setCustomPositions,
   ]);
 
   const inGraph = useMemo(
@@ -463,6 +526,8 @@ export default function Simple({
       return { nodes: [...styled, ...ghostNodes], edges: [] };
     }
 
+    const completedIdSet = new Set(completedIds);
+
     const resultEdges = [];
     const edgeSet = new Set();
     const junctionNodes = [];
@@ -478,7 +543,7 @@ export default function Simple({
         buildTree(
           mod.prereqTree,
           mod.id,
-          inGraph,
+          completedIdSet,
           resultEdges,
           edgeSet,
           "and",
@@ -490,9 +555,69 @@ export default function Simple({
         const edgeId = `${selectedNode}-${mod.id}`;
         if (!edgeSet.has(edgeId)) {
           edgeSet.add(edgeId);
+          const isCompleted = completedIdSet.has(selectedNode);
           resultEdges.push(
-            createDirectDependencyEdge(selectedNode, mod.id, edgeType),
+            isCompleted
+              ? createDirectDependencyEdge(selectedNode, mod.id, edgeType)
+              : {
+                  id: edgeId,
+                  source: selectedNode,
+                  target: mod.id,
+                  label: edgeType === "or" ? "OR" : "AND",
+                  style: {
+                    stroke: "#d10000",
+                    strokeDasharray: "5,5",
+                  },
+                  labelStyle: {
+                    fontSize: "10px",
+                    fill: "#d10000",
+                  },
+                },
           );
+        }
+      }
+    });
+
+    // Add missing/ghost prerequisite edges
+    selectedMissingPrereqs.forEach((prereq) => {
+      if (Array.isArray(prereq)) {
+        const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+        // Edge from junction to target (selectedNode)
+        const edgeId = `${junctionId}-${selectedNode}`;
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          resultEdges.push({
+            id: edgeId,
+            source: junctionId,
+            target: selectedNode,
+            style: { stroke: "#d10000", strokeDasharray: "5,5" },
+          });
+        }
+        // Edges from options to junction
+        prereq.forEach((subPrereq) => {
+          const subEdgeId = `${subPrereq}-${junctionId}`;
+          if (!edgeSet.has(subEdgeId)) {
+            edgeSet.add(subEdgeId);
+            resultEdges.push({
+              id: subEdgeId,
+              source: subPrereq,
+              target: junctionId,
+              label: "OR",
+              style: { stroke: "#d10000", strokeDasharray: "5,5" },
+              labelStyle: { fontSize: "10px", fill: "#d10000" },
+            });
+          }
+        });
+      } else {
+        const edgeId = `${prereq}-${selectedNode}`;
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          resultEdges.push({
+            id: edgeId,
+            source: prereq,
+            target: selectedNode,
+            style: { stroke: "#d10000", strokeDasharray: "5,5" },
+          });
         }
       }
     });
@@ -509,7 +634,7 @@ export default function Simple({
             strokeDasharray: "5,5",
             opacity: measureGhostIds.has(edge.source) ? 1 : 0,
           },
-          label: "MISSING",
+          label: edge.label || "MISSING",
           labelStyle: {
             ...edge.labelStyle,
             opacity: measureGhostIds.has(edge.source) ? 1 : 0,
@@ -534,15 +659,18 @@ export default function Simple({
     measureGhostIds,
     modMap,
     inGraph,
+    selectedMissingPrereqs,
+    completedIds,
   ]);
 
   const handleNodeClick = useCallback((_, node) => {
+    setCustomPositions({});
     setSelectedNode((prev) => {
       if (prev === node.id) return null;
       setSelectedView("full");
       return node.id;
     });
-  }, []);
+  }, [setCustomPositions]);
 
   useEffect(() => {
     if (nodes.length === 0) return undefined;
@@ -568,6 +696,20 @@ export default function Simple({
         setBaseNodes((nds) => applyNodeChanges(baseChanges, nds));
       }
 
+      // Update custom positions if a node was dragged
+      const positionChanges = changes.filter(
+        (c) => c.type === "position" && c.position,
+      );
+      if (positionChanges.length > 0) {
+        setCustomPositions((prev) => {
+          const next = { ...prev };
+          positionChanges.forEach((c) => {
+            next[c.id] = c.position;
+          });
+          return next;
+        });
+      }
+
       // 2. Handle ghost measurement tracking
       const ghostDimensionChanges = changes.filter(
         (c) => c.type === "dimensions" && ghostIds.has(c.id),
@@ -582,7 +724,7 @@ export default function Simple({
         });
       }
     },
-    [baseNodes, ghostNodes, selectedNode],
+    [baseNodes, ghostNodes, selectedNode, setCustomPositions],
   );
 
   return (
@@ -618,7 +760,10 @@ export default function Simple({
               <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
                 <button
                   type="button"
-                  onClick={() => setSelectedView("focus")}
+                  onClick={() => {
+                    setCustomPositions({});
+                    setSelectedView("focus");
+                  }}
                   className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
                     selectedView === "focus"
                       ? "bg-blue-500 text-white"
@@ -629,7 +774,10 @@ export default function Simple({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedView("full")}
+                  onClick={() => {
+                    setCustomPositions({});
+                    setSelectedView("full");
+                  }}
                   className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
                     selectedView === "full"
                       ? "bg-blue-500 text-white"
@@ -642,6 +790,7 @@ export default function Simple({
             )}
             <button
               onClick={() => {
+                setCustomPositions({});
                 // if a node is selected and we are show eligible mod mode, unselect the node
                 // if its a eligible
                 console.log(eligibleMods);
