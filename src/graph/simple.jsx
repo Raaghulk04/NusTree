@@ -21,6 +21,7 @@ import findEdgeType from "@/graph/findEdgeType";
 import MissingMods from "./missingmods";
 import "@/app/globals.css";
 import { getPlannerModuleId } from "@/graph/plannerModuleIds";
+import { useFocusMode } from "./focus";
 import {
   getUserAddModules,
   upsertUserAddModule,
@@ -53,6 +54,7 @@ const getNodeBorder = (code) => {
   if (code === 1) return `2px solid ${NODE_COLORS.connectedBorder}`;
   return `1px solid ${NODE_COLORS.defaultBorder}`;
 };
+
 
 // Static registration of custom node components outside the component block
 const nodeTypes = {
@@ -234,28 +236,18 @@ export default function Simple({
     );
   }, []);
 
-  const selectedMissingPrereqs = useMemo(() => {
-    if (!selectedNode) return [];
-    return MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
-  }, [selectedNode, prereqMap, completedIds]);
-
-  const focusIds = useMemo(
-    () =>
-      selectedNode
-        ? getModuleNeighborhood(selectedNode, mods, selectedMissingPrereqs)
-        : new Set(),
-    [selectedNode, mods, selectedMissingPrereqs],
-  );
-
-  const focusPositions = useMemo(() => {
-    if (!selectedNode || selectedView !== "focus") return {};
-
-    const layoutMods = [...focusIds]
-      .map((id) => modMap.get(id))
-      .filter(Boolean);
-
-    return computeNodePositions(layoutMods, { anchorId: selectedNode });
-  }, [selectedNode, selectedView, focusIds, modMap]);
+  const {
+    deepPrereqs,
+    focusIds,
+    focusPositions,
+  } = useFocusMode({
+    selectedNode,
+    selectedView,
+    prereqMap,
+    completedIds,
+    mods,
+    modMap,
+  });
 
   const activePositions = useMemo(() => {
     const base = selectedNode && selectedView === "focus" ? focusPositions : positions;
@@ -268,8 +260,6 @@ export default function Simple({
   const ghostNodes = useMemo(() => {
     if (!selectedNode) return [];
 
-    const inGraphNodes = new Set(baseNodes.map((m) => m.id));
-
     const selectedBaseNode = baseNodes.find((n) => n.id === selectedNode);
     const selectedPos = activePositions[selectedNode] ??
       selectedBaseNode?.position ?? { x: 0, y: 0 };
@@ -277,48 +267,105 @@ export default function Simple({
     const baseX = Number.isFinite(selectedPos.x) ? selectedPos.x : 0;
     const baseY = Number.isFinite(selectedPos.y) ? selectedPos.y : 0;
 
-    const ghostNodes = [];
+    if (selectedView === "focus") {
+      const inGraph = new Set(baseNodes.map((m) => m.id));
+      const ghostNodeIds = [...deepPrereqs].filter((id) => !inGraph.has(id));
 
-    selectedMissingPrereqs.forEach((prereq, index) => {
-      if (Array.isArray(prereq)) {
-        // Handle nested OR array (e.g. ['MA1301X', 'MA1301'])
-        const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
-        ghostNodes.push({
-          id: junctionId,
-          type: "default",
-          position: { x: baseX - 80, y: baseY - 60 },
-          data: { label: "OR" },
+      return ghostNodeIds.map((prereq, index) => {
+        const modObj = modMap.get(prereq);
+        const layoutPosition = activePositions[prereq];
+        return {
+          id: prereq,
+          type: "moduleNodeType",
+          position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
+          data: {
+            label: prereq,
+            title: modObj?.title || "Unknown Title",
+            description: modObj?.description || "",
+            isGhost: true,
+          },
           style: {
-            width: 35,
-            height: 35,
-            borderRadius: "50%",
+            color: "#000000",
             backgroundColor: "#fef08a",
-            color: "#000",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "10px",
-            fontWeight: "bold",
+            borderRadius: "8px",
+            fontSize: "11px",
             border: "2px dashed #ca8a04",
             opacity: 0.85,
+            cursor: "pointer",
           },
-        });
+        };
+      });
+    } else {
+      const inGraphNodes = new Set(baseNodes.map((m) => m.id));
+      const ghostNodesList = [];
+      const selectedMissingPrereqs = MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
 
-        prereq.forEach((subPrereq, subIndex) => {
-          if (inGraphNodes.has(subPrereq)) return;
-          const modObj = modMap.get(subPrereq);
-          if (!modObj) return;
-          const layoutPosition = activePositions[subPrereq];
-
-          ghostNodes.push({
-            id: subPrereq,
-            type: "moduleNodeType",
-            position: layoutPosition ?? {
-              x: baseX - 160 + subIndex * 160,
-              y: baseY - 120,
+      selectedMissingPrereqs.forEach((prereq, index) => {
+        if (Array.isArray(prereq)) {
+          const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+          ghostNodesList.push({
+            id: junctionId,
+            type: "default",
+            position: { x: baseX - 80, y: baseY - 60 },
+            data: { label: "OR" },
+            style: {
+              width: 35,
+              height: 35,
+              borderRadius: "50%",
+              backgroundColor: "#fef08a",
+              color: "#000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "10px",
+              fontWeight: "bold",
+              border: "2px dashed #ca8a04",
+              opacity: 0.85,
             },
+          });
+
+          prereq.forEach((subPrereq, subIndex) => {
+            if (inGraphNodes.has(subPrereq)) return;
+            const modObj = modMap.get(subPrereq);
+            if (!modObj) return;
+            const layoutPosition = activePositions[subPrereq];
+
+            ghostNodesList.push({
+              id: subPrereq,
+              type: "moduleNodeType",
+              position: layoutPosition ?? {
+                x: baseX - 160 + subIndex * 160,
+                y: baseY - 120,
+              },
+              data: {
+                label: subPrereq,
+                title: modObj.title,
+                description: modObj.description,
+                isGhost: true,
+              },
+              style: {
+                color: "#000000",
+                backgroundColor: "#fef08a",
+                borderRadius: "8px",
+                fontSize: "11px",
+                border: "2px dashed #ca8a04",
+                opacity: 0.85,
+                cursor: "pointer",
+              },
+            });
+          });
+        } else {
+          if (inGraphNodes.has(prereq)) return;
+          const modObj = modMap.get(prereq);
+          if (!modObj) return;
+          const layoutPosition = activePositions[prereq];
+
+          ghostNodesList.push({
+            id: prereq,
+            type: "moduleNodeType",
+            position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
             data: {
-              label: subPrereq,
+              label: prereq,
               title: modObj.title,
               description: modObj.description,
               isGhost: true,
@@ -333,42 +380,18 @@ export default function Simple({
               cursor: "pointer",
             },
           });
-        });
-      } else {
-        // Handle single string prerequisite
-        if (inGraphNodes.has(prereq)) return;
-        const modObj = modMap.get(prereq);
-        if (!modObj) return;
-        const layoutPosition = activePositions[prereq];
+        }
+      });
 
-        ghostNodes.push({
-          id: prereq,
-          type: "moduleNodeType",
-          position: layoutPosition ?? { x: baseX + index * 160, y: baseY - 120 },
-          data: {
-            label: prereq,
-            title: modObj.title,
-            description: modObj.description,
-            isGhost: true,
-          },
-          style: {
-            color: "#000000",
-            backgroundColor: "#fef08a",
-            borderRadius: "8px",
-            fontSize: "11px",
-            border: "2px dashed #ca8a04",
-            opacity: 0.85,
-            cursor: "pointer",
-          },
-        });
-      }
-    });
-
-    return ghostNodes;
+      return ghostNodesList;
+    }
   }, [
     selectedNode,
+    selectedView,
     baseNodes,
-    selectedMissingPrereqs,
+    deepPrereqs,
+    completedIds,
+    prereqMap,
     modMap,
     activePositions,
   ]);
@@ -527,117 +550,191 @@ export default function Simple({
     }
 
     const completedIdSet = new Set(completedIds);
-
     const resultEdges = [];
     const edgeSet = new Set();
     const junctionNodes = [];
 
-    mods.forEach((mod) => {
-      if (!mod.prereqTree) return;
-      const prereqs = [...new Set(extractMods(mod.prereqTree))];
-      const isSelected = mod.id === selectedNode;
-      const isPrereqOfSelected = prereqs.includes(selectedNode);
-      if (!isSelected && !isPrereqOfSelected) return;
+    if (selectedView === "focus") {
+      const renderablePrereqSet = new Set([
+        ...completedIds,
+        ...ghostNodes.map((n) => n.id),
+        ...baseNodes.map((n) => n.id),
+      ]);
 
-      if (isSelected) {
-        buildTree(
-          mod.prereqTree,
-          mod.id,
-          completedIdSet,
-          resultEdges,
-          edgeSet,
-          "and",
-          junctionNodes,
-          activePositions,
-        );
-      } else {
-        const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
-        const edgeId = `${selectedNode}-${mod.id}`;
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
-          const isCompleted = completedIdSet.has(selectedNode);
-          resultEdges.push(
-            isCompleted
-              ? createDirectDependencyEdge(selectedNode, mod.id, edgeType)
-              : {
-                  id: edgeId,
-                  source: selectedNode,
-                  target: mod.id,
-                  label: edgeType === "or" ? "OR" : "AND",
-                  style: {
-                    stroke: "#d10000",
-                    strokeDasharray: "5,5",
+      mods.forEach((mod) => {
+        if (!mod.prereqTree) return;
+        const prereqs = [...new Set(extractMods(mod.prereqTree))];
+        const isSelected = mod.id === selectedNode;
+        const isPrereqOfSelected = prereqs.includes(selectedNode);
+        if (!isSelected && !isPrereqOfSelected) return;
+
+        if (isSelected) {
+          buildTree(
+            mod.prereqTree,
+            mod.id,
+            renderablePrereqSet,
+            resultEdges,
+            edgeSet,
+            "and",
+            junctionNodes,
+            activePositions,
+          );
+        } else {
+          const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
+          const edgeId = `${selectedNode}-${mod.id}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
+            const isCompleted = completedIdSet.has(selectedNode);
+            resultEdges.push(
+              isCompleted
+                ? createDirectDependencyEdge(selectedNode, mod.id, edgeType)
+                : {
+                    id: edgeId,
+                    source: selectedNode,
+                    target: mod.id,
+                    label: edgeType === "or" ? "OR" : "AND",
+                    style: {
+                      stroke: "#d10000",
+                      strokeDasharray: "5,5",
+                    },
+                    labelStyle: {
+                      fontSize: "10px",
+                      fill: "#d10000",
+                    },
                   },
-                  labelStyle: {
-                    fontSize: "10px",
-                    fill: "#d10000",
-                  },
-                },
+            );
+          }
+        }
+      });
+
+      // Call buildTree for all deep prerequisites
+      deepPrereqs.forEach((prereqId) => {
+        const prereqMod = modMap.get(prereqId);
+        if (prereqMod && prereqMod.prereqTree) {
+          buildTree(
+            prereqMod.prereqTree,
+            prereqId,
+            renderablePrereqSet,
+            resultEdges,
+            edgeSet,
+            "and",
+            junctionNodes,
+            activePositions,
           );
         }
-      }
-    });
+      });
+    } else {
+      mods.forEach((mod) => {
+        if (!mod.prereqTree) return;
+        const prereqs = [...new Set(extractMods(mod.prereqTree))];
+        const isSelected = mod.id === selectedNode;
+        const isPrereqOfSelected = prereqs.includes(selectedNode);
+        if (!isSelected && !isPrereqOfSelected) return;
 
-    // Add missing/ghost prerequisite edges
-    selectedMissingPrereqs.forEach((prereq) => {
-      if (Array.isArray(prereq)) {
-        const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
-        // Edge from junction to target (selectedNode)
-        const edgeId = `${junctionId}-${selectedNode}`;
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
-          resultEdges.push({
-            id: edgeId,
-            source: junctionId,
-            target: selectedNode,
-            style: { stroke: "#d10000", strokeDasharray: "5,5" },
-          });
+        if (isSelected) {
+          buildTree(
+            mod.prereqTree,
+            mod.id,
+            completedIdSet,
+            resultEdges,
+            edgeSet,
+            "and",
+            junctionNodes,
+            activePositions,
+          );
+        } else {
+          const edgeType = findEdgeType(mod.prereqTree, selectedNode) || "and";
+          const edgeId = `${selectedNode}-${mod.id}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
+            const isCompleted = completedIdSet.has(selectedNode);
+            resultEdges.push(
+              isCompleted
+                ? createDirectDependencyEdge(selectedNode, mod.id, edgeType)
+                : {
+                    id: edgeId,
+                    source: selectedNode,
+                    target: mod.id,
+                    label: edgeType === "or" ? "OR" : "AND",
+                    style: {
+                      stroke: "#d10000",
+                      strokeDasharray: "5,5",
+                    },
+                    labelStyle: {
+                      fontSize: "10px",
+                      fill: "#d10000",
+                    },
+                  },
+            );
+          }
         }
-        // Edges from options to junction
-        prereq.forEach((subPrereq) => {
-          const subEdgeId = `${subPrereq}-${junctionId}`;
-          if (!edgeSet.has(subEdgeId)) {
-            edgeSet.add(subEdgeId);
+      });
+
+      // Reverted: Add flat missing/ghost prerequisite edges for Full Simple Mode
+      const selectedMissingPrereqs = MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
+      selectedMissingPrereqs.forEach((prereq) => {
+        if (Array.isArray(prereq)) {
+          const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+          const edgeId = `${junctionId}-${selectedNode}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
             resultEdges.push({
-              id: subEdgeId,
-              source: subPrereq,
-              target: junctionId,
-              label: "OR",
+              id: edgeId,
+              source: junctionId,
+              target: selectedNode,
               style: { stroke: "#d10000", strokeDasharray: "5,5" },
-              labelStyle: { fontSize: "10px", fill: "#d10000" },
             });
           }
-        });
-      } else {
-        const edgeId = `${prereq}-${selectedNode}`;
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
-          resultEdges.push({
-            id: edgeId,
-            source: prereq,
-            target: selectedNode,
-            style: { stroke: "#d10000", strokeDasharray: "5,5" },
+          prereq.forEach((subPrereq) => {
+            const subEdgeId = `${subPrereq}-${junctionId}`;
+            if (!edgeSet.has(subEdgeId)) {
+              edgeSet.add(subEdgeId);
+              resultEdges.push({
+                id: subEdgeId,
+                source: subPrereq,
+                target: junctionId,
+                label: "OR",
+                style: { stroke: "#d10000", strokeDasharray: "5,5" },
+                labelStyle: { fontSize: "10px", fill: "#d10000" },
+              });
+            }
           });
+        } else {
+          const edgeId = `${prereq}-${selectedNode}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
+            resultEdges.push({
+              id: edgeId,
+              source: prereq,
+              target: selectedNode,
+              style: { stroke: "#d10000", strokeDasharray: "5,5" },
+            });
+          }
         }
-      }
-    });
+      });
+    }
 
-    // Post-process edges to handle ghost node visibility
+    // Post-process edges to style satisfied vs unsatisfied status
     const processedEdges = resultEdges.map((edge) => {
       const isGhostSource = ghostNodes.some((gn) => gn.id === edge.source);
-      if (isGhostSource) {
+      const isSatisfied = completedIdSet.has(edge.source);
+      if (!isSatisfied) {
         return {
           ...edge,
           style: {
             ...edge.style,
             stroke: "#d10000",
             strokeDasharray: "5,5",
-            opacity: measureGhostIds.has(edge.source) ? 1 : 0,
+            opacity: isGhostSource
+              ? (measureGhostIds.has(edge.source) ? 1 : 0)
+              : 1,
           },
           label: edge.label || "MISSING",
           labelStyle: {
             ...edge.labelStyle,
-            opacity: measureGhostIds.has(edge.source) ? 1 : 0,
+            opacity: isGhostSource
+              ? (measureGhostIds.has(edge.source) ? 1 : 0)
+              : 1,
           },
         };
       }
@@ -659,8 +756,9 @@ export default function Simple({
     measureGhostIds,
     modMap,
     inGraph,
-    selectedMissingPrereqs,
+    deepPrereqs,
     completedIds,
+    prereqMap,
   ]);
 
   const handleNodeClick = useCallback((_, node) => {
