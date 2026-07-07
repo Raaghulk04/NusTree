@@ -1,3 +1,23 @@
+function hasAnyModInSet(node, set) {
+  if (!node) return false;
+  if (typeof node === "string") {
+    let code = node.split(":")[0];
+    code = code.replace("%", "");
+    return set.has(code);
+  }
+  if (node.and) {
+    return node.and.some((child) => hasAnyModInSet(child, set));
+  }
+  if (node.or) {
+    return node.or.some((child) => hasAnyModInSet(child, set));
+  }
+  if (node.nOf) {
+    const children = node.nOf[1];
+    return Array.isArray(children) && children.some((child) => hasAnyModInSet(child, set));
+  }
+  return false;
+}
+
 export default function buildTree(
   tree, // prereqTree
   targetId, // mod id
@@ -61,13 +81,7 @@ export default function buildTree(
   // RECURSIVE CASE B: Split pathways / alternative tracks (OR logic)
   if (tree.or) {
     const childInGraph = tree.or.filter((child) => {
-      if (typeof child != "string") {
-        return true;
-      }
-      let childId = child.split(":")[0];
-      childId = childId.replace("%", "");
-
-      return allModIds.has(childId);
+      return hasAnyModInSet(child, allModIds);
     });
 
     if (childInGraph.length === 0) {
