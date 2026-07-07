@@ -39,8 +39,8 @@ const NODE_COLORS = {
   selectedBorder: "#f59e0b",
   connectedBorder: "#3b82f6",
   completedBorder: "#22c55e",
-  warning: "#ffe4e6",
-  warningBorder: "#fb7185",
+  warning: "#fde68a",
+  warningBorder: "#d97706",
   defaultBorder: "#d1d5db",
 };
 const EDGE_COLORS = {
