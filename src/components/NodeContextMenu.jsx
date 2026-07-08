@@ -4,7 +4,11 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import addPlannedModule from "@/components/add-planned-module";
 
-export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
+export default function NodeContextMenu({ x, y, data, onClose, onMark, state }) {
+  // state 0 refers to locked mod
+  // state 1 refers to eligible mod
+  // state 2 refers to completed mod
+  // state 3 refers to invalid mod
   const menuRef = useRef(null);
 
   const handleMarked = async () => {
@@ -33,6 +37,36 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
     return () =>
       document.removeEventListener("mousedown", handleClickOutside, true);
   }, [onClose]);
+
+
+  let buttonContent = <button
+          onClick={handleMarked}
+          style={{
+            flex: 1,
+            minHeight: "36px",
+            fontSize: "11px",
+            fontWeight: 700,
+            background:
+              "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(15,23,42,0.98) 100%)",
+            border: "1px solid rgba(63,63,70,1)",
+            borderRadius: "10px",
+            color: "#f8fafc",
+            cursor: "pointer",
+            padding: "6px 8px",
+            textAlign: "center",
+            lineHeight: 1.15,
+          }}
+        >
+          Mark as completed
+        </button>
+
+  if (state === 0) {
+    buttonContent = <p>You are not eligible for this mod yet!</p> 
+  } else if (state === 2) {
+    buttonContent = <p>You have already taken this mod</p>
+  } else {
+    buttonContent = <p>Invalid</p>
+  }
 
   return createPortal(
     <div
@@ -140,26 +174,7 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
           gap: "6px",
         }}
       >
-        <button
-          onClick={handleMarked}
-          style={{
-            flex: 1,
-            minHeight: "36px",
-            fontSize: "11px",
-            fontWeight: 700,
-            background:
-              "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(15,23,42,0.98) 100%)",
-            border: "1px solid rgba(63,63,70,1)",
-            borderRadius: "10px",
-            color: "#f8fafc",
-            cursor: "pointer",
-            padding: "6px 8px",
-            textAlign: "center",
-            lineHeight: 1.15,
-          }}
-        >
-          Mark as completed
-        </button>
+      {buttonContent}  
       </div>
     </div>,
     document.body,
