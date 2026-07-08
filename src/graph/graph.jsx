@@ -1,6 +1,6 @@
 import { ReactFlow, Background, Controls, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import ModeToggle from "./modeToggle";
 import Simple from "@/graph/simple";
 import buildTree from "@/graph/buildTree";
@@ -9,6 +9,7 @@ import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
 import checkPrereqComplexity from "./complexitycheck";
+import { DEFAULT_TERM, getNextPlannerTerm } from "@/graph/termUtils";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -85,6 +86,8 @@ export default function Graph({
   const [selectedNode, setSelectedNode] = useState(null);
   const [mode, setMode] = useState(initialMode);
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+  const [selectedTerm, setSelectedTerm] = useState(DEFAULT_TERM);
+  const termInitializedRef = useRef(false);
 
   const nodeType = useMemo(() => ({ moduleNodeType: ModuleNode }), []);
 
@@ -132,6 +135,12 @@ export default function Graph({
       ),
     [completedMods],
   );
+
+  useEffect(() => {
+    if (termInitializedRef.current) return;
+    termInitializedRef.current = true;
+    setSelectedTerm(getNextPlannerTerm(graphCompletedMods));
+  }, [graphCompletedMods]);
 
   const graphCompulsoryMods = useMemo(
     () =>
@@ -285,7 +294,13 @@ export default function Graph({
         overflow: "hidden",
       }}
     >
-      <ModeToggle mode={mode} setMode={setMode} />
+      <ModeToggle
+        mode={mode}
+        setMode={setMode}
+        selectedTerm={selectedTerm}
+        setSelectedTerm={setSelectedTerm}
+        showTermSelector={mode === "Simple"}
+      />
 
       {mode === "All" && (
         <div className="flex flex-row h-full w-full overflow-hidden">
@@ -325,6 +340,7 @@ export default function Graph({
           isSideBarOpen={isSideBarOpen}
           setIsSideBarOpen={setIsSideBarOpen}
           prereqMap={prereqMap}
+          selectedTerm={selectedTerm}
         />
       )}
     </div>

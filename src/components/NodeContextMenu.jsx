@@ -4,7 +4,11 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import addPlannedModule from "@/components/add-planned-module";
 
-export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
+export default function NodeContextMenu({ x, y, data, onClose, onMark, state }) {
+  // state 0 refers to locked mod
+  // state 1 refers to eligible mod
+  // state 2 refers to completed mod
+  // state 3 refers to invalid mod
   const menuRef = useRef(null);
 
   const handleMarked = async () => {
@@ -33,6 +37,102 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
     return () =>
       document.removeEventListener("mousedown", handleClickOutside, true);
   }, [onClose]);
+
+
+  let buttonContent = <button
+          onClick={handleMarked}
+          style={{
+            flex: 1,
+            minHeight: "36px",
+            fontSize: "11px",
+            fontWeight: 700,
+            background:
+              "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(15,23,42,0.98) 100%)",
+            border: "1px solid rgba(63,63,70,1)",
+            borderRadius: "10px",
+            color: "#f8fafc",
+            cursor: "pointer",
+            padding: "6px 8px",
+            textAlign: "center",
+            lineHeight: 1.15,
+          }}
+        >
+          Mark as completed
+        </button>
+
+  if (state === 0) {
+    buttonContent = (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+          width: "100%",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          backgroundColor: "rgba(244, 63, 94, 0.08)",
+          border: "1px solid rgba(244, 63, 94, 0.3)",
+          color: "#f43f5e",
+          fontSize: "11px",
+          fontWeight: 600,
+          textAlign: "center",
+          lineHeight: 1.3,
+        }}
+      >
+        <span>🔒</span>
+        <span>Prerequisites Not Met</span>
+      </div>
+    );
+  } else if (state === 2) {
+    buttonContent = (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+          width: "100%",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          backgroundColor: "rgba(16, 185, 129, 0.08)",
+          border: "1px solid rgba(16, 185, 129, 0.3)",
+          color: "#10b981",
+          fontSize: "11px",
+          fontWeight: 600,
+          textAlign: "center",
+          lineHeight: 1.3,
+        }}
+      >
+        <span>✓</span>
+        <span>Completed</span>
+      </div>
+    );
+  } else if (state === 3) {
+    buttonContent = (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+          width: "100%",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          backgroundColor: "rgba(245, 158, 11, 0.08)",
+          border: "1px solid rgba(245, 158, 11, 0.3)",
+          color: "#f59e0b",
+          fontSize: "11px",
+          fontWeight: 600,
+          textAlign: "center",
+          lineHeight: 1.3,
+        }}
+      >
+        <span>⚠️</span>
+        <span>Invalid Plan / Unmet Prereqs</span>
+      </div>
+    );
+  }
 
   return createPortal(
     <div
@@ -140,26 +240,7 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark }) {
           gap: "6px",
         }}
       >
-        <button
-          onClick={handleMarked}
-          style={{
-            flex: 1,
-            minHeight: "36px",
-            fontSize: "11px",
-            fontWeight: 700,
-            background:
-              "linear-gradient(180deg, rgba(24,24,27,0.98) 0%, rgba(15,23,42,0.98) 100%)",
-            border: "1px solid rgba(63,63,70,1)",
-            borderRadius: "10px",
-            color: "#f8fafc",
-            cursor: "pointer",
-            padding: "6px 8px",
-            textAlign: "center",
-            lineHeight: 1.15,
-          }}
-        >
-          Mark as completed
-        </button>
+      {buttonContent}  
       </div>
     </div>,
     document.body,

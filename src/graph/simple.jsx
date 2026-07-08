@@ -27,6 +27,10 @@ import {
   upsertUserAddModule,
 } from "../server/planner.service";
 import { authClient } from "@/lib/auth-client";
+import {
+  DEFAULT_TERM,
+  classifyPlannerModulesByTerm,
+} from "@/graph/termUtils";
 
 const NODE_COLORS = {
   completed: "#86efac",
@@ -35,6 +39,8 @@ const NODE_COLORS = {
   selectedBorder: "#f59e0b",
   connectedBorder: "#3b82f6",
   completedBorder: "#22c55e",
+  warning: "#ffe4e6",
+  warningBorder: "#fb7185",
   defaultBorder: "#d1d5db",
 };
 const EDGE_COLORS = {
@@ -44,12 +50,14 @@ const EDGE_COLORS = {
 
 // 2. Extracted pure, stationary styling utilities
 const getNodeBackground = (code) => {
+  if (code === 3) return NODE_COLORS.warning; // Past planned with unmet prereqs
   if (code === 2) return NODE_COLORS.completed; // Completed
   if (code === 1) return NODE_COLORS.taken; // Taken
   return NODE_COLORS.default; // Default / Compulsory
 };
 
 const getNodeBorder = (code) => {
+  if (code === 3) return `2px solid ${NODE_COLORS.warningBorder}`;
   if (code === 2) return `2px solid ${NODE_COLORS.completedBorder}`;
   if (code === 1) return `2px solid ${NODE_COLORS.connectedBorder}`;
   return `1px solid ${NODE_COLORS.defaultBorder}`;
@@ -89,6 +97,7 @@ export default function Simple({
   isSideBarOpen,
   setIsSideBarOpen,
   prereqMap,
+  selectedTerm = DEFAULT_TERM,
 }) {
   const { fitView, setCenter, getNode, getZoom } = useReactFlow();
   const [baseNodes, setBaseNodes] = useState([]); // raw nodes from async work
@@ -212,14 +221,32 @@ export default function Simple({
     [getNode, setCenter, getZoom, highlightNode],
   );
 
+  const plannerStatus = useMemo(
+    () =>
+      classifyPlannerModulesByTerm({
+        plannedModules: completedMods || [],
+        selectedTerm,
+        modMap,
+      }),
+    [completedMods, selectedTerm, modMap],
+  );
+
   const completedIds = useMemo(
     () => [
       ...new Set([
-        ...(completedMods || []).map((mod) => mod.moduleId),
+        ...plannerStatus.completedIds,
         ...localCompletedModIds,
       ]),
     ],
-    [completedMods, localCompletedModIds],
+    [plannerStatus.completedIds, localCompletedModIds],
+  );
+
+  const warningIds = useMemo(
+    () =>
+      [...plannerStatus.warningIds].filter(
+        (moduleId) => !localCompletedModIds.includes(moduleId),
+      ),
+    [plannerStatus.warningIds, localCompletedModIds],
   );
 
   const measureGhostIds = useMemo(
@@ -283,6 +310,7 @@ export default function Simple({
             title: modObj?.title || "Unknown Title",
             description: modObj?.description || "",
             isGhost: true,
+            state: 1,
           },
           style: {
             color: "#000000",
@@ -342,6 +370,7 @@ export default function Simple({
                 title: modObj.title,
                 description: modObj.description,
                 isGhost: true,
+                state: 3,
               },
               style: {
                 color: "#000000",
@@ -369,6 +398,7 @@ export default function Simple({
               title: modObj.title,
               description: modObj.description,
               isGhost: true,
+              state: 3,
             },
             style: {
               color: "#000000",
@@ -409,6 +439,11 @@ export default function Simple({
       }));
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
+      const plannerTakenIds = [...plannerStatus.takenIds].map((id) => ({
+        code: 1,
+        id,
+      }));
+      const warningIdPayload = warningIds.map((id) => ({ code: 3, id }));
       const plannedIds = (plannerMods || []).map((m) => ({
         code: 1,
         id: m.moduleId,
@@ -419,7 +454,10 @@ export default function Simple({
         takenIds,
         compulsoryIds,
       });
-      final = final.concat(plannedIds);
+      final = final
+        .concat(plannerTakenIds)
+        .concat(plannedIds)
+        .concat(warningIdPayload);
       final.sort((a, b) => b.code - a.code);
 
       const uniques = new Map();
@@ -471,6 +509,7 @@ export default function Simple({
             onCompleted: (moduleId) => handleModuleCompleted(moduleId),
             code: mod.code, // store code so useMemo can use it for styling
             showAsterisk: isCompulsory,
+            state: mod.code,
           },
         };
       });
@@ -482,6 +521,8 @@ export default function Simple({
     completedIds,
     compulsoryMods,
     takenMods,
+    plannerStatus.takenIds,
+    warningIds,
     showEligible,
     modMap,
     handleModuleCompleted,
