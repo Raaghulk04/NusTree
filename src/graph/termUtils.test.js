@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   classifyPlannerModulesByTerm,
   getEarliestPlannerTerm,
+  getNextPlannerTerm,
 } from "./termUtils";
 
 const moduleMap = (modules) => new Map(modules.map((module) => [module.id, module]));
@@ -28,6 +29,38 @@ describe("getEarliestPlannerTerm", () => {
       ]),
     ).toEqual({
       planYear: 1,
+      planSemester: 2,
+    });
+  });
+});
+
+describe("getNextPlannerTerm", () => {
+  it("returns Y1S1 when there are no planned modules", () => {
+    expect(getNextPlannerTerm([])).toEqual({
+      planYear: 1,
+      planSemester: 1,
+    });
+  });
+
+  it("returns the term after the latest planned module", () => {
+    expect(
+      getNextPlannerTerm([
+        planned("CS1010", 1, 1),
+        planned("CS2040", 1, 2),
+      ]),
+    ).toEqual({
+      planYear: 2,
+      planSemester: 1,
+    });
+  });
+
+  it("caps the next term at Year 5 Semester 2", () => {
+    expect(
+      getNextPlannerTerm([
+        planned("CS5000", 5, 2),
+      ]),
+    ).toEqual({
+      planYear: 5,
       planSemester: 2,
     });
   });

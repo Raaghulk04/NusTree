@@ -42,6 +42,45 @@ export function getEarliestPlannerTerm(plannedModules) {
   );
 }
 
+export function getNextPlannerTerm(plannedModules) {
+  if (!Array.isArray(plannedModules) || plannedModules.length === 0) {
+    return DEFAULT_TERM;
+  }
+
+  const latest = plannedModules.reduce(
+    (latest, module) => {
+      const moduleIndex = getTermIndex(module.planYear, module.planSemester);
+      const latestIndex = getTermIndex(
+        latest.planYear,
+        latest.planSemester,
+      );
+
+      if (moduleIndex > latestIndex) {
+        return {
+          planYear: Number(module.planYear),
+          planSemester: Number(module.planSemester),
+        };
+      }
+
+      return latest;
+    },
+    {
+      planYear: Number(plannedModules[0].planYear),
+      planSemester: Number(plannedModules[0].planSemester),
+    },
+  );
+
+  if (latest.planYear >= 5 && latest.planSemester === 2) {
+    return { planYear: 5, planSemester: 2 };
+  }
+
+  if (latest.planSemester === 1) {
+    return { planYear: latest.planYear, planSemester: 2 };
+  } else {
+    return { planYear: latest.planYear + 1, planSemester: 1 };
+  }
+}
+
 const getModuleCode = (treeValue) =>
   String(treeValue).split(":")[0].replace("%", "");
 
