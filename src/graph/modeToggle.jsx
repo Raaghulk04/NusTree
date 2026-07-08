@@ -31,7 +31,7 @@ export default function ModeToggle({
         ))}
       </div>
       {showTermSelector && (
-        <div className="min-w-0 flex-1 overflow-x-auto">
+        <div className="min-w-0 flex-1 overflow-x-visible">
           <div className="flex w-max gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
             {TERMS.map((term) => {
               const isSelected =
