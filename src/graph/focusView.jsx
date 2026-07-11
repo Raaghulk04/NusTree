@@ -17,6 +17,11 @@ import ModuleNode from "@/components/ModuleNode";
 import { useFocusMode } from "./focus";
 import buildTree from "@/graph/buildTree";
 import findEdgeType from "@/graph/findEdgeType";
+import {
+  getModuleNodeBackground,
+  getModuleNodeBorder,
+  SELECTED_MODULE_BORDER_COLOR,
+} from "@/graph/moduleStatus";
 
 const EDGE_COLORS = {
   and: "#3b82f6",
@@ -40,32 +45,6 @@ const createDirectDependencyEdge = (source, target, edgeType) => {
       fill: color,
     },
   };
-};
-
-const NODE_COLORS = {
-  completed: "#86efac",
-  taken: "#93c5fd",
-  default: "#e5e7eb",
-  selectedBorder: "#f59e0b",
-  connectedBorder: "#3b82f6",
-  completedBorder: "#22c55e",
-  warning: "#ffe4e6",
-  warningBorder: "#fb7185",
-  defaultBorder: "#d1d5db",
-};
-
-const getNodeBackground = (code) => {
-  if (code === 3) return NODE_COLORS.warning;
-  if (code === 2) return NODE_COLORS.completed;
-  if (code === 1) return NODE_COLORS.taken;
-  return NODE_COLORS.default;
-};
-
-const getNodeBorder = (code) => {
-  if (code === 3) return `2px solid ${NODE_COLORS.warningBorder}`;
-  if (code === 2) return `2px solid ${NODE_COLORS.completedBorder}`;
-  if (code === 1) return `2px solid ${NODE_COLORS.connectedBorder}`;
-  return `1px solid ${NODE_COLORS.defaultBorder}`;
 };
 
 const nodeTypes = {
@@ -97,8 +76,6 @@ export default function FocusView({
     ids: new Set(),
   });
   const [hoveredNode, setHoveredNode] = useState(null);
-  const [hoverEdges, setHoverEdges] = useState([]);
-  const [hoverJunctionNodes, setHoverJunctionNodes] = useState([]);
   
 
   const {
@@ -195,12 +172,12 @@ export default function FocusView({
         position: activePositions[node.id] ?? node.position,
         style: {
           color: "#000000",
-          backgroundColor: getNodeBackground(node.data.code),
+          backgroundColor: getModuleNodeBackground(node.data.code),
           borderRadius: "8px",
           fontSize: "11px",
           border: isSelected
-            ? `2px solid ${NODE_COLORS.selectedBorder}`
-            : getNodeBorder(node.data.code),
+            ? `2px solid ${SELECTED_MODULE_BORDER_COLOR}`
+            : getModuleNodeBorder(node.data.code),
           opacity: brightness,
           cursor: "pointer",
         },
@@ -219,12 +196,11 @@ export default function FocusView({
     mods,
   ]);
 
-  useEffect(() => {
+  const { hoverEdges, hoverJunctionNodes } = useMemo(() => {
     if (!hoveredNode) {
-      setHoverEdges([]);
-      setHoverJunctionNodes([]);
-      return;
+      return { hoverEdges: [], hoverJunctionNodes: [] };
     }
+
     const resultEdges = [];
     const edgeSet = new Set();
     const junctionNodes = [];
@@ -276,8 +252,10 @@ export default function FocusView({
       }
     });
 
-    setHoverEdges(resultEdges);
-    setHoverJunctionNodes(junctionNodes);
+    return {
+      hoverEdges: resultEdges,
+      hoverJunctionNodes: junctionNodes,
+    };
   }, [hoveredNode, mods, completedIds, activePositions]);
 
   const handleNodeClick = useCallback((_, node) => {
