@@ -44,6 +44,7 @@ const NODE_COLORS = {
   warningBorder: "#fb7185",
   defaultBorder: "#d1d5db",
 };
+const OR_COLORS = ["#a855f7", "#ec4899", "#06b6d4", "#f97316", "#10b981"];
 const EDGE_COLORS = {
   and: "#3b82f6",
   or: "#8b5cf6",
@@ -332,23 +333,24 @@ export default function Simple({
       selectedMissingPrereqs.forEach((prereq, index) => {
         if (Array.isArray(prereq)) {
           const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+          const orColor = OR_COLORS[index % OR_COLORS.length];
           ghostNodesList.push({
             id: junctionId,
             type: "default",
-            position: { x: baseX - 80, y: baseY - 60 },
+            position: { x: baseX - 120 + index * 80, y: baseY - 60 },
             data: { label: "OR" },
             style: {
               width: 35,
               height: 35,
               borderRadius: "50%",
-              backgroundColor: "#fef08a",
-              color: "#000",
+              backgroundColor: orColor,
+              color: "#fff",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: "10px",
               fontWeight: "bold",
-              border: "2px dashed #ca8a04",
+              border: "none",
               opacity: 0.85,
             },
           });
@@ -714,17 +716,18 @@ export default function Simple({
 
       // Reverted: Add flat missing/ghost prerequisite edges for Full Simple Mode
       const selectedMissingPrereqs = MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
-      selectedMissingPrereqs.forEach((prereq) => {
+      selectedMissingPrereqs.forEach((prereq, index) => {
         if (Array.isArray(prereq)) {
           const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
           const edgeId = `${junctionId}-${selectedNode}`;
+          const orColor = OR_COLORS[index % OR_COLORS.length];
           if (!edgeSet.has(edgeId)) {
             edgeSet.add(edgeId);
             resultEdges.push({
               id: edgeId,
               source: junctionId,
               target: selectedNode,
-              style: { stroke: "#d10000", strokeDasharray: "5,5" },
+              style: { stroke: orColor, strokeDasharray: "5,5" },
             });
           }
           prereq.forEach((subPrereq) => {
@@ -736,8 +739,8 @@ export default function Simple({
                 source: subPrereq,
                 target: junctionId,
                 label: "OR",
-                style: { stroke: "#d10000", strokeDasharray: "5,5" },
-                labelStyle: { fontSize: "10px", fill: "#d10000" },
+                style: { stroke: orColor, strokeDasharray: "5,5" },
+                labelStyle: { fontSize: "10px", fill: orColor },
               });
             }
           });
@@ -761,11 +764,14 @@ export default function Simple({
       const isGhostSource = ghostNodes.some((gn) => gn.id === edge.source);
       const isSatisfied = completedIdSet.has(edge.source);
       if (!isSatisfied) {
+        const isJunctionSource = edge.source.startsWith("junction-or-");
+        const isJunctionTarget = edge.target.startsWith("junction-or-");
+        const originalStroke = edge.style?.stroke || "#d10000";
         return {
           ...edge,
           style: {
             ...edge.style,
-            stroke: "#d10000",
+            stroke: (isJunctionSource || isJunctionTarget) ? originalStroke : "#d10000",
             strokeDasharray: "5,5",
             opacity: isGhostSource
               ? (measureGhostIds.has(edge.source) ? 1 : 0)
@@ -774,6 +780,7 @@ export default function Simple({
           label: edge.label || "MISSING",
           labelStyle: {
             ...edge.labelStyle,
+            fill: (isJunctionSource || isJunctionTarget) ? originalStroke : "#d10000",
             opacity: isGhostSource
               ? (measureGhostIds.has(edge.source) ? 1 : 0)
               : 1,
