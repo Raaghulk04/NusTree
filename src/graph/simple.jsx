@@ -32,39 +32,17 @@ import {
   DEFAULT_TERM,
   classifyPlannerModulesByTerm,
 } from "@/graph/termUtils";
+import {
+  getModuleNodeBackground,
+  getModuleNodeBorder,
+  SELECTED_MODULE_BORDER_COLOR,
+} from "@/graph/moduleStatus";
 
-const NODE_COLORS = {
-  completed: "#86efac",
-  taken: "#93c5fd",
-  default: "#e5e7eb",
-  selectedBorder: "#f59e0b",
-  connectedBorder: "#3b82f6",
-  completedBorder: "#22c55e",
-  warning: "#ffe4e6",
-  warningBorder: "#fb7185",
-  defaultBorder: "#d1d5db",
-};
 const OR_COLORS = ["#a855f7", "#ec4899", "#06b6d4", "#f97316", "#10b981"];
 const EDGE_COLORS = {
   and: "#3b82f6",
   or: "#8b5cf6",
 };
-
-// 2. Extracted pure, stationary styling utilities
-const getNodeBackground = (code) => {
-  if (code === 3) return NODE_COLORS.warning; // Past planned with unmet prereqs
-  if (code === 2) return NODE_COLORS.completed; // Completed
-  if (code === 1) return NODE_COLORS.taken; // Taken
-  return NODE_COLORS.default; // Default / Compulsory
-};
-
-const getNodeBorder = (code) => {
-  if (code === 3) return `2px solid ${NODE_COLORS.warningBorder}`;
-  if (code === 2) return `2px solid ${NODE_COLORS.completedBorder}`;
-  if (code === 1) return `2px solid ${NODE_COLORS.connectedBorder}`;
-  return `1px solid ${NODE_COLORS.defaultBorder}`;
-};
-
 
 // Static registration of custom node components outside the component block
 const nodeTypes = {
@@ -577,12 +555,12 @@ export default function Simple({
         position: activePositions[node.id] ?? node.position,
         style: {
           color: "#000000",
-          backgroundColor: getNodeBackground(node.data.code),
+          backgroundColor: getModuleNodeBackground(node.data.code),
           borderRadius: "8px",
           fontSize: "11px",
           border: isSelected
-            ? `2px solid ${NODE_COLORS.selectedBorder}`
-            : getNodeBorder(node.data.code),
+            ? `2px solid ${SELECTED_MODULE_BORDER_COLOR}`
+            : getModuleNodeBorder(node.data.code),
           opacity: brightness,
           cursor: "pointer",
         },

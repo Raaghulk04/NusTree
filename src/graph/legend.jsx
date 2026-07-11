@@ -2,7 +2,7 @@ export default function Legend() {
   const items = [
     { label: "Completed", color: "bg-emerald-400" },
     { label: "Eligible", color: "bg-blue-400" },
-    { label: "Invalid Plan", color: "bg-rose-200 ring-1 ring-rose-400" },
+    { label: "Invalid", color: "bg-amber-200 ring-1 ring-amber-600" },
     { label: "Locked", color: "bg-zinc-200 dark:bg-zinc-700" },
   ];
 
