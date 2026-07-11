@@ -23,7 +23,6 @@ export function getDeepPrereqIds(sourceId, prereqMap, prereqIds) {
     getDeepPrereqIds(mod, prereqMap, prereqIds)
   })
   return;
-  
 }
 
 export function getRenderableFocusIds(sourceId, deepPrereqs, directDepenedents) {
