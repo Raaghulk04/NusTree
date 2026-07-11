@@ -713,85 +713,79 @@ export default function Simple({
       });
 
       // Reverted: Add flat missing/ghost prerequisite edges for Full Simple Mode
-    //   const selectedMissingPrereqs = MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
-    //   selectedMissingPrereqs.forEach((prereq) => {
-    //     if (Array.isArray(prereq)) {
-    //       const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
-    //       const edgeId = `${junctionId}-${selectedNode}`;
-    //       if (!edgeSet.has(edgeId)) {
-    //         edgeSet.add(edgeId);
-    //         resultEdges.push({
-    //           id: edgeId,
-    //           source: junctionId,
-    //           target: selectedNode,
-    //           style: { stroke: "#d10000", strokeDasharray: "5,5" },
-    //         });
-    //       }
-    //       prereq.forEach((subPrereq) => {
-    //         const subEdgeId = `${subPrereq}-${junctionId}`;
-    //         if (!edgeSet.has(subEdgeId)) {
-    //           edgeSet.add(subEdgeId);
-    //           resultEdges.push({
-    //             id: subEdgeId,
-    //             source: subPrereq,
-    //             target: junctionId,
-    //             label: "OR",
-    //             style: { stroke: "#d10000", strokeDasharray: "5,5" },
-    //             labelStyle: { fontSize: "10px", fill: "#d10000" },
-    //           });
-    //         }
-    //       });
-    //     } else {
-    //       const edgeId = `${prereq}-${selectedNode}`;
-    //       if (!edgeSet.has(edgeId)) {
-    //         edgeSet.add(edgeId);
-    //         resultEdges.push({
-    //           id: edgeId,
-    //           source: prereq,
-    //           target: selectedNode,
-    //           style: { stroke: "#d10000", strokeDasharray: "5,5" },
-    //         });
-    //       }
-    //     }
-    //   });
-    // }
-    //
-    // // Post-process edges to style satisfied vs unsatisfied status
-    // const processedEdges = resultEdges.map((edge) => {
-    //   const isGhostSource = ghostNodes.some((gn) => gn.id === edge.source);
-    //   const isSatisfied = completedIdSet.has(edge.source);
-    //   if (!isSatisfied) {
-    //     return {
-    //       ...edge,
-    //       style: {
-    //         ...edge.style,
-    //         stroke: "#d10000",
-    //         strokeDasharray: "5,5",
-    //         opacity: isGhostSource
-    //           ? (measureGhostIds.has(edge.source) ? 1 : 0)
-    //           : 1,
-    //       },
-    //       label: edge.label || "MISSING",
-    //       labelStyle: {
-    //         ...edge.labelStyle,
-    //         opacity: isGhostSource
-    //           ? (measureGhostIds.has(edge.source) ? 1 : 0)
-    //           : 1,
-    //       },
-    //     };
-    //   }
-    //   return edge;
-    // });
-    //
-    // return {
-    //   nodes: [...styled, ...ghostNodes, ...junctionNodes],
-    //   edges: processedEdges,
-    // };
+      const selectedMissingPrereqs = MissingMods(prereqMap.get(selectedNode), completedIds) ?? [];
+      selectedMissingPrereqs.forEach((prereq) => {
+        if (Array.isArray(prereq)) {
+          const junctionId = `junction-or-${selectedNode}-${prereq.join("-")}`;
+          const edgeId = `${junctionId}-${selectedNode}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
+            resultEdges.push({
+              id: edgeId,
+              source: junctionId,
+              target: selectedNode,
+              style: { stroke: "#d10000", strokeDasharray: "5,5" },
+            });
+          }
+          prereq.forEach((subPrereq) => {
+            const subEdgeId = `${subPrereq}-${junctionId}`;
+            if (!edgeSet.has(subEdgeId)) {
+              edgeSet.add(subEdgeId);
+              resultEdges.push({
+                id: subEdgeId,
+                source: subPrereq,
+                target: junctionId,
+                label: "OR",
+                style: { stroke: "#d10000", strokeDasharray: "5,5" },
+                labelStyle: { fontSize: "10px", fill: "#d10000" },
+              });
+            }
+          });
+        } else {
+          const edgeId = `${prereq}-${selectedNode}`;
+          if (!edgeSet.has(edgeId)) {
+            edgeSet.add(edgeId);
+            resultEdges.push({
+              id: edgeId,
+              source: prereq,
+              target: selectedNode,
+              style: { stroke: "#d10000", strokeDasharray: "5,5" },
+            });
+          }
+        }
+      });
     }
+
+    // Post-process edges to style satisfied vs unsatisfied status
+    const processedEdges = resultEdges.map((edge) => {
+      const isGhostSource = ghostNodes.some((gn) => gn.id === edge.source);
+      const isSatisfied = completedIdSet.has(edge.source);
+      if (!isSatisfied) {
+        return {
+          ...edge,
+          style: {
+            ...edge.style,
+            stroke: "#d10000",
+            strokeDasharray: "5,5",
+            opacity: isGhostSource
+              ? (measureGhostIds.has(edge.source) ? 1 : 0)
+              : 1,
+          },
+          label: edge.label || "MISSING",
+          labelStyle: {
+            ...edge.labelStyle,
+            opacity: isGhostSource
+              ? (measureGhostIds.has(edge.source) ? 1 : 0)
+              : 1,
+          },
+        };
+      }
+      return edge;
+    });
 
     return {
       nodes: [...styled, ...ghostNodes, ...junctionNodes],
-      edges: selectedView === "focus" ? [] : resultEdges,
+      edges: selectedView === "focus" ? [] : processedEdges,
     };
     
   }, [
