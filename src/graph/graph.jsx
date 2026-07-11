@@ -9,7 +9,7 @@ import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
 import checkPrereqComplexity from "./complexitycheck";
-import { DEFAULT_TERM, getEarliestPlannerTerm } from "@/graph/termUtils";
+import { DEFAULT_TERM, getNextPlannerTerm } from "@/graph/termUtils";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
 const NODE_COLORS = {
@@ -139,7 +139,7 @@ export default function Graph({
   useEffect(() => {
     if (termInitializedRef.current) return;
     termInitializedRef.current = true;
-    setSelectedTerm(getEarliestPlannerTerm(graphCompletedMods));
+    setSelectedTerm(getNextPlannerTerm(graphCompletedMods));
   }, [graphCompletedMods]);
 
   const graphCompulsoryMods = useMemo(

@@ -310,6 +310,7 @@ export default function Simple({
             title: modObj?.title || "Unknown Title",
             description: modObj?.description || "",
             isGhost: true,
+            state: 1,
           },
           style: {
             color: "#000000",
@@ -369,6 +370,7 @@ export default function Simple({
                 title: modObj.title,
                 description: modObj.description,
                 isGhost: true,
+                state: 3,
               },
               style: {
                 color: "#000000",
@@ -396,6 +398,7 @@ export default function Simple({
               title: modObj.title,
               description: modObj.description,
               isGhost: true,
+              state: 3,
             },
             style: {
               color: "#000000",
@@ -506,6 +509,7 @@ export default function Simple({
             onCompleted: (moduleId) => handleModuleCompleted(moduleId),
             code: mod.code, // store code so useMemo can use it for styling
             showAsterisk: isCompulsory,
+            state: mod.code,
           },
         };
       });
