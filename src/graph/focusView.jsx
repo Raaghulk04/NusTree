@@ -22,6 +22,10 @@ import {
   getModuleNodeBorder,
   SELECTED_MODULE_BORDER_COLOR,
 } from "@/graph/moduleStatus";
+import {
+  isSatisfied,
+  getDeepPrereqIds,
+} from "@/graph/focus";
 
 const EDGE_COLORS = {
   and: "#3b82f6",
@@ -91,6 +95,8 @@ export default function FocusView({
     modMap,
   });
 
+  const completedIdSet = new Set(completedIds); 
+
   const activePositions = useMemo(() => {
     return {
       ...focusPositions,
@@ -143,8 +149,9 @@ export default function FocusView({
   }, [selectedNode, baseNodes, deepPrereqs, modMap, activePositions, inGraph]);
 
   const nodes = useMemo(() => {
-    const visibleBaseNodes = baseNodes.filter((node) => focusIds.has(node.id));
-
+    const res = new Set();
+    const visibleBaseNodes = getDeepPrereqIds(selectedNode, prereqMap, res, completedIdSet) 
+    console.log("visibleBaseNodes", res)
     const oneDepthNodes =
       selectedNode === null
         ? new Set()

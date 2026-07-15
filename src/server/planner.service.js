@@ -4,13 +4,10 @@ import prisma from "@/lib/db";
 const MODULE_CODE_REGEX = /[A-Z]{2,3}\d{4}[A-Z]*/g;
 
 function normalizePlanTerm(planYear, planSemester) {
-  console.log("planYear", planYear);
   const normalizedPlanYear = Number(planYear);
   const normalizedPlanSemester = Number(planSemester);
 
-  if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear < 1) {
-    console.log("planYear", normalizedPlanYear);
-    console.log("planSem", normalizedPlanSemester);
+  if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear < 0) {
     throw new Error("Invalid plan year");
   }
 
@@ -64,7 +61,7 @@ export async function getUserAddModules(userId) {
 }
 
 export async function getUserPlannedModules(userId) {
-  return prisma.userPlanModule.findMany({
+  const dbMods = await prisma.userPlanModule.findMany({
     where: { userId },
     orderBy: [
       { planYear: "asc" },
@@ -72,6 +69,16 @@ export async function getUserPlannedModules(userId) {
       { moduleId: "asc" },
     ],
   });
+
+  const defaultMods = [{
+    userId,
+    moduleId: "MA1301",
+    planYear: 0,
+    planSemester: 1,
+    isPresetModule: false,
+  }];
+
+  return [...defaultMods, ...dbMods]
 }
 
 export async function upsertUserPlannedModule({

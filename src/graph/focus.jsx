@@ -5,7 +5,7 @@ import {
   getDirectDependents,
 } from "./layoutUtils";
 
-const isSatisfied = (node, completedIdSet) => {
+export const isSatisfied = (node, completedIdSet) => {
   if (!node) return false;
   if (typeof node === "string") {
     const code = node.split(":")[0].replace("%", "");
@@ -20,7 +20,7 @@ const isSatisfied = (node, completedIdSet) => {
   return false;
 };
 
-const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
+export const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
   if (!treeNode) return;
 
   // Case 1: treeNode is a string (module ID)
