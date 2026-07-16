@@ -28,10 +28,12 @@ export const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet)
     const code = treeNode.split(":")[0].replace("%", "");
     if (!prereqIds.has(code)) {
       prereqIds.add(code);
-      // Recursively traverse this module's own prerequisite tree
-      const nextTree = prereqMap.get(code);
-      if (nextTree) {
-        getDeepPrereqIds(nextTree, prereqMap, prereqIds, completedIdSet);
+      // Recursively traverse this module's own prerequisite tree if it has not been completed
+      if (!completedIdSet.has(code)) {
+        const nextTree = prereqMap.get(code);
+        if (nextTree) {
+          getDeepPrereqIds(nextTree, prereqMap, prereqIds, completedIdSet);
+        }
       }
     }
     return;

@@ -149,42 +149,33 @@ export default function FocusView({
   }, [selectedNode, baseNodes, deepPrereqs, modMap, activePositions, inGraph]);
 
   const nodes = useMemo(() => {
-    const res = new Set();
-    const visibleBaseNodes = getDeepPrereqIds(selectedNode, prereqMap, res, completedIdSet) 
-    console.log("visibleBaseNodes", res)
-    const oneDepthNodes =
-      selectedNode === null
-        ? new Set()
-        : new Set([
-            ...extractMods(modMap.get(selectedNode)?.prereqTree).filter((n) =>
-              inGraph.has(n),
-            ),
-            ...getDirectDependents(selectedNode, mods).filter((n) =>
-              inGraph.has(n),
-            ),
-          ]);
+    const visibleBaseNodes = !selectedNode
+      ? baseNodes
+      : baseNodes.filter((node) => focusIds.has(node.id));
 
     const styled = visibleBaseNodes.map((node) => {
       const isSelected = node.id === selectedNode;
       const isRelated = selectedNode && focusIds.has(node.id);
-      const isOneDepth = oneDepthNodes.has(node.id);
       const brightness = !selectedNode
         ? 1
         : isRelated
           ? 1
           : 0.35;
 
+      const isCompleted = completedIdSet.has(node.id);
+      const code = isCompleted ? 2 : node.data.code;
+
       return {
         ...node,
         position: activePositions[node.id] ?? node.position,
         style: {
           color: "#000000",
-          backgroundColor: getModuleNodeBackground(node.data.code),
+          backgroundColor: getModuleNodeBackground(code),
           borderRadius: "8px",
           fontSize: "11px",
           border: isSelected
             ? `2px solid ${SELECTED_MODULE_BORDER_COLOR}`
-            : getModuleNodeBorder(node.data.code),
+            : getModuleNodeBorder(code),
           opacity: brightness,
           cursor: "pointer",
         },
@@ -198,9 +189,7 @@ export default function FocusView({
     focusIds,
     ghostNodes,
     activePositions,
-    modMap,
-    inGraph,
-    mods,
+    completedIdSet,
   ]);
 
   const { hoverEdges, hoverJunctionNodes } = useMemo(() => {

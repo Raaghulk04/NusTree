@@ -31,6 +31,7 @@ import { authClient } from "@/lib/auth-client";
 import {
   DEFAULT_TERM,
   classifyPlannerModulesByTerm,
+  getTermIndex,
 } from "@/graph/termUtils";
 import {
   getModuleNodeBackground,
@@ -854,6 +855,26 @@ export default function Simple({
     [baseNodes, ghostNodes, selectedNode, setCustomPositions],
   );
 
+  const focusCompletedIds = useMemo(() => {
+    if (!selectedNode) return completedIds;
+    const plannedNode = (completedMods || []).find((m) => m.moduleId === selectedNode);
+    if (!plannedNode) return completedIds;
+
+    const nodeIndex = getTermIndex(plannedNode.planYear, plannedNode.planSemester);
+
+    const ids = new Set();
+    (completedMods || []).forEach((m) => {
+      const plannedIndex = getTermIndex(m.planYear, m.planSemester);
+      if (plannedIndex < nodeIndex) {
+        ids.add(m.moduleId);
+      }
+    });
+
+    localCompletedModIds.forEach((id) => ids.add(id));
+
+    return Array.from(ids);
+  }, [selectedNode, completedMods, completedIds, localCompletedModIds]);
+
   if (selectedNode && selectedView === "focus") {
     return (
       <FocusView
@@ -863,7 +884,7 @@ export default function Simple({
         setIsSideBarOpen={setIsSideBarOpen}
         prereqMap={prereqMap}
         modMap={modMap}
-        completedIds={completedIds}
+        completedIds={focusCompletedIds}
         selectedNode={selectedNode}
         setSelectedNode={setSelectedNode}
         selectedView={selectedView}
