@@ -491,6 +491,7 @@ export default function Simple({
             code: mod.code, // store code so useMemo can use it for styling
             showAsterisk: isCompulsory,
             state: mod.code,
+            term: selectedTerm,
           },
         };
       });
@@ -942,8 +943,6 @@ export default function Simple({
                 setCustomPositions({});
                 // if a node is selected and we are show eligible mod mode, unselect the node
                 // if its a eligible
-                console.log(eligibleMods);
-                console.log(selectedNode);
                 if (showEligible && eligibleMods.includes(selectedNode)) {
                   setSelectedNode(null);
                 }

@@ -90,6 +90,7 @@ export default function ModuleNode({ id, data }) {
           onClose={closeMenu}
           onMark={() => data.onCompleted(data.label)}
           state={data.state}
+          term={data.term}
         />
       )}
     </div>
