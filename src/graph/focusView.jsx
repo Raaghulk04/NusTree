@@ -235,8 +235,8 @@ export default function FocusView({
                   target: mod.id,
                   label: edgeType === "or" ? "OR" : "AND",
                   style: {
-                    stroke: "#d10000",
-                    strokeDasharray: "5,5",
+                     stroke: "#d10000",
+                     strokeDasharray: "5,5",
                   },
                   labelStyle: {
                     fontSize: "10px",
@@ -248,11 +248,33 @@ export default function FocusView({
       }
     });
 
+    // Call buildTree for all deep prerequisites
+    const res = new Set();
+    const completedIdSetForPrereq = new Set(completedIds);
+    getDeepPrereqIds(hoveredNode, prereqMap, res, completedIdSetForPrereq);
+    const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== hoveredNode);
+
+    deepPrereqsOfHovered.forEach((prereqId) => {
+      const prereqMod = modMap.get(prereqId);
+      if (prereqMod && prereqMod.prereqTree) {
+        buildTree(
+          prereqMod.prereqTree,
+          prereqId,
+          completedIdSet,
+          resultEdges,
+          edgeSet,
+          "and",
+          junctionNodes,
+          activePositions,
+        );
+      }
+    });
+
     return {
       hoverEdges: resultEdges,
       hoverJunctionNodes: junctionNodes,
     };
-  }, [hoveredNode, mods, completedIds, activePositions]);
+  }, [hoveredNode, mods, completedIds, activePositions, prereqMap, modMap]);
 
   const handleNodeClick = useCallback((_, node) => {
     setCustomPositions({});
