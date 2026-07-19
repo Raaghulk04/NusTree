@@ -192,6 +192,8 @@ export default function FocusView({
     completedIdSet,
   ]);
 
+  const nodeIdSet = new Set(nodes.map(n => n.id))
+  
   const { hoverEdges, hoverJunctionNodes } = useMemo(() => {
     if (!hoveredNode) {
       return { hoverEdges: [], hoverJunctionNodes: [] };
@@ -204,71 +206,42 @@ export default function FocusView({
 
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
-      const prereqs = [...new Set(extractMods(mod.prereqTree))];
       const isSelected = mod.id === hoveredNode;
-      const isPrereqOfSelected = prereqs.includes(hoveredNode);
-      if (!isSelected && !isPrereqOfSelected) return;
+      if (!isSelected) return;
 
-      if (isSelected) {
-        buildTree(
-          mod.prereqTree,
-          mod.id,
-          completedIdSet,
-          resultEdges,
-          edgeSet,
-          "and",
-          junctionNodes,
-          activePositions,
-        );
-      } else {
-        const edgeType = findEdgeType(mod.prereqTree, hoveredNode) || "and";
-        const edgeId = `${hoveredNode}-${mod.id}`;
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
-          const isCompleted = completedIdSet.has(hoveredNode);
-          resultEdges.push(
-            isCompleted
-              ? createDirectDependencyEdge(hoveredNode, mod.id, edgeType)
-              : {
-                  id: edgeId,
-                  source: hoveredNode,
-                  target: mod.id,
-                  label: edgeType === "or" ? "OR" : "AND",
-                  style: {
-                     stroke: "#d10000",
-                     strokeDasharray: "5,5",
-                  },
-                  labelStyle: {
-                    fontSize: "10px",
-                    fill: "#d10000",
-                  },
-                },
-          );
-        }
-      }
+      buildTree(
+        mod.prereqTree,
+        mod.id,
+        nodeIdSet,
+        resultEdges,
+        edgeSet,
+        "and",
+        junctionNodes,
+        activePositions,
+      );
     });
 
     // Call buildTree for all deep prerequisites
-    const res = new Set();
-    const completedIdSetForPrereq = new Set(completedIds);
-    getDeepPrereqIds(hoveredNode, prereqMap, res, completedIdSetForPrereq);
-    const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== hoveredNode);
-
-    deepPrereqsOfHovered.forEach((prereqId) => {
-      const prereqMod = modMap.get(prereqId);
-      if (prereqMod && prereqMod.prereqTree) {
-        buildTree(
-          prereqMod.prereqTree,
-          prereqId,
-          completedIdSet,
-          resultEdges,
-          edgeSet,
-          "and",
-          junctionNodes,
-          activePositions,
-        );
-      }
-    });
+    // const res = new Set();
+    // const completedIdSetForPrereq = new Set(completedIds);
+    // getDeepPrereqIds(hoveredNode, prereqMap, res, completedIdSetForPrereq);
+    // const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== hoveredNode);
+    //
+    // deepPrereqsOfHovered.forEach((prereqId) => {
+    //   const prereqMod = modMap.get(prereqId);
+    //   if (prereqMod && prereqMod.prereqTree) {
+    //     buildTree(
+    //       prereqMod.prereqTree,
+    //       prereqId,
+    //       completedIdSet,
+    //       resultEdges,
+    //       edgeSet,
+    //       "and",
+    //       junctionNodes,
+    //       activePositions,
+    //     );
+    //   }
+    // });
 
     return {
       hoverEdges: resultEdges,

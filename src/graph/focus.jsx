@@ -94,9 +94,8 @@ export function useFocusMode({
     if (!selectedNode) return new Set();
     const set = new Set([selectedNode]);
     deepPrereqs.forEach((id) => set.add(id));
-    directDependents.forEach((id) => set.add(id));
     return set;
-  }, [selectedNode, deepPrereqs, directDependents]);
+  }, [selectedNode, deepPrereqs]);
 
   const focusPositions = useMemo(() => {
     if (!selectedNode || selectedView !== "focus") return {};
