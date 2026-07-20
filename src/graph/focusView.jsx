@@ -79,7 +79,23 @@ export default function FocusView({
     selectedNode: null,
     ids: new Set(),
   });
-  const [hoveredNode, setHoveredNode] = useState(null);
+  const [clickedNode, setClickedNode] = useState(selectedNode);
+
+  useEffect(() => {
+    setClickedNode(selectedNode);
+  }, [selectedNode]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" || event.key === "Esc") {
+        setSelectedView("full");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setSelectedView]);
   
 
   const {
@@ -175,7 +191,9 @@ export default function FocusView({
           fontSize: "11px",
           border: isSelected
             ? `2px solid ${SELECTED_MODULE_BORDER_COLOR}`
-            : getModuleNodeBorder(code),
+            : node.id === clickedNode
+              ? "2px solid #3b82f6"
+              : getModuleNodeBorder(code),
           opacity: brightness,
           cursor: "pointer",
         },
@@ -194,9 +212,9 @@ export default function FocusView({
 
   const nodeIdSet = new Set(nodes.map(n => n.id))
   
-  const { hoverEdges, hoverJunctionNodes } = useMemo(() => {
-    if (!hoveredNode) {
-      return { hoverEdges: [], hoverJunctionNodes: [] };
+  const { clickedEdges, clickedJunctionNodes } = useMemo(() => {
+    if (!clickedNode) {
+      return { clickedEdges: [], clickedJunctionNodes: [] };
     }
 
     const resultEdges = [];
@@ -206,7 +224,7 @@ export default function FocusView({
 
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
-      const isSelected = mod.id === hoveredNode;
+      const isSelected = mod.id === clickedNode;
       if (!isSelected) return;
 
       buildTree(
@@ -224,8 +242,8 @@ export default function FocusView({
     // Call buildTree for all deep prerequisites
     // const res = new Set();
     // const completedIdSetForPrereq = new Set(completedIds);
-    // getDeepPrereqIds(hoveredNode, prereqMap, res, completedIdSetForPrereq);
-    // const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== hoveredNode);
+    // getDeepPrereqIds(clickedNode, prereqMap, res, completedIdSetForPrereq);
+    // const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== clickedNode);
     //
     // deepPrereqsOfHovered.forEach((prereqId) => {
     //   const prereqMod = modMap.get(prereqId);
@@ -244,15 +262,14 @@ export default function FocusView({
     // });
 
     return {
-      hoverEdges: resultEdges,
-      hoverJunctionNodes: junctionNodes,
+      clickedEdges: resultEdges,
+      clickedJunctionNodes: junctionNodes,
     };
-  }, [hoveredNode, mods, completedIds, activePositions, prereqMap, modMap]);
+  }, [clickedNode, mods, completedIds, activePositions, prereqMap, modMap]);
 
   const handleNodeClick = useCallback((_, node) => {
-    setCustomPositions({});
-    setSelectedNode((prev) => (prev === node.id ? null : node.id));
-  }, [setSelectedNode]);
+    setClickedNode((prev) => (prev === node.id ? null : node.id));
+  }, []);
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -318,13 +335,12 @@ export default function FocusView({
       <div className="flex-1 relative h-full">
         <ReactFlow
           nodeTypes={nodeTypes}
-          nodes={useMemo(() => [...nodes, ...hoverJunctionNodes], [nodes, hoverJunctionNodes])}
-          edges={hoverEdges}
+          nodes={useMemo(() => [...nodes, ...clickedJunctionNodes], [nodes, clickedJunctionNodes])}
+          edges={clickedEdges}
           colorMode="dark"
           onNodeClick={handleNodeClick}
+          onPaneClick={() => setClickedNode(null)}
           onNodesChange={onNodesChange}
-          onNodeMouseEnter={(_, node) => setHoveredNode(node.id)}
-          onNodeMouseLeave={() => setHoveredNode(null)}
           fitView
           panOnScroll={true}
           selectionOnDrag={true}
@@ -338,36 +354,42 @@ export default function FocusView({
         <div className="absolute bottom-6 right-6 z-50">
           <div className="flex flex-col items-end gap-2">
             {selectedNode && (
-              <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomPositions({});
-                    setSelectedView("focus");
-                  }}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
-                    selectedView === "focus"
-                      ? "bg-blue-500 text-white"
-                      : "text-zinc-200 hover:bg-zinc-800"
-                  }`}
-                >
-                  Focus
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomPositions({});
-                    setSelectedView("full");
-                  }}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
-                    selectedView === "full"
-                      ? "bg-blue-500 text-white"
-                      : "text-zinc-200 hover:bg-zinc-800"
-                  }`}
-                >
-                  Full
-                </button>
-              </div>
+              <>
+                <div className="rounded-md border border-zinc-700 bg-zinc-900/90 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-zinc-300 shadow-lg flex items-center gap-1.5 select-none transition-all hover:text-zinc-200">
+                  <span className="inline-flex items-center justify-center rounded border border-zinc-600 bg-zinc-800 px-1.5 py-0.5 text-[9px] font-bold text-zinc-100 shadow-[0_1.5px_0_0_rgba(255,255,255,0.15)]">Esc</span>
+                  <span>Full Simple Mode</span>
+                </div>
+                <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPositions({});
+                      setSelectedView("focus");
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                      selectedView === "focus"
+                        ? "bg-blue-500 text-white"
+                        : "text-zinc-200 hover:bg-zinc-800"
+                    }`}
+                  >
+                    Focus
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPositions({});
+                      setSelectedView("full");
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                      selectedView === "full"
+                        ? "bg-blue-500 text-white"
+                        : "text-zinc-200 hover:bg-zinc-800"
+                    }`}
+                  >
+                    Full
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
