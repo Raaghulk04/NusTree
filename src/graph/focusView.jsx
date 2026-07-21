@@ -22,10 +22,7 @@ import {
   getModuleNodeBorder,
   SELECTED_MODULE_BORDER_COLOR,
 } from "@/graph/moduleStatus";
-import {
-  isSatisfied,
-  getDeepPrereqIds,
-} from "@/graph/focus";
+import { isSatisfied, getDeepPrereqIds } from "@/graph/focus";
 
 const EDGE_COLORS = {
   and: "#3b82f6",
@@ -80,10 +77,12 @@ export default function FocusView({
     ids: new Set(),
   });
   const [clickedNode, setClickedNode] = useState(selectedNode);
+  const [prevSelectedNode, setPrevSelectedNode] = useState(selectedNode);
 
-  useEffect(() => {
+  if (selectedNode !== prevSelectedNode) {
+    setPrevSelectedNode(selectedNode);
     setClickedNode(selectedNode);
-  }, [selectedNode]);
+  }
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -96,13 +95,8 @@ export default function FocusView({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [setSelectedView]);
-  
 
-  const {
-    deepPrereqs,
-    focusIds,
-    focusPositions,
-  } = useFocusMode({
+  const { deepPrereqs, focusIds, focusPositions } = useFocusMode({
     selectedNode,
     selectedView,
     prereqMap,
@@ -111,7 +105,9 @@ export default function FocusView({
     modMap,
   });
 
-  const completedIdSet = new Set(completedIds); 
+  const completedIdSet = useMemo(() => {
+    return new Set(completedIds);
+  }, [completedIds]);
 
   const activePositions = useMemo(() => {
     return {
@@ -172,11 +168,7 @@ export default function FocusView({
     const styled = visibleBaseNodes.map((node) => {
       const isSelected = node.id === selectedNode;
       const isRelated = selectedNode && focusIds.has(node.id);
-      const brightness = !selectedNode
-        ? 1
-        : isRelated
-          ? 1
-          : 0.35;
+      const brightness = !selectedNode ? 1 : isRelated ? 1 : 0.35;
 
       const isCompleted = completedIdSet.has(node.id);
       const code = isCompleted ? 2 : node.data.code;
@@ -208,10 +200,13 @@ export default function FocusView({
     ghostNodes,
     activePositions,
     completedIdSet,
+    clickedNode,
   ]);
 
-  const nodeIdSet = new Set(nodes.map(n => n.id))
-  
+  const nodeIdSet = useMemo(() => {
+    return new Set(nodes.map((n) => n.id));
+  }, [nodes]);
+
   const { clickedEdges, clickedJunctionNodes } = useMemo(() => {
     if (!clickedNode) {
       return { clickedEdges: [], clickedJunctionNodes: [] };
@@ -265,7 +260,7 @@ export default function FocusView({
       clickedEdges: resultEdges,
       clickedJunctionNodes: junctionNodes,
     };
-  }, [clickedNode, mods, completedIds, activePositions, prereqMap, modMap]);
+  }, [clickedNode, mods, completedIds, activePositions, nodeIdSet]);
 
   const handleNodeClick = useCallback((_, node) => {
     setClickedNode((prev) => (prev === node.id ? null : node.id));
@@ -335,7 +330,10 @@ export default function FocusView({
       <div className="flex-1 relative h-full">
         <ReactFlow
           nodeTypes={nodeTypes}
-          nodes={useMemo(() => [...nodes, ...clickedJunctionNodes], [nodes, clickedJunctionNodes])}
+          nodes={useMemo(
+            () => [...nodes, ...clickedJunctionNodes],
+            [nodes, clickedJunctionNodes],
+          )}
           edges={clickedEdges}
           colorMode="dark"
           onNodeClick={handleNodeClick}
@@ -356,7 +354,9 @@ export default function FocusView({
             {selectedNode && (
               <>
                 <div className="rounded-md border border-zinc-700 bg-zinc-900/90 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-zinc-300 shadow-lg flex items-center gap-1.5 select-none transition-all hover:text-zinc-200">
-                  <span className="inline-flex items-center justify-center rounded border border-zinc-600 bg-zinc-800 px-1.5 py-0.5 text-[9px] font-bold text-zinc-100 shadow-[0_1.5px_0_0_rgba(255,255,255,0.15)]">Esc</span>
+                  <span className="inline-flex items-center justify-center rounded border border-zinc-600 bg-zinc-800 px-1.5 py-0.5 text-[9px] font-bold text-zinc-100 shadow-[0_1.5px_0_0_rgba(255,255,255,0.15)]">
+                    Esc
+                  </span>
                   <span>Full Simple Mode</span>
                 </div>
                 <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
