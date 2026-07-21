@@ -65,7 +65,12 @@ export default function ModuleTracker({
         onRemove={onRemoveModule}
         removingModuleId={removingModuleId}
       />
-      <Link href={{ pathname: "../eligibleMods" }}>check ur eligible mods</Link>
+      <Link
+        href={{ pathname: "../eligibleMods" }}
+        className="mt-4 inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200 hover:text-zinc-900 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:hover:text-zinc-50"
+      >
+        Check eligible modules
+      </Link>
     </section>
   );
 }
