@@ -22,6 +22,7 @@ import {
   getModuleNodeBorder,
   SELECTED_MODULE_BORDER_COLOR,
 } from "@/graph/moduleStatus";
+import { isSatisfied, getDeepPrereqIds } from "@/graph/focus";
 
 const EDGE_COLORS = {
   and: "#3b82f6",
@@ -75,14 +76,27 @@ export default function FocusView({
     selectedNode: null,
     ids: new Set(),
   });
-  const [hoveredNode, setHoveredNode] = useState(null);
-  
+  const [clickedNode, setClickedNode] = useState(selectedNode);
+  const [prevSelectedNode, setPrevSelectedNode] = useState(selectedNode);
 
-  const {
-    deepPrereqs,
-    focusIds,
-    focusPositions,
-  } = useFocusMode({
+  if (selectedNode !== prevSelectedNode) {
+    setPrevSelectedNode(selectedNode);
+    setClickedNode(selectedNode);
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" || event.key === "Esc") {
+        setSelectedView("full");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setSelectedView]);
+
+  const { deepPrereqs, focusIds, focusPositions } = useFocusMode({
     selectedNode,
     selectedView,
     prereqMap,
@@ -90,6 +104,10 @@ export default function FocusView({
     mods,
     modMap,
   });
+
+  const completedIdSet = useMemo(() => {
+    return new Set(completedIds);
+  }, [completedIds]);
 
   const activePositions = useMemo(() => {
     return {
@@ -143,41 +161,31 @@ export default function FocusView({
   }, [selectedNode, baseNodes, deepPrereqs, modMap, activePositions, inGraph]);
 
   const nodes = useMemo(() => {
-    const visibleBaseNodes = baseNodes.filter((node) => focusIds.has(node.id));
-
-    const oneDepthNodes =
-      selectedNode === null
-        ? new Set()
-        : new Set([
-            ...extractMods(modMap.get(selectedNode)?.prereqTree).filter((n) =>
-              inGraph.has(n),
-            ),
-            ...getDirectDependents(selectedNode, mods).filter((n) =>
-              inGraph.has(n),
-            ),
-          ]);
+    const visibleBaseNodes = !selectedNode
+      ? baseNodes
+      : baseNodes.filter((node) => focusIds.has(node.id));
 
     const styled = visibleBaseNodes.map((node) => {
       const isSelected = node.id === selectedNode;
       const isRelated = selectedNode && focusIds.has(node.id);
-      const isOneDepth = oneDepthNodes.has(node.id);
-      const brightness = !selectedNode
-        ? 1
-        : isRelated
-          ? 1
-          : 0.35;
+      const brightness = !selectedNode ? 1 : isRelated ? 1 : 0.35;
+
+      const isCompleted = completedIdSet.has(node.id);
+      const code = isCompleted ? 2 : node.data.code;
 
       return {
         ...node,
         position: activePositions[node.id] ?? node.position,
         style: {
           color: "#000000",
-          backgroundColor: getModuleNodeBackground(node.data.code),
+          backgroundColor: getModuleNodeBackground(code),
           borderRadius: "8px",
           fontSize: "11px",
           border: isSelected
             ? `2px solid ${SELECTED_MODULE_BORDER_COLOR}`
-            : getModuleNodeBorder(node.data.code),
+            : node.id === clickedNode
+              ? "2px solid #3b82f6"
+              : getModuleNodeBorder(code),
           opacity: brightness,
           cursor: "pointer",
         },
@@ -191,14 +199,17 @@ export default function FocusView({
     focusIds,
     ghostNodes,
     activePositions,
-    modMap,
-    inGraph,
-    mods,
+    completedIdSet,
+    clickedNode,
   ]);
 
-  const { hoverEdges, hoverJunctionNodes } = useMemo(() => {
-    if (!hoveredNode) {
-      return { hoverEdges: [], hoverJunctionNodes: [] };
+  const nodeIdSet = useMemo(() => {
+    return new Set(nodes.map((n) => n.id));
+  }, [nodes]);
+
+  const { clickedEdges, clickedJunctionNodes } = useMemo(() => {
+    if (!clickedNode) {
+      return { clickedEdges: [], clickedJunctionNodes: [] };
     }
 
     const resultEdges = [];
@@ -208,60 +219,52 @@ export default function FocusView({
 
     mods.forEach((mod) => {
       if (!mod.prereqTree) return;
-      const prereqs = [...new Set(extractMods(mod.prereqTree))];
-      const isSelected = mod.id === hoveredNode;
-      const isPrereqOfSelected = prereqs.includes(hoveredNode);
-      if (!isSelected && !isPrereqOfSelected) return;
+      const isSelected = mod.id === clickedNode;
+      if (!isSelected) return;
 
-      if (isSelected) {
-        buildTree(
-          mod.prereqTree,
-          mod.id,
-          completedIdSet,
-          resultEdges,
-          edgeSet,
-          "and",
-          junctionNodes,
-          activePositions,
-        );
-      } else {
-        const edgeType = findEdgeType(mod.prereqTree, hoveredNode) || "and";
-        const edgeId = `${hoveredNode}-${mod.id}`;
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
-          const isCompleted = completedIdSet.has(hoveredNode);
-          resultEdges.push(
-            isCompleted
-              ? createDirectDependencyEdge(hoveredNode, mod.id, edgeType)
-              : {
-                  id: edgeId,
-                  source: hoveredNode,
-                  target: mod.id,
-                  label: edgeType === "or" ? "OR" : "AND",
-                  style: {
-                    stroke: "#d10000",
-                    strokeDasharray: "5,5",
-                  },
-                  labelStyle: {
-                    fontSize: "10px",
-                    fill: "#d10000",
-                  },
-                },
-          );
-        }
-      }
+      buildTree(
+        mod.prereqTree,
+        mod.id,
+        nodeIdSet,
+        resultEdges,
+        edgeSet,
+        "and",
+        junctionNodes,
+        activePositions,
+      );
     });
 
+    // Call buildTree for all deep prerequisites
+    // const res = new Set();
+    // const completedIdSetForPrereq = new Set(completedIds);
+    // getDeepPrereqIds(clickedNode, prereqMap, res, completedIdSetForPrereq);
+    // const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== clickedNode);
+    //
+    // deepPrereqsOfHovered.forEach((prereqId) => {
+    //   const prereqMod = modMap.get(prereqId);
+    //   if (prereqMod && prereqMod.prereqTree) {
+    //     buildTree(
+    //       prereqMod.prereqTree,
+    //       prereqId,
+    //       completedIdSet,
+    //       resultEdges,
+    //       edgeSet,
+    //       "and",
+    //       junctionNodes,
+    //       activePositions,
+    //     );
+    //   }
+    // });
+
     return {
-      hoverEdges: resultEdges,
-      hoverJunctionNodes: junctionNodes,
+      clickedEdges: resultEdges,
+      clickedJunctionNodes: junctionNodes,
     };
-  }, [hoveredNode, mods, completedIds, activePositions]);
+  }, [clickedNode, mods, completedIds, activePositions, nodeIdSet]);
 
   const handleNodeClick = useCallback((_, node) => {
-    setCustomPositions({});
-    setSelectedNode((prev) => (prev === node.id ? null : node.id));
-  }, [setSelectedNode]);
+    setClickedNode((prev) => (prev === node.id ? null : node.id));
+  }, []);
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -327,13 +330,15 @@ export default function FocusView({
       <div className="flex-1 relative h-full">
         <ReactFlow
           nodeTypes={nodeTypes}
-          nodes={useMemo(() => [...nodes, ...hoverJunctionNodes], [nodes, hoverJunctionNodes])}
-          edges={hoverEdges}
+          nodes={useMemo(
+            () => [...nodes, ...clickedJunctionNodes],
+            [nodes, clickedJunctionNodes],
+          )}
+          edges={clickedEdges}
           colorMode="dark"
           onNodeClick={handleNodeClick}
+          onPaneClick={() => setClickedNode(null)}
           onNodesChange={onNodesChange}
-          onNodeMouseEnter={(_, node) => setHoveredNode(node.id)}
-          onNodeMouseLeave={() => setHoveredNode(null)}
           fitView
           panOnScroll={true}
           selectionOnDrag={true}
@@ -347,36 +352,44 @@ export default function FocusView({
         <div className="absolute bottom-6 right-6 z-50">
           <div className="flex flex-col items-end gap-2">
             {selectedNode && (
-              <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomPositions({});
-                    setSelectedView("focus");
-                  }}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
-                    selectedView === "focus"
-                      ? "bg-blue-500 text-white"
-                      : "text-zinc-200 hover:bg-zinc-800"
-                  }`}
-                >
-                  Focus
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomPositions({});
-                    setSelectedView("full");
-                  }}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
-                    selectedView === "full"
-                      ? "bg-blue-500 text-white"
-                      : "text-zinc-200 hover:bg-zinc-800"
-                  }`}
-                >
-                  Full
-                </button>
-              </div>
+              <>
+                <div className="rounded-md border border-zinc-700 bg-zinc-900/90 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-zinc-300 shadow-lg flex items-center gap-1.5 select-none transition-all hover:text-zinc-200">
+                  <span className="inline-flex items-center justify-center rounded border border-zinc-600 bg-zinc-800 px-1.5 py-0.5 text-[9px] font-bold text-zinc-100 shadow-[0_1.5px_0_0_rgba(255,255,255,0.15)]">
+                    Esc
+                  </span>
+                  <span>Full Simple Mode</span>
+                </div>
+                <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPositions({});
+                      setSelectedView("focus");
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                      selectedView === "focus"
+                        ? "bg-blue-500 text-white"
+                        : "text-zinc-200 hover:bg-zinc-800"
+                    }`}
+                  >
+                    Focus
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPositions({});
+                      setSelectedView("full");
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold ${
+                      selectedView === "full"
+                        ? "bg-blue-500 text-white"
+                        : "text-zinc-200 hover:bg-zinc-800"
+                    }`}
+                  >
+                    Full
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>

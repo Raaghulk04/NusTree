@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import addPlannedModule from "@/components/add-planned-module";
 
-export default function NodeContextMenu({ x, y, data, onClose, onMark, state }) {
+export default function NodeContextMenu({ x, y, data, onClose, onMark, state, term}) {
   // state 0 refers to locked mod
   // state 1 refers to eligible mod
   // state 2 refers to completed mod
@@ -12,15 +12,14 @@ export default function NodeContextMenu({ x, y, data, onClose, onMark, state }) 
   const menuRef = useRef(null);
 
   const handleMarked = async () => {
-    console.log("clicked");
     try {
-      await addPlannedModule(data.label, 1, 1);
+      const planYear = term?.planYear ?? 1;
+      const planSemester = term?.planSemester ?? 1;
+      await addPlannedModule(data.label, planYear, planSemester);
       onMark();
     } catch (error) {
       console.log(error);
     }
-
-    console.log("click done");
   };
 
   const handleNusModsClicked = () =>

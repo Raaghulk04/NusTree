@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import {
-  computeNodePositions,
   extractMods,
   getDirectDependents,
 } from "./layoutUtils";
+import { computeFocusNodePositions } from "./focusLayoutUtils";
 
-const isSatisfied = (node, completedIdSet) => {
+export const isSatisfied = (node, completedIdSet) => {
   if (!node) return false;
   if (typeof node === "string") {
     const code = node.split(":")[0].replace("%", "");
@@ -20,7 +20,7 @@ const isSatisfied = (node, completedIdSet) => {
   return false;
 };
 
-const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
+export const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
   if (!treeNode) return;
 
   // Case 1: treeNode is a string (module ID)
@@ -28,10 +28,12 @@ const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
     const code = treeNode.split(":")[0].replace("%", "");
     if (!prereqIds.has(code)) {
       prereqIds.add(code);
-      // Recursively traverse this module's own prerequisite tree
-      const nextTree = prereqMap.get(code);
-      if (nextTree) {
-        getDeepPrereqIds(nextTree, prereqMap, prereqIds, completedIdSet);
+      // Recursively traverse this module's own prerequisite tree if it has not been completed
+      if (!completedIdSet.has(code)) {
+        const nextTree = prereqMap.get(code);
+        if (nextTree) {
+          getDeepPrereqIds(nextTree, prereqMap, prereqIds, completedIdSet);
+        }
       }
     }
     return;
@@ -84,7 +86,7 @@ export function useFocusMode({
   const directDependents = useMemo(() => {
     if (!selectedNode) return new Set();
     return new Set(
-      getDirectDependents(selectedNode, mods).map((m) => m.id),
+      getDirectDependents(selectedNode, mods),
     );
   }, [selectedNode, mods]);
 
@@ -92,18 +94,13 @@ export function useFocusMode({
     if (!selectedNode) return new Set();
     const set = new Set([selectedNode]);
     deepPrereqs.forEach((id) => set.add(id));
-    directDependents.forEach((id) => set.add(id));
     return set;
-  }, [selectedNode, deepPrereqs, directDependents]);
+  }, [selectedNode, deepPrereqs]);
 
   const focusPositions = useMemo(() => {
     if (!selectedNode || selectedView !== "focus") return {};
 
-    const layoutMods = [...focusIds]
-      .map((id) => modMap.get(id))
-      .filter(Boolean);
-
-    return computeNodePositions(layoutMods, { anchorId: selectedNode });
+    return computeFocusNodePositions(focusIds, modMap, { anchorId: selectedNode });
   }, [selectedNode, selectedView, focusIds, modMap]);
 
   return {

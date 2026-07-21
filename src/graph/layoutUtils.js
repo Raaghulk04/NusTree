@@ -8,7 +8,7 @@ const MAX_NODES_PER_LAYER = 7;
 const SUBLAYER_SPACING = 84;
 const RANK_LAYER_GAP = 40;
 
-const compareModuleIds = (a, b) => {
+export const compareModuleIds = (a, b) => {
   const levelA = getModuleLevel(a);
   const levelB = getModuleLevel(b);
   if (levelA !== levelB) return levelA.localeCompare(levelB);
