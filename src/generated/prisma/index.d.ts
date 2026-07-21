@@ -5417,8 +5417,8 @@ export namespace Prisma {
     id: string
     userId: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear: number | null
+    planSemester: number | null
     isPresetModule: boolean
     degreePresetId: string | null
     _count: UserPlanModuleCountAggregateOutputType | null
@@ -5519,8 +5519,8 @@ export namespace Prisma {
       id: string
       userId: string
       moduleId: string
-      planYear: number
-      planSemester: number
+      planYear: number | null
+      planSemester: number | null
       isPresetModule: boolean
       degreePresetId: string | null
     }, ExtArgs["result"]["userPlanModule"]>
@@ -13549,8 +13549,8 @@ export namespace Prisma {
     id?: StringFilter<"UserPlanModule"> | string
     userId?: StringFilter<"UserPlanModule"> | string
     moduleId?: StringFilter<"UserPlanModule"> | string
-    planYear?: IntFilter<"UserPlanModule"> | number
-    planSemester?: IntFilter<"UserPlanModule"> | number
+    planYear?: IntNullableFilter<"UserPlanModule"> | number | null
+    planSemester?: IntNullableFilter<"UserPlanModule"> | number | null
     isPresetModule?: BoolFilter<"UserPlanModule"> | boolean
     degreePresetId?: StringNullableFilter<"UserPlanModule"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -13562,8 +13562,8 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     moduleId?: SortOrder
-    planYear?: SortOrder
-    planSemester?: SortOrder
+    planYear?: SortOrderInput | SortOrder
+    planSemester?: SortOrderInput | SortOrder
     isPresetModule?: SortOrder
     degreePresetId?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
@@ -13579,8 +13579,8 @@ export namespace Prisma {
     NOT?: UserPlanModuleWhereInput | UserPlanModuleWhereInput[]
     userId?: StringFilter<"UserPlanModule"> | string
     moduleId?: StringFilter<"UserPlanModule"> | string
-    planYear?: IntFilter<"UserPlanModule"> | number
-    planSemester?: IntFilter<"UserPlanModule"> | number
+    planYear?: IntNullableFilter<"UserPlanModule"> | number | null
+    planSemester?: IntNullableFilter<"UserPlanModule"> | number | null
     isPresetModule?: BoolFilter<"UserPlanModule"> | boolean
     degreePresetId?: StringNullableFilter<"UserPlanModule"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -13592,8 +13592,8 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     moduleId?: SortOrder
-    planYear?: SortOrder
-    planSemester?: SortOrder
+    planYear?: SortOrderInput | SortOrder
+    planSemester?: SortOrderInput | SortOrder
     isPresetModule?: SortOrder
     degreePresetId?: SortOrderInput | SortOrder
     _count?: UserPlanModuleCountOrderByAggregateInput
@@ -13610,8 +13610,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"UserPlanModule"> | string
     userId?: StringWithAggregatesFilter<"UserPlanModule"> | string
     moduleId?: StringWithAggregatesFilter<"UserPlanModule"> | string
-    planYear?: IntWithAggregatesFilter<"UserPlanModule"> | number
-    planSemester?: IntWithAggregatesFilter<"UserPlanModule"> | number
+    planYear?: IntNullableWithAggregatesFilter<"UserPlanModule"> | number | null
+    planSemester?: IntNullableWithAggregatesFilter<"UserPlanModule"> | number | null
     isPresetModule?: BoolWithAggregatesFilter<"UserPlanModule"> | boolean
     degreePresetId?: StringNullableWithAggregatesFilter<"UserPlanModule"> | string | null
   }
@@ -14228,8 +14228,8 @@ export namespace Prisma {
 
   export type UserPlanModuleCreateInput = {
     id?: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     user: UserCreateNestedOneWithoutUserPlanModulesInput
     module: ModuleCreateNestedOneWithoutUserPlanModulesInput
@@ -14240,16 +14240,16 @@ export namespace Prisma {
     id?: string
     userId: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
 
   export type UserPlanModuleUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutUserPlanModulesNestedInput
     module?: ModuleUpdateOneRequiredWithoutUserPlanModulesNestedInput
@@ -14260,8 +14260,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -14270,16 +14270,16 @@ export namespace Prisma {
     id?: string
     userId: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
 
   export type UserPlanModuleUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -14287,8 +14287,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -15023,15 +15023,15 @@ export namespace Prisma {
     moduleId?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -15094,20 +15094,20 @@ export namespace Prisma {
     planSemester?: SortOrder
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -15166,6 +15166,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type UserAddModuleUserIdModuleIdCompoundUniqueInput = {
     userId: string
     moduleId: string
@@ -15209,6 +15220,22 @@ export namespace Prisma {
   export type UserAddModuleSumOrderByAggregateInput = {
     planYear?: SortOrder
     planSemester?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type SessionListRelationFilter = {
@@ -15759,8 +15786,8 @@ export namespace Prisma {
     connect?: DegreePresetWhereUniqueInput
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
@@ -15845,6 +15872,14 @@ export namespace Prisma {
     create?: XOR<DegreePresetCreateWithoutUserAddModulesInput, DegreePresetUncheckedCreateWithoutUserAddModulesInput>
     connectOrCreate?: DegreePresetCreateOrConnectWithoutUserAddModulesInput
     connect?: DegreePresetWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutUserAddModulesNestedInput = {
@@ -16254,31 +16289,20 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -16314,6 +16338,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -16341,8 +16392,8 @@ export namespace Prisma {
 
   export type UserPlanModuleCreateWithoutModuleInput = {
     id?: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     user: UserCreateNestedOneWithoutUserPlanModulesInput
     degreePreset?: DegreePresetCreateNestedOneWithoutUserPlanModulesInput
@@ -16351,8 +16402,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedCreateWithoutModuleInput = {
     id?: string
     userId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
@@ -16436,8 +16487,8 @@ export namespace Prisma {
     id?: StringFilter<"UserPlanModule"> | string
     userId?: StringFilter<"UserPlanModule"> | string
     moduleId?: StringFilter<"UserPlanModule"> | string
-    planYear?: IntFilter<"UserPlanModule"> | number
-    planSemester?: IntFilter<"UserPlanModule"> | number
+    planYear?: IntNullableFilter<"UserPlanModule"> | number | null
+    planSemester?: IntNullableFilter<"UserPlanModule"> | number | null
     isPresetModule?: BoolFilter<"UserPlanModule"> | boolean
     degreePresetId?: StringNullableFilter<"UserPlanModule"> | string | null
   }
@@ -16497,8 +16548,8 @@ export namespace Prisma {
 
   export type UserPlanModuleCreateWithoutDegreePresetInput = {
     id?: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     user: UserCreateNestedOneWithoutUserPlanModulesInput
     module: ModuleCreateNestedOneWithoutUserPlanModulesInput
@@ -16508,8 +16559,8 @@ export namespace Prisma {
     id?: string
     userId: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
   }
 
@@ -17374,8 +17425,8 @@ export namespace Prisma {
 
   export type UserPlanModuleCreateWithoutUserInput = {
     id?: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     module: ModuleCreateNestedOneWithoutUserPlanModulesInput
     degreePreset?: DegreePresetCreateNestedOneWithoutUserPlanModulesInput
@@ -17384,8 +17435,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedCreateWithoutUserInput = {
     id?: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
@@ -17708,8 +17759,8 @@ export namespace Prisma {
   export type UserPlanModuleCreateManyModuleInput = {
     id?: string
     userId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
@@ -17729,8 +17780,8 @@ export namespace Prisma {
 
   export type UserPlanModuleUpdateWithoutModuleInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutUserPlanModulesNestedInput
     degreePreset?: DegreePresetUpdateOneWithoutUserPlanModulesNestedInput
@@ -17739,8 +17790,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedUpdateWithoutModuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -17748,8 +17799,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedUpdateManyWithoutModuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -17797,8 +17848,8 @@ export namespace Prisma {
     id?: string
     userId: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
   }
 
@@ -17822,8 +17873,8 @@ export namespace Prisma {
 
   export type UserPlanModuleUpdateWithoutDegreePresetInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutUserPlanModulesNestedInput
     module?: ModuleUpdateOneRequiredWithoutUserPlanModulesNestedInput
@@ -17833,8 +17884,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -17842,8 +17893,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -17929,8 +17980,8 @@ export namespace Prisma {
   export type UserPlanModuleCreateManyUserInput = {
     id?: string
     moduleId: string
-    planYear: number
-    planSemester: number
+    planYear?: number | null
+    planSemester?: number | null
     isPresetModule?: boolean
     degreePresetId?: string | null
   }
@@ -18026,8 +18077,8 @@ export namespace Prisma {
 
   export type UserPlanModuleUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     module?: ModuleUpdateOneRequiredWithoutUserPlanModulesNestedInput
     degreePreset?: DegreePresetUpdateOneWithoutUserPlanModulesNestedInput
@@ -18036,8 +18087,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -18045,8 +18096,8 @@ export namespace Prisma {
   export type UserPlanModuleUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     moduleId?: StringFieldUpdateOperationsInput | string
-    planYear?: IntFieldUpdateOperationsInput | number
-    planSemester?: IntFieldUpdateOperationsInput | number
+    planYear?: NullableIntFieldUpdateOperationsInput | number | null
+    planSemester?: NullableIntFieldUpdateOperationsInput | number | null
     isPresetModule?: BoolFieldUpdateOperationsInput | boolean
     degreePresetId?: NullableStringFieldUpdateOperationsInput | string | null
   }

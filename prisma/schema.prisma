@@ -46,8 +46,8 @@ model UserPlanModule {
   id             String        @id @default(cuid())
   userId         String
   moduleId       String
-  planYear       Int
-  planSemester   Int
+  planYear       Int?
+  planSemester   Int?
   isPresetModule Boolean       @default(false)
   degreePresetId String?
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
