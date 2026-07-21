@@ -3,6 +3,8 @@ import PlannerWorkspace from "../../components/planner-workspace";
 import getAllMods from "../getAllMods";
 import { Navbar } from "@/components/navbar";
 
+export const dynamic = "force-dynamic";
+
 export default async function PlannerPage() {
   const mods = await getAllMods();
   return (
