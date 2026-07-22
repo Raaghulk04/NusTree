@@ -1,139 +1,186 @@
 Task,Date,Raaghul (hrs),Nicholas (hrs),Remarks
-"feat: test cases for isPreclusion","2026-06-23","","","Author: raaghul"
-"feat: test cases for layout utils","2026-06-23","","","Author: raaghul"
-"feat: test cases for findEdgeType","2026-06-23","","","Author: raaghul"
-"feat: testcases for buildTree done","2026-06-23","","","Author: raaghul"
-"feat: written test cases for navbar and completed unit testing for authentication","2026-06-23","","","Author: raaghul"
-"chore: Set devOptional in lockfile; adjust Vitest globals","2026-06-22","","","Author: kran-ji"
-"Merge remote-tracking branch 'origin/main' into unit-testing","2026-06-22","","","Author: kran-ji"
-"Merge pull request #99 from Raaghulk04/unit-tesing-1","2026-06-22","","","Author: Raaghul K"
-"feat: set up .env and some basic tests","2026-06-22","","","Author: raaghul"
-"Test: Add planner.service tests and vitest globals","2026-06-22","","","Author: kran-ji"
-"Docs: Add unit testing suggestions doc","2026-06-22","","","Author: kran-ji"
-"feat: fixed version difference","2026-06-22","","","Author: raaghul"
-"feat: created vitest config and a few more test cases","2026-06-22","","","Author: raaghul"
-"Merge pull request #97 from Raaghulk04/search-bar","2026-06-21","","","Author: Raaghul K"
-"feat: installation of vitest and a couple test cases for eligibility service","2026-06-21","","","Author: raaghul"
-"Merge pull request #96 from Raaghulk04/search-bar","2026-06-20","","","Author: Raaghul K"
-"feat: naive full implementation done, only left with minor details, search-bar functionable now","2026-06-20","","","Author: raaghul"
-"fix: server errors","2026-06-20","","","Author: raaghul"
-"feat: added services for UserAddModule","2026-06-20","","","Author: raaghul"
-"feat: Added UserAddModule in schema","2026-06-20","","","Author: raaghul"
-"Merge pull request #95 from Raaghulk04/search-bar","2026-06-19","","","Author: Raaghul K"
-"refactor: re-added locator in search-bar","2026-06-19","","","Author: raaghul"
-"Merge pull request #94 from Raaghulk04/infrastructure-maintainence","2026-06-19","","","Author: Raaghul K"
-"fix: error of centerNode(""CS1101S"")","2026-06-19","","","Author: kran-ji"
-"Refractor: MAJOR infrastructure clean up","2026-06-19","","","Author: kran-ji"
-"feat: creating of plannerMods","2026-06-19","","","Author: raaghul"
-"feat: draggable options","2026-06-19","","","Author: raaghul"
-"Docs: update gitignore for personal md file","2026-06-19","","","Author: kran-ji"
-"feat: integrated the search-bar into all modules graph","2026-06-18","","","Author: raaghul"
-"feat: Added locator from search-bar","2026-06-18","","","Author: raaghul"
-"feat: Added two distinct data options for sidebar search","2026-06-18","","","Author: raaghul"
-"feat: added setCenter and hightlightNode","2026-06-18","","","Author: raaghul"
-"fix: fixes #93, selectedNode is now consistent","2026-06-18","","","Author: raaghul"
-"fix: full simple is the default mode now when clicking a node, fixes #92","2026-06-18","","","Author: raaghul"
-"fix: removed unecessary dependencies and typos","2026-06-18","","","Author: raaghul"
-"fix: removes unecessary junction nodes fixes #91","2026-06-18","","","Author: raaghul"
-"Merge pull request #89 from Raaghulk04/UI","2026-06-17","","","Author: kran-ji"
-"feat: implementing dagre #87","2026-06-17","","","Author: kran-ji"
-"Merge pull request #86 from Raaghulk04/module-card","2026-06-17","","","Author: Raaghul K"
-"feat: Added back prereq edges in simple mode","2026-06-17","","","Author: raaghul"
-"feat: naive way to showing edges whilst respecting and or or dependencies","2026-06-16","","","Author: raaghul"
-"feat: Added missingmods, and it's corresponding test cases","2026-06-16","","","Author: raaghul"
-"Merge pull request #83 from Raaghulk04/module-card","2026-06-16","","","Author: Raaghul K"
-"feat: naive way to showcasing prereqs that have not been satisfied","2026-06-16","","","Author: raaghul"
-"feat: naive way of showing missing prerequisites","2026-06-15","","","Author: raaghul"
-"Merge pull request #79 from Raaghulk04/module-card","2026-06-15","","","Author: Raaghul K"
-"fix: reduced inefficiency","2026-06-15","","","Author: raaghul"
-"feat: Added edges to Simple mode","2026-06-15","","","Author: raaghul"
-"Merge pull request #76 from Raaghulk04/module-card","2026-06-14","","","Author: Raaghul K"
-"feat: naive completion of mark as completed button","2026-06-14","","","Author: raaghul"
-"refactor: module card styling and positioning","2026-06-14","","","Author: raaghul"
-"fix: module detail are updated in it's module card","2026-06-14","","","Author: raaghul"
-"fix: got rid of additional border","2026-06-14","","","Author: raaghul"
-"fix: imported moduleNodeType to simple mode fixes #75","2026-06-12","","","Author: raaghul"
-"fix: removed unnecessay styling","2026-06-12","","","Author: raaghul"
-"Merge pull request #74 from Raaghulk04/UI","2026-06-11","","","Author: kran-ji"
-"Fix: sidebar kind of lame #43","2026-06-11","","","Author: kran-ji"
-"Merge pull request #72 from Raaghulk04/graph-mode-refactor","2026-06-11","","","Author: Raaghul K"
-"feat: added a popup when right click a node in all mod graph","2026-06-11","","","Author: raaghul"
-"feat: naive alternating layout to prevent a grid like layout","2026-06-11","","","Author: raaghul"
-"Merge pull request #68 from Raaghulk04/graph-mode-refactor","2026-06-11","","","Author: Raaghul K"
-"fix: rendering nodes layer by layer with uniform number of nodes in a single row","2026-06-11","","","Author: raaghul"
-"Merge pull request #67 from Raaghulk04/graph-mode-refactor","2026-06-10","","","Author: Raaghul K"
-"fix: simple Mode and basic node render logic","2026-06-10","","","Author: raaghul"
-"Merge pull request #64 from Raaghulk04/graph-mode-refactor","2026-06-09","","","Author: Raaghul K"
-"feat: implemented log out button in navbar fixes #63","2026-06-09","","","Author: raaghul"
-"bug: updated the navbar","2026-06-09","","","Author: raaghul"
-"fix: settings page design","2026-06-09","","","Author: raaghul"
-"Merge pull request #62 from Raaghulk04/graph-mode-refactor","2026-06-09","","","Author: Raaghul K"
-"Merge pull request #61 from Raaghulk04/graph-mode-refactor","2026-06-09","","","Author: Raaghul K"
-"feat: user able to update their particulars in settings page","2026-06-09","","","Author: raaghul"
-"Merge pull request #60 from Raaghulk04/graph-mode-refactor","2026-06-09","","","Author: Raaghul K"
-"feat: added a skeleton of settings page","2026-06-09","","","Author: raaghul"
-"Merge pull request #59 from Raaghulk04/graph-mode-refactor","2026-06-08","","","Author: Raaghul K"
-"cleaned up signup page","2026-06-08","","","Author: raaghul"
-"Merge pull request #57 from Raaghulk04/graph-mode-refactor","2026-06-07","","","Author: Raaghul K"
-"fix: minor style fixes","2026-06-07","","","Author: raaghul"
-"feat: major style changes","2026-06-07","","","Author: raaghul"
-"Merge pull request #56 from Raaghulk04/graph-mode-refactor","2026-06-07","","","Author: Raaghul K"
-"Merge pull request #55 from Raaghulk04/graph-mode-refactor","2026-06-06","","","Author: Raaghul K"
-"feat: added sidebar for simple mode","2026-06-06","","","Author: raaghul"
-"Merge pull request #54 from Raaghulk04/graph-mode-refactor","2026-06-06","","","Author: Raaghul K"
-"fixed bug in showing eligible mods","2026-06-06","","","Author: raaghul"
-"Merge pull request #53 from Raaghulk04/graph-mode-refactor","2026-06-06","","","Author: Raaghul K"
-"initial layout added to simple graph","2026-06-06","","","Author: raaghul"
-"naive impletentation of refactoring eligiblemods into the simple mode","2026-06-06","","","Author: raaghul"
-"Refractor: refractor graph code","2026-06-05","","","Author: kran-ji"
-"Feat: Hide all non-undergraduate mods #47","2026-06-05","","","Author: kran-ji"
-"Merge pull request #50 from Raaghulk04/simpleMode","2026-06-05","","","Author: Raaghul K"
-"Added functionality that shows the majors taken by an user fix #49","2026-06-05","","","Author: raaghul"
-"fixed a small bug","2026-06-04","","","Author: raaghul"
-"Merge pull request #44 from Raaghulk04/simpleMode","2026-06-04","","","Author: Raaghul K"
-"Able to drag modules into the graph (naive edition)","2026-06-03","","","Author: raaghul"
-"Merge pull request #42 from Raaghulk04/simpleMode","2026-06-03","","","Author: Raaghul K"
-"Added data options for search bar in the sidebar","2026-06-03","","","Author: raaghul"
-"Merge pull request #40 from Raaghulk04/simpleMode","2026-06-02","","","Author: Raaghul K"
-"basic sideBar done","2026-06-02","","","Author: raaghul"
-"Merge pull request #38 from Raaghulk04/simpleMode","2026-06-02","","","Author: Raaghul K"
-"abstracted out the node layout logic","2026-06-02","","","Author: raaghul"
-"Merge pull request #37 from Raaghulk04/simpleMode","2026-06-02","","","Author: Raaghul K"
-"Merge branch 'main' into simpleMode","2026-06-02","","","Author: raaghul"
-"fixed isSatisfied","2026-06-01","","","Author: raaghul"
-"Merge pull request #36 from Raaghulk04/web-scraper","2026-06-01","","","Author: kran-ji"
-"feat: enhance scraper; scrape from given list","2026-06-01","","","Author: kran-ji"
-"Merge pull request #34 from Raaghulk04/web-scraper","2026-06-01","","","Author: kran-ji"
-"Fix: tighten the web scraping condition","2026-06-01","","","Author: kran-ji"
-"Merge pull request #31 from Raaghulk04/web-scraper","2026-06-01","","","Author: kran-ji"
-"Merge branch 'main' into web-scraper","2026-06-01","","","Author: kran-ji"
-"Merge pull request #30 from Raaghulk04/simpleMode","2026-06-01","","","Author: Raaghul K"
-"added simpleMode","2026-06-01","","","Author: raaghul"
-"black text for nodes","2026-05-31","","","Author: raaghul"
-"Merge pull request #29 from Raaghulk04/toggle","2026-05-31","","","Author: Raaghul K"
-"fix: User now able to toggle between different modes fix #18","2026-05-31","","","Author: raaghul"
-"Merge pull request #28 from Raaghulk04/preclusions","2026-05-31","","","Author: Raaghul K"
-"fix #27","2026-05-31","","","Author: raaghul"
-"Merge pull request #26 from Raaghulk04/preclusions","2026-05-30","","","Author: Raaghul K"
-"Merge remote-tracking branch 'origin/preclusions' into preclusions","2026-05-30","","","Author: raaghul"
-"precluded mods now are not shown in the graph","2026-05-30","","","Author: raaghul"
-"Merge pull request #25 from Raaghulk04/main","2026-05-30","","","Author: Raaghul K"
-"Merge pull request #24 from Raaghulk04/preclusions","2026-05-29","","","Author: Raaghul K"
-"preclusions","2026-05-29","","","Author: raaghul"
-"docs: updated readme for scraper","2026-05-29","","","Author: kran-ji"
-"feat: Added in web scraper script v1","2026-05-29","","","Author: kran-ji"
-"feat: created new migrations with new schema","2026-05-29","","","Author: kran-ji"
-"docs: updated readme and also migrations","2026-05-29","","","Author: kran-ji"
-"Merge pull request #23 from Raaghulk04/changed_schema","2026-05-29","","","Author: Raaghul K"
-"changed schema","2026-05-29","","","Author: raaghul"
-"docs: removed project log.md","2026-05-29","","","Author: kran-ji"
-"Merge pull request #21 from Raaghulk04/dark-mode","2026-05-29","","","Author: Raaghul K"
-"switched to dark mode","2026-05-29","","","Author: raaghul"
-"Merge pull request #19 from Raaghulk04/show-compulsory-mods","2026-05-27","","","Author: Raaghul K"
-"feat: naive basic graph implementation","2026-05-27","","","Author: raaghul"
-"chore: standardized lf format across all files","2026-05-26","","","Author: kran-ji"
-"docs: updated read me","2026-05-26","","","Author: kran-ji"
-"docs: project log history created","2026-05-26","","","Author: raaghul"
-"docs: added er diagram","2026-05-26","","","Author: kran-ji"
-"fix: update homepage","2026-05-26","","","Author: raaghul"
-"fix: removed unnecessary page","2026-05-26","","","Author: raaghul"
+build: force-dynamic on public API routes to avoid database   connection at build time,2026-07-21,,,Author: raaghul
+revert to original deployment build,2026-07-21,,,Author: raaghul
+Update build dependency 3,2026-07-21,,,Author: raaghul
+Update build for dependency again,2026-07-21,,,Author: raaghul
+Update for deployment,2026-07-21,,,Author: raaghul
+refactor: moving away from hover to click a node to see the edges,2026-07-20,,,Author: raaghul
+fix: cleaned up edges for the focus mode,2026-07-19,,,Author: raaghul
+refactor: layout issues for focus mode,2026-07-17,,,Author: raaghul
+refactor: nodes to be shown in focus mode,2026-07-16,,,Author: raaghul
+fix: mark as completed button follows the current term fixes #124,2026-07-16,,,Author: raaghul
+naive attempt at providing ma1301 as default mod fixes #125,2026-07-15,,,Author: raaghul
+Merge pull request #123 from Raaghulk04/UI,2026-07-11,,,Author: Raaghul K
+feat: updated the logic behind module,2026-07-11,,,Author: kran-ji
+Merge remote-tracking branch 'origin' into UI,2026-07-11,,,Author: kran-ji
+Merge branch 'UI' of https://github.com/Raaghulk04/NusTree into UI,2026-07-11,,,Author: kran-ji
+feat: distinct colours for distinct junction ndoes,2026-07-11,,,Author: raaghul
+fix: fixes #122,2026-07-11,,,Author: raaghul
+feat: abstracted out focus mode into it's own file,2026-07-11,,,Author: raaghul
+fix: got rid of unecessary horizontal scroll,2026-07-08,,,Author: raaghul
+Merge pull request #121 from Raaghulk04/UI,2026-07-08,,,Author: Raaghul K
+feat: final implementation of state-dependent context menu,2026-07-08,,,Author: raaghul
+fix: initial implementation to give each node its own unique context menu depending on its state,2026-07-08,,,Author: raaghul
+fix: i forgot what this was about,2026-07-07,,,Author: raaghul
+feat: Updated color on invalid,2026-07-07,,,Author: kran-ji
+"feat: added ""time"" factor into graph",2026-07-07,,,Author: kran-ji
+chore: delete trash,2026-07-07,,,Author: kran-ji
+feat: Initial attempt on focus Mode,2026-07-05,,,Author: raaghul
+fix: seperated and optimized ghost edges and solid edges logic,2026-07-02,,,Author: raaghul
+fix: makes the purple asterisk brighter,2026-07-01,,,Author: raaghul
+fix: consistent node style with its state,2026-07-01,,,Author: raaghul
+feat: fully incorporated nusMods logo,2026-06-30,,,Author: raaghul
+feat: added the new asterisk marker in the legend,2026-06-30,,,Author: raaghul
+feat: added a purple asterisk to indicate compulsory modules,2026-06-30,,,Author: raaghul
+fix: refactored sidebar search for new inGraph fixes #114,2026-06-30,,,Author: raaghul
+feat: added NusMods link in the node menu fixes #112,2026-06-30,,,Author: raaghul
+feat:Added a fake NusMods logo,2026-06-29,,,Author: raaghul
+fix: only modules within one depth light up fixes #111,2026-06-29,,,Author: raaghul
+Merge pull request #110 from Raaghulk04/planner,2026-06-28,,,Author: Raaghul K
+Merge pull request #109 from Raaghulk04/main,2026-06-28,,,Author: Raaghul K
+Merge branch 'planner' into main,2026-06-28,,,Author: Raaghul K
+Merge pull request #108 from Raaghulk04/unit-testing,2026-06-28,,,Author: Raaghul K
+test module tracker planner CRUD,2026-06-28,,,Author: kran-ji
+enhancement: semester timeline is a different card now #104,2026-06-28,,,Author: kran-ji
+enhancement: #103,2026-06-27,,,Author: kran-ji
+feat: added remove button #106,2026-06-27,,,Author: kran-ji
+Enforce degree preset limit,2026-06-27,,,Author: kran-ji
+refractor: degree preset naming,2026-06-22,,,Author: kran-ji
+feat: test cases for isPreclusion,2026-06-23,,,Author: raaghul
+feat: test cases for layout utils,2026-06-23,,,Author: raaghul
+feat: test cases for findEdgeType,2026-06-23,,,Author: raaghul
+feat: testcases for buildTree done,2026-06-23,,,Author: raaghul
+feat: written test cases for navbar and completed unit testing for authentication,2026-06-23,,,Author: raaghul
+chore: Set devOptional in lockfile; adjust Vitest globals,2026-06-22,,,Author: kran-ji
+Merge remote-tracking branch 'origin/main' into unit-testing,2026-06-22,,,Author: kran-ji
+Merge pull request #99 from Raaghulk04/unit-tesing-1,2026-06-22,,,Author: Raaghul K
+feat: set up .env and some basic tests,2026-06-22,,,Author: raaghul
+Test: Add planner.service tests and vitest globals,2026-06-22,,,Author: kran-ji
+Docs: Add unit testing suggestions doc,2026-06-22,,,Author: kran-ji
+feat: fixed version difference,2026-06-22,,,Author: raaghul
+feat: created vitest config and a few more test cases,2026-06-22,,,Author: raaghul
+Merge pull request #97 from Raaghulk04/search-bar,2026-06-21,,,Author: Raaghul K
+feat: installation of vitest and a couple test cases for eligibility service,2026-06-21,,,Author: raaghul
+Merge pull request #96 from Raaghulk04/search-bar,2026-06-20,,,Author: Raaghul K
+"feat: naive full implementation done, only left with minor details, search-bar functionable now",2026-06-20,,,Author: raaghul
+fix: server errors,2026-06-20,,,Author: raaghul
+feat: added services for UserAddModule,2026-06-20,,,Author: raaghul
+feat: Added UserAddModule in schema,2026-06-20,,,Author: raaghul
+Merge pull request #95 from Raaghulk04/search-bar,2026-06-19,,,Author: Raaghul K
+refactor: re-added locator in search-bar,2026-06-19,,,Author: raaghul
+Merge pull request #94 from Raaghulk04/infrastructure-maintainence,2026-06-19,,,Author: Raaghul K
+"fix: error of centerNode(""CS1101S"")",2026-06-19,,,Author: kran-ji
+Refractor: MAJOR infrastructure clean up,2026-06-19,,,Author: kran-ji
+feat: creating of plannerMods,2026-06-19,,,Author: raaghul
+feat: draggable options,2026-06-19,,,Author: raaghul
+Docs: update gitignore for personal md file,2026-06-19,,,Author: kran-ji
+feat: integrated the search-bar into all modules graph,2026-06-18,,,Author: raaghul
+feat: Added locator from search-bar,2026-06-18,,,Author: raaghul
+feat: Added two distinct data options for sidebar search,2026-06-18,,,Author: raaghul
+feat: added setCenter and hightlightNode,2026-06-18,,,Author: raaghul
+"fix: fixes #93, selectedNode is now consistent",2026-06-18,,,Author: raaghul
+"fix: full simple is the default mode now when clicking a node, fixes #92",2026-06-18,,,Author: raaghul
+fix: removed unecessary dependencies and typos,2026-06-18,,,Author: raaghul
+fix: removes unecessary junction nodes fixes #91,2026-06-18,,,Author: raaghul
+Merge pull request #89 from Raaghulk04/UI,2026-06-17,,,Author: kran-ji
+feat: implementing dagre #87,2026-06-17,,,Author: kran-ji
+Merge pull request #86 from Raaghulk04/module-card,2026-06-17,,,Author: Raaghul K
+feat: Added back prereq edges in simple mode,2026-06-17,,,Author: raaghul
+feat: naive way to showing edges whilst respecting and or or dependencies,2026-06-16,,,Author: raaghul
+"feat: Added missingmods, and it's corresponding test cases",2026-06-16,,,Author: raaghul
+Merge pull request #83 from Raaghulk04/module-card,2026-06-16,,,Author: Raaghul K
+feat: naive way to showcasing prereqs that have not been satisfied,2026-06-16,,,Author: raaghul
+feat: naive way of showing missing prerequisites,2026-06-15,,,Author: raaghul
+Merge pull request #79 from Raaghulk04/module-card,2026-06-15,,,Author: Raaghul K
+fix: reduced inefficiency,2026-06-15,,,Author: raaghul
+feat: Added edges to Simple mode,2026-06-15,,,Author: raaghul
+Merge pull request #76 from Raaghulk04/module-card,2026-06-14,,,Author: Raaghul K
+feat: naive completion of mark as completed button,2026-06-14,,,Author: raaghul
+refactor: module card styling and positioning,2026-06-14,,,Author: raaghul
+fix: module detail are updated in it's module card,2026-06-14,,,Author: raaghul
+fix: got rid of additional border,2026-06-14,,,Author: raaghul
+fix: imported moduleNodeType to simple mode fixes #75,2026-06-12,,,Author: raaghul
+fix: removed unnecessay styling,2026-06-12,,,Author: raaghul
+Merge pull request #74 from Raaghulk04/UI,2026-06-11,,,Author: kran-ji
+Fix: sidebar kind of lame #43,2026-06-11,,,Author: kran-ji
+Merge pull request #72 from Raaghulk04/graph-mode-refactor,2026-06-11,,,Author: Raaghul K
+feat: added a popup when right click a node in all mod graph,2026-06-11,,,Author: raaghul
+feat: naive alternating layout to prevent a grid like layout,2026-06-11,,,Author: raaghul
+Merge pull request #68 from Raaghulk04/graph-mode-refactor,2026-06-11,,,Author: Raaghul K
+fix: rendering nodes layer by layer with uniform number of nodes in a single row,2026-06-11,,,Author: raaghul
+Merge pull request #67 from Raaghulk04/graph-mode-refactor,2026-06-10,,,Author: Raaghul K
+fix: simple Mode and basic node render logic,2026-06-10,,,Author: raaghul
+Merge pull request #64 from Raaghulk04/graph-mode-refactor,2026-06-09,,,Author: Raaghul K
+feat: implemented log out button in navbar fixes #63,2026-06-09,,,Author: raaghul
+bug: updated the navbar,2026-06-09,,,Author: raaghul
+fix: settings page design,2026-06-09,,,Author: raaghul
+Merge pull request #62 from Raaghulk04/graph-mode-refactor,2026-06-09,,,Author: Raaghul K
+Merge pull request #61 from Raaghulk04/graph-mode-refactor,2026-06-09,,,Author: Raaghul K
+feat: user able to update their particulars in settings page,2026-06-09,,,Author: raaghul
+Merge pull request #60 from Raaghulk04/graph-mode-refactor,2026-06-09,,,Author: Raaghul K
+feat: added a skeleton of settings page,2026-06-09,,,Author: raaghul
+Merge pull request #59 from Raaghulk04/graph-mode-refactor,2026-06-08,,,Author: Raaghul K
+cleaned up signup page,2026-06-08,,,Author: raaghul
+Merge pull request #57 from Raaghulk04/graph-mode-refactor,2026-06-07,,,Author: Raaghul K
+fix: minor style fixes,2026-06-07,,,Author: raaghul
+feat: major style changes,2026-06-07,,,Author: raaghul
+Merge pull request #56 from Raaghulk04/graph-mode-refactor,2026-06-07,,,Author: Raaghul K
+Merge pull request #55 from Raaghulk04/graph-mode-refactor,2026-06-06,,,Author: Raaghul K
+feat: added sidebar for simple mode,2026-06-06,,,Author: raaghul
+Merge pull request #54 from Raaghulk04/graph-mode-refactor,2026-06-06,,,Author: Raaghul K
+fixed bug in showing eligible mods,2026-06-06,,,Author: raaghul
+Merge pull request #53 from Raaghulk04/graph-mode-refactor,2026-06-06,,,Author: Raaghul K
+initial layout added to simple graph,2026-06-06,,,Author: raaghul
+naive impletentation of refactoring eligiblemods into the simple mode,2026-06-06,,,Author: raaghul
+Refractor: refractor graph code,2026-06-05,,,Author: kran-ji
+Feat: Hide all non-undergraduate mods #47,2026-06-05,,,Author: kran-ji
+Merge pull request #50 from Raaghulk04/simpleMode,2026-06-05,,,Author: Raaghul K
+Added functionality that shows the majors taken by an user fix #49,2026-06-05,,,Author: raaghul
+fixed a small bug,2026-06-04,,,Author: raaghul
+Merge pull request #44 from Raaghulk04/simpleMode,2026-06-04,,,Author: Raaghul K
+Able to drag modules into the graph (naive edition),2026-06-03,,,Author: raaghul
+Merge pull request #42 from Raaghulk04/simpleMode,2026-06-03,,,Author: Raaghul K
+Added data options for search bar in the sidebar,2026-06-03,,,Author: raaghul
+Merge pull request #40 from Raaghulk04/simpleMode,2026-06-02,,,Author: Raaghul K
+basic sideBar done,2026-06-02,,,Author: raaghul
+Merge pull request #38 from Raaghulk04/simpleMode,2026-06-02,,,Author: Raaghul K
+abstracted out the node layout logic,2026-06-02,,,Author: raaghul
+Merge pull request #37 from Raaghulk04/simpleMode,2026-06-02,,,Author: Raaghul K
+Merge branch 'main' into simpleMode,2026-06-02,,,Author: raaghul
+fixed isSatisfied,2026-06-01,,,Author: raaghul
+Merge pull request #36 from Raaghulk04/web-scraper,2026-06-01,,,Author: kran-ji
+feat: enhance scraper; scrape from given list,2026-06-01,,,Author: kran-ji
+Merge pull request #34 from Raaghulk04/web-scraper,2026-06-01,,,Author: kran-ji
+Fix: tighten the web scraping condition,2026-06-01,,,Author: kran-ji
+Merge pull request #31 from Raaghulk04/web-scraper,2026-06-01,,,Author: kran-ji
+Merge branch 'main' into web-scraper,2026-06-01,,,Author: kran-ji
+Merge pull request #30 from Raaghulk04/simpleMode,2026-06-01,,,Author: Raaghul K
+added simpleMode,2026-06-01,,,Author: raaghul
+black text for nodes,2026-05-31,,,Author: raaghul
+Merge pull request #29 from Raaghulk04/toggle,2026-05-31,,,Author: Raaghul K
+fix: User now able to toggle between different modes fix #18,2026-05-31,,,Author: raaghul
+Merge pull request #28 from Raaghulk04/preclusions,2026-05-31,,,Author: Raaghul K
+fix #27,2026-05-31,,,Author: raaghul
+Merge pull request #26 from Raaghulk04/preclusions,2026-05-30,,,Author: Raaghul K
+Merge remote-tracking branch 'origin/preclusions' into preclusions,2026-05-30,,,Author: raaghul
+precluded mods now are not shown in the graph,2026-05-30,,,Author: raaghul
+Merge pull request #25 from Raaghulk04/main,2026-05-30,,,Author: Raaghul K
+Merge pull request #24 from Raaghulk04/preclusions,2026-05-29,,,Author: Raaghul K
+preclusions,2026-05-29,,,Author: raaghul
+docs: updated readme for scraper,2026-05-29,,,Author: kran-ji
+feat: Added in web scraper script v1,2026-05-29,,,Author: kran-ji
+feat: created new migrations with new schema,2026-05-29,,,Author: kran-ji
+docs: updated readme and also migrations,2026-05-29,,,Author: kran-ji
+Merge pull request #23 from Raaghulk04/changed_schema,2026-05-29,,,Author: Raaghul K
+changed schema,2026-05-29,,,Author: raaghul
+docs: removed project log.md,2026-05-29,,,Author: kran-ji
+Merge pull request #21 from Raaghulk04/dark-mode,2026-05-29,,,Author: Raaghul K
+switched to dark mode,2026-05-29,,,Author: raaghul
+Merge pull request #19 from Raaghulk04/show-compulsory-mods,2026-05-27,,,Author: Raaghul K
+feat: naive basic graph implementation,2026-05-27,,,Author: raaghul
+chore: standardized lf format across all files,2026-05-26,,,Author: kran-ji
+docs: updated read me,2026-05-26,,,Author: kran-ji
+docs: project log history created,2026-05-26,,,Author: raaghul
+docs: added er diagram,2026-05-26,,,Author: kran-ji
+fix: update homepage,2026-05-26,,,Author: raaghul
+fix: removed unnecessary page,2026-05-26,,,Author: raaghul
