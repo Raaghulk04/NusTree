@@ -4,6 +4,8 @@ import { Navbar } from "@/components/navbar";
 import { getCurrentUserId } from "@/server/session.service";
 import { getEligibleModulesPageData } from "@/server/eligibility.service";
 
+export const dynamic = "force-dynamic";
+
 export default async function EligibleModPage() {
   const userId = await getCurrentUserId();
   if (!userId) redirect("/login");
