@@ -2,9 +2,14 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./db";
 
 export const authConfig = {
-  baseURL: process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: {
+    allowedHosts: [
+      "localhost:3000",
+      "nustree.vercel.app",
+      "*.vercel.app",
+    ],
+    protocol: (process.env.NODE_ENV === "development" ? "http" : "https") as "http" | "https",
+  },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
