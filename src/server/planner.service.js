@@ -7,7 +7,7 @@ function normalizePlanTerm(planYear, planSemester) {
   const normalizedPlanYear = Number(planYear);
   const normalizedPlanSemester = Number(planSemester);
 
-  if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear < 0) {
+  if (!Number.isInteger(normalizedPlanYear) || normalizedPlanYear <= 0) {
     throw new Error("Invalid plan year");
   }
 

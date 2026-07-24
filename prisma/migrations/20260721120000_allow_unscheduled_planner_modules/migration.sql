@@ -1,0 +1,3 @@
+ALTER TABLE "UserPlanModule"
+  ALTER COLUMN "planYear" DROP NOT NULL,
+  ALTER COLUMN "planSemester" DROP NOT NULL;
