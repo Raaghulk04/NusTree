@@ -36,10 +36,29 @@ vi.mock("next/image", () => ({
 // Mock @xyflow/react (React Flow) which relies on browser API capabilities not present in JSDOM
 vi.mock("@xyflow/react", () => {
   return {
-    ReactFlow: ({ children, nodes, edges }) => (
+    ReactFlow: ({ children, nodes, edges, onNodeClick }) => (
       <div data-testid="react-flow-stub">
-        <div data-testid="rf-nodes-count">{nodes?.length || 0}</div>
-        <div data-testid="rf-edges-count">{edges?.length || 0}</div>
+        {/*render node elements as interactive buttons*/}
+        <div data-testid="rf-nodes">
+          {nodes?.map((node) => (
+            <button
+              key={node.id}
+              type="button"
+              onClick={(e) => onNodeClick(e, node)}
+            >
+              {node.id}
+            </button>
+          ))}
+        </div>
+
+        {/*render edges as readable text blocks (e.g source -> targert) */}
+        <div data-testid="rf-edges">
+          {edges?.map((edge) => (
+            <span key={edge.id} data-testid={`edge-${edge.id}`}>
+              {edge.source} {"->"} {edge.target}
+            </span>
+          ))}
+        </div>
         {children}
       </div>
     ),
@@ -61,7 +80,7 @@ vi.mock("@xyflow/react", () => {
   };
 });
 
-describe("Graph Integration Tests", () => {
+describe("Basic Graph Integration Tests", () => {
   let container;
   let root;
 
@@ -107,5 +126,62 @@ describe("Graph Integration Tests", () => {
     expect(
       queryByText(document.body, "Prerequisites Not Met"),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders 'completed' when the module is already completed", async () => {
+    renderContextMenu(2);
+    expect(getByText(document.body, "CS2040S")).toBeInTheDocument();
+    expect(getByText(document.body, "Completed")).toBeInTheDocument();
+  });
+
+  it("renders 'Invalid' when the module is invalid", async () => {
+    renderContextMenu(0);
+    expect(getByText(document.body, "CS2040S")).toBeInTheDocument();
+    expect(
+      getByText(document.body, "Prerequisites Not Met"),
+    ).toBeInTheDocument();
+  });
+
+  it("displays prerequisite edges when a node is clicked", async () => {
+    const allMods = [
+      {
+        id: "CS1010",
+        title: "Programming Methodology",
+      },
+      {
+        id: "CS2040S",
+        title: "Data Structures and Algorithms",
+        prereqTree: { and: ["CS1010"] }, // CS1010 is a prerequisite
+      },
+    ];
+
+    // render graph in "ALL" mode so ReactFlow mounts
+    act(() => {
+      root.render(
+        <Graph
+          mods={[]}
+          allMods={allMods}
+          takenMods={[]}
+          completedMods={[]}
+          compulsoryMods={[]}
+          initialMode="All"
+        />,
+      );
+    });
+
+    // Verify that both modules are displayed in the DOM
+    expect(getByText(container, "CS1010")).toBeInTheDocument();
+    expect(getByText(container, "CS2040S")).toBeInTheDocument();
+    // verify that there are no edges drawn on mount
+    const edgesContainer = container.querySelector('[data-testid="rf-edges"]');
+    expect(edgesContainer.children.length).toBe(0);
+
+    // simulate a click event on CS2040s module node
+    act(() => {
+      fireEvent.click(getByText(container, "CS2040S"));
+    });
+
+    // assert that the correct prerequisite edge (CS1010 -> CS2040S) renders
+    expect(queryByText(container, "CS1010 -> CS2040S")).toBeInTheDocument();
   });
 });

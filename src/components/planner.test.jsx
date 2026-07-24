@@ -13,12 +13,14 @@ import removePlannedModule from "./remove-planned-module";
 import { DegreePresetPicker } from "./degree-preset-picker";
 
 // Hoist mock references for server actions
-const { addPlannedDegreePresetMock, removePlannedDegreePresetMock } = vi.hoisted(() => ({
-  addPlannedDegreePresetMock: vi.fn(),
-  removePlannedDegreePresetMock: vi.fn(),
-}));
+const { addPlannedDegreePresetMock, removePlannedDegreePresetMock } =
+  vi.hoisted(() => ({
+    addPlannedDegreePresetMock: vi.fn(),
+    removePlannedDegreePresetMock: vi.fn(),
+  }));
 
 // Mock user session
+
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     useSession: vi.fn(() => ({
@@ -281,7 +283,9 @@ describe("DegreePresetPicker Integration Tests", () => {
 
     // Assert add utility was called and list updated
     await waitFor(() => {
-      expect(addPlannedDegreePresetMock).toHaveBeenCalledWith("computer-science");
+      expect(addPlannedDegreePresetMock).toHaveBeenCalledWith(
+        "computer-science",
+      );
       expect(getByText(container, "Computer Science")).toBeInTheDocument();
     });
   });
@@ -316,8 +320,12 @@ describe("DegreePresetPicker Integration Tests", () => {
 
     // Assert remove utility was called and list updated
     await waitFor(() => {
-      expect(removePlannedDegreePresetMock).toHaveBeenCalledWith("computer-science");
-      expect(queryByText(container, "Computer Science")).not.toBeInTheDocument();
+      expect(removePlannedDegreePresetMock).toHaveBeenCalledWith(
+        "computer-science",
+      );
+      expect(
+        queryByText(container, "Computer Science"),
+      ).not.toBeInTheDocument();
     });
   });
 });
