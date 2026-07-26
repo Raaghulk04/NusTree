@@ -234,28 +234,6 @@ export default function FocusView({
       );
     });
 
-    // Call buildTree for all deep prerequisites
-    // const res = new Set();
-    // const completedIdSetForPrereq = new Set(completedIds);
-    // getDeepPrereqIds(clickedNode, prereqMap, res, completedIdSetForPrereq);
-    // const deepPrereqsOfHovered = Array.from(res).filter((id) => id !== clickedNode);
-    //
-    // deepPrereqsOfHovered.forEach((prereqId) => {
-    //   const prereqMod = modMap.get(prereqId);
-    //   if (prereqMod && prereqMod.prereqTree) {
-    //     buildTree(
-    //       prereqMod.prereqTree,
-    //       prereqId,
-    //       completedIdSet,
-    //       resultEdges,
-    //       edgeSet,
-    //       "and",
-    //       junctionNodes,
-    //       activePositions,
-    //     );
-    //   }
-    // });
-
     return {
       clickedEdges: resultEdges,
       clickedJunctionNodes: junctionNodes,
