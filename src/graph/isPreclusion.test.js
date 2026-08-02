@@ -1,10 +1,11 @@
 import { after } from "next/server";
-import isPrecluded from "./isPreclusion";
+import isPrecluded, { clearPreclusionsCache } from "./isPreclusion";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 describe("isPrecluded", () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
+    clearPreclusionsCache();
   });
 
   afterEach(() => {
