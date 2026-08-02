@@ -30,13 +30,36 @@ export default function PlannerWorkspace({ mods, children }) {
       });
   }, [data?.user?.id, refresh]);
 
+  const handleAddModule = useCallback(
+    (moduleId, year, sem) => {
+      if (moduleId && year && sem) {
+        setPlannedModules((prev) => [
+          ...prev.filter((m) => m.moduleId !== moduleId),
+          {
+            userId: data?.user?.id,
+            moduleId,
+            planYear: Number(year),
+            planSemester: Number(sem),
+            isPresetModule: false,
+          },
+        ]);
+      }
+      refreshPlannedModules();
+    },
+    [data?.user?.id, refreshPlannedModules],
+  );
+
   const handleRemoveModule = async (moduleId) => {
     setRemovingModuleId(moduleId);
+    const previousPlannedModules = plannedModules;
+    setPlannedModules((prev) => prev.filter((m) => m.moduleId !== moduleId));
+
     try {
       await removePlannedModule(moduleId);
       refreshPlannedModules();
     } catch (error) {
       console.error("Failed to delete module: ", error);
+      setPlannedModules(previousPlannedModules);
       alert("Failed to remove module. Please try again.");
     } finally {
       setRemovingModuleId(null);
@@ -54,7 +77,7 @@ export default function PlannerWorkspace({ mods, children }) {
         <ModuleTracker
           mods={mods}
           plannedModules={plannedModules}
-          onAddModule={refreshPlannedModules}
+          onAddModule={handleAddModule}
           onRemoveModule={handleRemoveModule}
           removingModuleId={removingModuleId}
         />

@@ -149,10 +149,26 @@ export const getDirectPrerequisites = (moduleId, modMap) => {
   return [...new Set(extractMods(mod?.prereqTree))];
 };
 
-export const getDirectDependents = (moduleId, mods) =>
-  mods
+export const buildDependentsMap = (mods) => {
+  const map = new Map();
+  mods.forEach((mod) => {
+    const prereqs = extractMods(mod.prereqTree);
+    prereqs.forEach((prereqId) => {
+      if (!map.has(prereqId)) map.set(prereqId, []);
+      map.get(prereqId).push(mod.id);
+    });
+  });
+  return map;
+};
+
+export const getDirectDependents = (moduleId, mods, dependentsMap = null) => {
+  if (dependentsMap) {
+    return dependentsMap.get(moduleId) || [];
+  }
+  return mods
     .filter((mod) => extractMods(mod.prereqTree).includes(moduleId))
     .map((mod) => mod.id);
+};
 
 export const getPrerequisiteClosure = (moduleId, modMap) => {
   const result = new Set();

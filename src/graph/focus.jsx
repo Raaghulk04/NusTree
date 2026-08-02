@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import {
   extractMods,
+  buildDependentsMap,
   getDirectDependents,
 } from "./layoutUtils";
 import { computeFocusNodePositions } from "./focusLayoutUtils";
@@ -83,12 +84,12 @@ export function useFocusMode({
     return set;
   }, [selectedNode, prereqMap, completedIds]);
 
+  const dependentsMap = useMemo(() => buildDependentsMap(mods || []), [mods]);
+
   const directDependents = useMemo(() => {
     if (!selectedNode) return new Set();
-    return new Set(
-      getDirectDependents(selectedNode, mods),
-    );
-  }, [selectedNode, mods]);
+    return new Set(getDirectDependents(selectedNode, mods, dependentsMap));
+  }, [selectedNode, mods, dependentsMap]);
 
   const focusIds = useMemo(() => {
     if (!selectedNode) return new Set();

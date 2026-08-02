@@ -1,10 +1,19 @@
+let preclusionsCache = null;
+
 export default async function isPrecluded({
   completedIds,
   takenIds,
   compulsoryIds,
 }) {
-  let precluded = await fetch("/api/preclusions");
-  precluded = await precluded.json();
+  if (!preclusionsCache) {
+    try {
+      let res = await fetch("/api/preclusions");
+      preclusionsCache = await res.json();
+    } catch {
+      preclusionsCache = [];
+    }
+  }
+  const precluded = Array.isArray(preclusionsCache) ? preclusionsCache : [];
 
   const filteredtakenIds = takenIds.filter(
     (taken) => !precluded.includes(taken.id),
@@ -13,4 +22,8 @@ export default async function isPrecluded({
     (comp) => !precluded.includes(comp.id),
   );
   return completedIds.concat(filteredCompulsory).concat(filteredtakenIds);
+}
+
+export function clearPreclusionsCache() {
+  preclusionsCache = null;
 }

@@ -10,7 +10,7 @@ export function ModuleSearchDropdown({ mods, sem, year, onAdd }) {
 
     try {
       await addPlannedModule(moduleId, Number(year), Number(sem))
-      if (onAdd) onAdd()
+      if (onAdd) onAdd(moduleId, Number(year), Number(sem))
     } catch (error) {
       console.error('Failed to add module:', error)
       alert('Failed to add module. Please try again.')
