@@ -10,8 +10,13 @@ import NusmodsImport from "@/components/nusmods-import";
 const CARD_CLASS =
   "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm";
 
-export default function PlannerWorkspace({ mods, initialSession, children }) {
-  const [plannedModules, setPlannedModules] = useState([]);
+export default function PlannerWorkspace({
+  mods,
+  initialSession,
+  initialPlannedModules = [],
+  children,
+}) {
+  const [plannedModules, setPlannedModules] = useState(initialPlannedModules);
   const [refresh, setRefresh] = useState(0);
   const [removingModuleId, setRemovingModuleId] = useState(null);
 
@@ -25,11 +30,13 @@ export default function PlannerWorkspace({ mods, initialSession, children }) {
 
   useEffect(() => {
     if (!userId) return;
+
     fetch("/api/planner-modules")
       .then((res) => res.json())
       .then((d) => {
         if (Array.isArray(d)) setPlannedModules(d);
-      });
+      })
+      .catch(() => {});
   }, [userId, refresh]);
 
   const handleAddModule = useCallback(

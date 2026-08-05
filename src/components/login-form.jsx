@@ -8,7 +8,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
@@ -44,7 +44,9 @@ export function LoginForm({ className, ...props }) {
         return;
       }
 
-      router.push("/planner");
+      startTransition(() => {
+        router.push("/planner");
+      });
     } catch (err) {
       setError(err?.message || "An unexpected error occurred");
       setIsLoading(false);
@@ -104,6 +106,7 @@ export function LoginForm({ className, ...props }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => router?.prefetch?.("/planner")}
               required
               disabled={isLoading}
               className="w-full bg-zinc-900/50 border-zinc-800 text-zinc-100 focus-visible:ring-zinc-700 h-11"
@@ -115,6 +118,7 @@ export function LoginForm({ className, ...props }) {
             <Button
               type="submit"
               disabled={isLoading}
+              onMouseEnter={() => router?.prefetch?.("/planner")}
               className="w-full h-11 bg-zinc-100 text-zinc-950 hover:bg-zinc-200 font-medium transition-colors rounded-lg shadow-sm flex items-center justify-center gap-2"
             >
               {isLoading ? (
