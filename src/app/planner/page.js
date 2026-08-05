@@ -36,7 +36,7 @@ export default async function PlannerPage() {
             </div>
           )}
         </header>
-        <PlannerWorkspace mods={mods}>
+        <PlannerWorkspace mods={mods} initialSession={session}>
           <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold mb-4">Degree Presets</h2>
             <DegreePresetPicker />

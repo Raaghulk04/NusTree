@@ -10,25 +10,27 @@ import NusmodsImport from "@/components/nusmods-import";
 const CARD_CLASS =
   "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm";
 
-export default function PlannerWorkspace({ mods, children }) {
+export default function PlannerWorkspace({ mods, initialSession, children }) {
   const [plannedModules, setPlannedModules] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const [removingModuleId, setRemovingModuleId] = useState(null);
 
   const { data, isPending } = authClient.useSession();
+  const session = data || initialSession;
+  const userId = session?.user?.id;
 
   const refreshPlannedModules = useCallback(() => {
     setRefresh((currentRefresh) => currentRefresh + 1);
   }, []);
 
   useEffect(() => {
-    if (!data?.user?.id) return;
+    if (!userId) return;
     fetch("/api/planner-modules")
       .then((res) => res.json())
       .then((d) => {
         if (Array.isArray(d)) setPlannedModules(d);
       });
-  }, [data?.user?.id, refresh]);
+  }, [userId, refresh]);
 
   const handleAddModule = useCallback(
     (moduleId, year, sem) => {
@@ -36,7 +38,7 @@ export default function PlannerWorkspace({ mods, children }) {
         setPlannedModules((prev) => [
           ...prev.filter((m) => m.moduleId !== moduleId),
           {
-            userId: data?.user?.id,
+            userId,
             moduleId,
             planYear: Number(year),
             planSemester: Number(sem),
@@ -46,7 +48,7 @@ export default function PlannerWorkspace({ mods, children }) {
       }
       refreshPlannedModules();
     },
-    [data?.user?.id, refreshPlannedModules],
+    [userId, refreshPlannedModules],
   );
 
   const handleRemoveModule = async (moduleId) => {
@@ -66,8 +68,8 @@ export default function PlannerWorkspace({ mods, children }) {
     }
   };
 
-  if (isPending) return <p>loading...</p>;
-  if (!data) return <p>not logged in</p>;
+  if (isPending && !initialSession) return <p>loading...</p>;
+  if (!session) return <p>not logged in</p>;
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
