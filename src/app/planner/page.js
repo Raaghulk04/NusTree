@@ -4,14 +4,20 @@ import getAllMods from "../getAllMods";
 import { Navbar } from "@/components/navbar";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getUserPlannedModules } from "@/server/planner.service";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlannerPage() {
-  const [mods, session] = await Promise.all([
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  const [mods, initialPlannedModules] = await Promise.all([
     getAllMods(),
-    auth.api.getSession({ headers: await headers() }),
+    session?.user?.id
+      ? getUserPlannedModules(session.user.id).catch(() => [])
+      : Promise.resolve([]),
   ]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -36,7 +42,11 @@ export default async function PlannerPage() {
             </div>
           )}
         </header>
-        <PlannerWorkspace mods={mods}>
+        <PlannerWorkspace
+          mods={mods}
+          initialSession={session}
+          initialPlannedModules={initialPlannedModules}
+        >
           <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold mb-4">Degree Presets</h2>
             <DegreePresetPicker />
