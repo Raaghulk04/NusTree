@@ -1,18 +1,21 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "NusTree",
-  description: "Academic pathway planner for NUS students.",
+  title: "NusTree | NUS Academic Pathway Planner",
+  description:
+    "Curriculum pathway planner, prerequisite visualizer, and degree progress tracker for NUS students.",
+  icons: {
+    icon: "/images/NusTree_logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
-      <body className="relative min-h-screen m-0 antialiased bg-zinc-50 dark:bg-zinc-950">
-        {/* Global Background Elements */}
+      <body className="relative min-h-screen m-0 antialiased bg-[#161822] text-zinc-100 selection:bg-zinc-700 selection:text-white">
+        {/* Subtle Backdrop Pattern */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          {/* Grid Pattern */}
-          <div className="absolute inset-0 bg-grid-pattern bg-mask-radial opacity-50" />
+          <div className="absolute inset-0 bg-subtle-grid bg-mask-subtle opacity-70" />
         </div>
 
         {/* Page Content */}

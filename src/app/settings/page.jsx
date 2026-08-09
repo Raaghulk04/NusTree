@@ -2,18 +2,15 @@
 import { Navbar } from "@/components/navbar";
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { revokeOtherSessions } from "better-auth/api";
-import { LucideTruckElectric } from "lucide-react";
+import { PageLoader } from "@/components/page-loader";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function Settings() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -22,169 +19,229 @@ export default function Settings() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { data: session, isPending, error1, refetch } = authClient.useSession();
+  const { data: session, isPending, error1 } = authClient.useSession();
 
-  if (isPending) return <p>Loading session...</p>;
-  if (error1) return <p>Error loading session: {error1.message}</p>;
-  if (!session) return <p>Not logged in</p>;
+  if (isPending) {
+    return <PageLoader message="Loading settings..." subtext="Retrieving profile preferences..." />;
+  }
 
-  console.log(session);
+  if (error1) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#161822] text-zinc-100">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 text-red-400 text-center max-w-sm">
+            <p className="font-semibold text-sm">Error loading session</p>
+            <p className="text-xs mt-1">{error1.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#161822] text-zinc-100">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="p-6 rounded-xl bg-[#1c202e]/60 backdrop-blur-md border border-white/[0.08] text-center max-w-sm">
+            <p className="font-semibold text-sm text-zinc-200">Not logged in</p>
+            <p className="text-xs text-zinc-400 mt-1">Please sign in to view settings.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleNewName = async (Name) => {
-    const result = await authClient.updateUser({
+    return await authClient.updateUser({
       name: Name,
     });
-
-    if (result.error) {
-      console.log(result.error);
-    } else {
-      console.log(result.data);
-    }
   };
 
   const handleNewEmail = async (newemail) => {
-    const result = await authClient.changeEmail({
+    return await authClient.changeEmail({
       newEmail: newemail,
-      callbackURL: "/settings", // to redirect after this process
+      callbackURL: "/settings",
     });
   };
 
   const handleNewPassword = async (newpassword, oldpassword) => {
-    await authClient.changePassword({
+    return await authClient.changePassword({
       newPassword: newpassword,
       currentPassword: oldpassword,
       revokeOtherSessions: true,
     });
   };
 
-  const handleSave = () => {
-    handleNewName(name);
-    handleNewEmail(email);
-    handleNewPassword(password, currentPassword);
+  const handleSave = async () => {
+    setError("");
+    setSuccessMsg("");
+    setIsSaving(true);
+
+    try {
+      if (name && name !== session.user.name) {
+        const res = await handleNewName(name);
+        if (res?.error) throw new Error(res.error.message);
+      }
+
+      if (email && email !== session.user.email) {
+        const res = await handleNewEmail(email);
+        if (res?.error) throw new Error(res.error.message);
+      }
+
+      if (password) {
+        if (password.length < 8) {
+          throw new Error("New password must be at least 8 characters long");
+        }
+        if (password !== confirmPassword) {
+          throw new Error("New passwords do not match");
+        }
+        if (!currentPassword) {
+          throw new Error("Please enter your current password to confirm changes");
+        }
+        const res = await handleNewPassword(password, currentPassword);
+        if (res?.error) throw new Error(res.error.message);
+      }
+
+      setSuccessMsg("Settings updated successfully!");
+    } catch (err) {
+      setError(err?.message || "Failed to update settings");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-[#161822] text-zinc-100">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-4 md:px-10 overflow-hidden flex flex-col items-center justify-center space-y-6">
-        <header className="space-y-2 text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Settings
+      <main className="flex-1 container mx-auto px-4 py-8 md:px-8 max-w-lg space-y-6">
+        <header className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Account Settings
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-lg">
-            Manage your account details and security preferences.
+          <p className="text-xs text-zinc-400">
+            Manage your account credentials and security preferences.
           </p>
         </header>
 
-        <div className="w-full max-w-lg">
-          <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 md:p-6 shadow-sm">
-            <h2 className="text-base font-bold mb-4">Profile Information</h2>
-            <form className="space-y-4">
-              <FieldGroup className="space-y-4">
-                {error && (
-                  <p className="text-red-500 text-xs font-medium">{error}</p>
-                )}
+        <section className="bg-[#1c202e]/65 backdrop-blur-md border border-white/[0.08] rounded-xl p-5 md:p-6 shadow-sm">
+          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <FieldGroup className="space-y-4">
+              {/* Feedback Alerts */}
+              {error && (
+                <div className="flex items-center gap-2 p-3 text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded-lg">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+              {successMsg && (
+                <div className="flex items-center gap-2 p-3 text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-900/50 rounded-lg">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{successMsg}</span>
+                </div>
+              )}
 
-                <Field className="space-y-1">
-                  <FieldLabel htmlFor="name" className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Full Name
+              <Field className="space-y-1.5">
+                <FieldLabel htmlFor="name" className="text-xs font-medium text-zinc-300">
+                  Full Name
+                </FieldLabel>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                  onChange={(e) => setName(e.target.value)}
+                  defaultValue={session.user.name}
+                  className="bg-[#131520] border-zinc-700/60 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400 h-10 rounded-md"
+                />
+              </Field>
+
+              <Field className="space-y-1.5">
+                <FieldLabel htmlFor="email" className="text-xs font-medium text-zinc-300">
+                  Email Address
+                </FieldLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  defaultValue={session.user.email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-[#131520] border-zinc-700/60 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400 h-10 rounded-md"
+                />
+              </Field>
+
+              <div className="pt-3 border-t border-white/[0.08] space-y-3">
+                <p className="text-xs font-semibold text-zinc-300">Security</p>
+
+                <Field className="space-y-1.5">
+                  <FieldLabel
+                    htmlFor="currentPassword"
+                    className="text-xs font-medium text-zinc-400"
+                  >
+                    Current Password
                   </FieldLabel>
                   <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    required
-                    onChange={(e) => setName(e.target.value)}
-                    defaultValue={session.user.name}
-                    className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-9 text-sm"
+                    id="currentPassword"
+                    type="password"
+                    placeholder="Enter current password"
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="bg-[#131520] border-zinc-700/60 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400 h-10 rounded-md"
                   />
                 </Field>
 
-                <Field className="space-y-1">
-                  <FieldLabel htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Email Address
-                  </FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                    defaultValue={session.user.email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-9 text-sm"
-                  />
-                </Field>
-
-                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Security</h3>
-
-                  <Field className="space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Field className="space-y-1.5">
                     <FieldLabel
-                      htmlFor="currentPassword"
-                      className="text-[10px] font-bold uppercase tracking-wider text-zinc-500"
+                      htmlFor="password"
+                      className="text-xs font-medium text-zinc-400"
                     >
-                      Current Password
+                      New Password
                     </FieldLabel>
                     <Input
-                      id="currentPassword"
+                      id="password"
                       type="password"
-                      placeholder="Enter current password"
-                      required
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-9 text-sm"
+                      placeholder="8+ characters"
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="bg-[#131520] border-zinc-700/60 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400 h-10 rounded-md"
                     />
                   </Field>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Field className="space-y-1">
-                      <FieldLabel
-                        htmlFor="password"
-                        className="text-[10px] font-bold uppercase tracking-wider text-zinc-500"
-                      >
-                        New Password
-                      </FieldLabel>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="8+ characters"
-                        required
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-9 text-sm"
-                      />
-                    </Field>
-
-                    <Field className="space-y-1">
-                      <FieldLabel
-                        htmlFor="confirmPassword"
-                        className="text-[10px] font-bold uppercase tracking-wider text-zinc-500"
-                      >
-                        Confirm
-                      </FieldLabel>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="Re-type password"
-                        required
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 h-9 text-sm"
-                      />
-                    </Field>
-                  </div>
+                  <Field className="space-y-1.5">
+                    <FieldLabel
+                      htmlFor="confirmPassword"
+                      className="text-xs font-medium text-zinc-400"
+                    >
+                      Confirm
+                    </FieldLabel>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Re-type password"
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="bg-[#131520] border-zinc-700/60 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400 h-10 rounded-md"
+                    />
+                  </Field>
                 </div>
+              </div>
 
-                <Field className="pt-1">
-                  <Button
-                    type="button"
-                    onClick={handleSave}
-                    className="w-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 hover:opacity-90 transition-opacity h-10 font-bold text-sm"
-                  >
-                    Save Changes
-                  </Button>
-                </Field>
-              </FieldGroup>
-            </form>
-          </section>
-        </div>
+              <Field className="pt-2">
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="w-full h-10 bg-zinc-100 text-zinc-950 hover:bg-white font-medium text-sm transition-colors rounded-md shadow-sm cursor-pointer disabled:opacity-60"
+                >
+                  {isSaving ? "Saving changes..." : "Save Changes"}
+                </Button>
+              </Field>
+            </FieldGroup>
+          </form>
+        </section>
       </main>
     </div>
   );

@@ -101,8 +101,7 @@ describe("PlannerWorkspace Integration Tests", () => {
     });
   }
 
-  it("creates a planned module by refreshing shared planner data after add", async
-  () => {
+  it("creates a planned module by refreshing shared planner data after add", async () => {
         stubPlannerModuleFetch(
           [],
           [{ id: "planned-1", moduleId: "CS1101S", planYear: 1, planSemester: 1 }],

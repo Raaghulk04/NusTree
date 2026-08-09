@@ -1,13 +1,5 @@
-'use client'
-import { useState } from 'react'
-import { authClient } from '@/lib/auth-client'
-import { useRouter } from 'next/navigation'
-import { LoginForm } from '@/components/login-form'
+import HomePage from "@/app/page";
 
-export default function SignIn() {
-    return (
-        <div>
-            <LoginForm />
-        </div>
-    )
+export default function SignInPage() {
+  return <HomePage />;
 }
