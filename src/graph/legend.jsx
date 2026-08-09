@@ -2,28 +2,26 @@ export default function Legend() {
   const items = [
     { label: "Completed", color: "bg-emerald-400" },
     { label: "Eligible", color: "bg-blue-400" },
-    { label: "Invalid", color: "bg-amber-200 ring-1 ring-amber-600" },
-    { label: "Locked", color: "bg-zinc-200 dark:bg-zinc-700" },
+    { label: "Invalid", color: "bg-amber-300 ring-1 ring-amber-500" },
+    { label: "Locked", color: "bg-zinc-600" },
   ];
 
   return (
-    <div className="flex items-center gap-6 text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center gap-5 text-xs font-medium text-zinc-300 bg-[#1c202e]/80 backdrop-blur-md border border-white/[0.08] px-3.5 py-1.5 rounded-lg shadow-sm">
+      <div className="flex items-center gap-3.5">
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-1.5">
-            <div className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
-            <span>{item.label}</span>
+            <div className={`w-2 h-2 rounded-full ${item.color}`} />
+            <span className="text-zinc-200">{item.label}</span>
           </div>
         ))}
-        <div className="flex items-center gap-1.5">
-          <div className="flex h-3.5 w-3.5 items-center justify-center text-2xl leading-none font-bold text-violet-400 translate-y-0.75">
-            *
-          </div>
-          <span>Compulsory</span>
+        <div className="flex items-center gap-1">
+          <span className="text-sm font-bold text-purple-400 leading-none">*</span>
+          <span className="text-zinc-200">Compulsory</span>
         </div>
       </div>
-      <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
-      <span className="italic">Click a module to see prerequisites</span>
+      <div className="h-3.5 w-px bg-white/[0.08]" />
+      <span className="text-[11px] text-zinc-400 italic">Click module to highlight prerequisites</span>
     </div>
   );
 }

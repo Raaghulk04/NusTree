@@ -1,71 +1,113 @@
 @import "tailwindcss";
 
 @theme {
-  --color-zinc-950: #09090b;
-  --color-zinc-900: #18181b;
-  --color-zinc-800: #27272a;
-  --color-zinc-700: #3f3f46;
-  --color-zinc-600: #52525b;
-  --color-zinc-500: #71717a;
-  --color-zinc-400: #a1a1aa;
-  --color-zinc-300: #d4d4d8;
-  --color-zinc-200: #e4e4e7;
-  --color-zinc-100: #f4f4f5;
-  --color-zinc-50: #fafafa;
+  --color-zinc-950: #10121a;
+  --color-zinc-900: #161822;
+  --color-zinc-800: #232738;
+  --color-zinc-700: #353b52;
+  --color-zinc-600: #525a7a;
+  --color-zinc-500: #7680a2;
+  --color-zinc-400: #9da7c6;
+  --color-zinc-300: #c5cde3;
+  --color-zinc-200: #e2e6f3;
+  --color-zinc-100: #f1f3fa;
+  --color-zinc-50: #f8f9fc;
+
+  --color-brand: #ea580c;
+  --color-brand-hover: #f97316;
 }
 
 @layer base {
   :root {
-    --background: white;
-    --foreground: #09090b;
+    --background: #f8f9fc;
+    --foreground: #10121a;
   }
 
   .dark {
-    --background: #09090b;
-    --foreground: #fafafa;
+    --background: #161822;
+    --foreground: #f8f9fc;
   }
 
   html,
   body {
     margin: 0;
     padding: 0;
-    @apply bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 antialiased;
+    @apply bg-[#161822] text-zinc-100 antialiased selection:bg-zinc-700 selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   * {
-    @apply border-zinc-200 dark:border-zinc-800;
+    @apply border-zinc-800/70;
   }
 }
 
 @layer utilities {
-  .bg-grid-pattern {
+  .bg-subtle-grid {
     background-image:
-      linear-gradient(to right, #80808012 1px, transparent 1px),
-      linear-gradient(to bottom, #80808012 1px, transparent 1px);
-    background-size: 24px 24px;
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
   }
 
-  .bg-mask-radial {
+  .bg-mask-subtle {
     mask-image: radial-gradient(
-      ellipse 60% 50% at 50% 0%,
-      #000 70%,
+      ellipse 85% 65% at 50% 0%,
+      #000 75%,
       transparent 100%
     );
+  }
+
+  .translucent-card {
+    background: rgba(28, 32, 46, 0.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+  }
+
+  .translucent-card-hover {
+    transition: all 0.2s ease;
+  }
+  .translucent-card-hover:hover {
+    background: rgba(28, 32, 46, 0.8);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
 @keyframes flash {
   0%,
   100% {
-    border-color: #4ade80;
-    box-shadow: 0 0 0px rgba(74, 222, 128, 0);
+    border-color: #52525b;
+    box-shadow: none;
   }
   50% {
-    border-color: #f59e0b;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
-  } /* Turns orange/gold temporarily */
+    border-color: #ea580c;
+    box-shadow: 0 0 10px rgba(234, 88, 12, 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 .node-flash-highlight {
-  animation: flash 1s ease-in-out 2; /* Flashes twice over 2 seconds */
+  animation: flash 1s ease-in-out 2;
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 3s ease-in-out infinite;
 }

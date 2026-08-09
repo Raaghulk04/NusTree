@@ -1,68 +1,90 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/login-form";
 import Image from "next/image";
+import { GitBranch, Compass, CheckCircle2 } from "lucide-react";
 
-export default function homePage() {
+export default function HomePage() {
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-12 bg-zinc-50 dark:bg-zinc-950">
-      {/* Left Column: Focused Login Form Area */}
-      <div className="flex flex-col justify-between p-6 md:p-10 lg:col-span-5 xl:col-span-4 bg-white dark:bg-black/70 dark:backdrop-blur-md border-t border-transparent dark:border-white/10 shadow-xl lg:shadow-none z-10">
-        {/* Top Header: Logo + Brand Name */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100 p-1">
-            <Image
-              src="/images/NusTree_logo.png"
-              alt="NusTree logo"
-              width={32}
-              height={32}
-              priority
-              className="object-contain"
-            />
-          </div>
-          <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-12 bg-[#161822]">
+      {/* Left Column: Translucent Auth Area */}
+      <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-12 lg:col-span-5 xl:col-span-4 bg-[#1c202e]/75 backdrop-blur-xl border-r border-white/[0.08] shadow-2xl z-10">
+        {/* Top Header: Direct Large Minimal Logo */}
+        <div className="flex items-center gap-3">
+          <Image
+            src="/images/NusTree_logo.png"
+            alt="NusTree logo"
+            width={38}
+            height={38}
+            priority
+            className="object-contain"
+          />
+          <span className="font-bold text-2xl tracking-tight text-zinc-100">
             NusTree
           </span>
         </div>
 
         {/* Center: Auth Form Container */}
-        <div className="flex flex-1 items-center justify-center py-12">
+        <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-sm space-y-6">
-            <div className="space-y-2 text-center lg:text-left">
-              <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <div className="space-y-1.5">
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
                 Welcome back
               </h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Log in to map out your academic tracking tree.
+              <p className="text-xs text-zinc-400">
+                Sign in to manage your module plan and track prerequisites.
               </p>
             </div>
 
-            {/* Your modular login component form */}
             <LoginForm />
           </div>
         </div>
 
-        {/* Bottom Footer Credits */}
-        <div className="text-center lg:text-left">
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            &copy; {new Date().getFullYear()} NusTree. Built for NUS Students.
+        {/* Bottom Footer */}
+        <div className="pt-4 border-t border-white/[0.06]">
+          <p className="text-xs text-zinc-500">
+            &copy; {new Date().getFullYear()} NusTree. Built for NUS students.
           </p>
         </div>
       </div>
 
-      {/* Right Column: Immersive Brand Canvas (Hidden on Mobile/Tablets) */}
-      <div className="hidden lg:flex lg:col-span-7 xl:col-span-8 relative bg-zinc-900 items-center justify-center overflow-hidden border-l border-zinc-200 dark:border-zinc-800">
-        {/* Decorative Grid Patterns overlaying background */}
-        <div className="absolute inset-0 bg-grid-pattern bg-mask-radial opacity-50" />
+      {/* Right Column: Refined Minimal Brand Showcase */}
+      <div className="hidden lg:flex lg:col-span-7 xl:col-span-8 relative bg-[#161822] items-center justify-center p-12 overflow-hidden">
+        <div className="absolute inset-0 bg-subtle-grid opacity-60" />
 
-        {/* Hero Copy Presentation Text */}
-        <div className="relative max-w-xl text-center px-8 space-y-4">
-          <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl bg-gradient-to-r from-zinc-100 via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-            Visualize your graduation prerequisites instantly.
-          </h2>
-          <p className="text-lg text-zinc-400 leading-relaxed max-w-md mx-auto">
-            Interactive module trees, eligibility tracking filters, and seamless
-            curriculum planning structures combined into one environment.
-          </p>
+        <div className="relative max-w-xl space-y-10 z-10">
+          {/* Main Copy */}
+          <div className="space-y-3">
+            <p className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+              Curriculum Pathway Planner
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 leading-tight">
+              Map out your graduation prerequisites with clarity.
+            </h2>
+            <p className="text-sm text-zinc-400 leading-relaxed max-w-md">
+              A structured visual environment to explore prerequisite chains, check semester eligibility, and organize degree milestones.
+            </p>
+          </div>
+
+          {/* Translucent Feature Cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="p-4 rounded-xl bg-[#1c202e]/60 backdrop-blur-md border border-white/[0.08] text-left transition-all hover:bg-[#1c202e]/80 hover:border-white/15">
+              <GitBranch className="w-4 h-4 text-zinc-300 mb-2.5" />
+              <p className="font-semibold text-xs text-zinc-200">Prerequisite Trees</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Multi-tier dependency resolution</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#1c202e]/60 backdrop-blur-md border border-white/[0.08] text-left transition-all hover:bg-[#1c202e]/80 hover:border-white/15">
+              <CheckCircle2 className="w-4 h-4 text-zinc-300 mb-2.5" />
+              <p className="font-semibold text-xs text-zinc-200">Eligibility Filters</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Real-time unlocked course status</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#1c202e]/60 backdrop-blur-md border border-white/[0.08] text-left transition-all hover:bg-[#1c202e]/80 hover:border-white/15">
+              <Compass className="w-4 h-4 text-zinc-300 mb-2.5" />
+              <p className="font-semibold text-xs text-zinc-200">Timeline Planner</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Semester roadmaps & presets</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import {
   ReactFlow,
-  Background,
   Controls,
   applyNodeChanges,
   useReactFlow,
@@ -922,7 +921,6 @@ export default function Simple({
           onDrop={onDrop}
           onDragOver={onDragOver}
         >
-          <Background />
           <Controls />
         </ReactFlow>
         <div className="absolute bottom-6 right-6 z-50">

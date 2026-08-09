@@ -19,36 +19,33 @@ export default async function PlannerPage() {
   ]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#161822] text-zinc-100">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8 md:px-6 md:py-12 space-y-12">
-        <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Planner
+      <main className="flex-1 container mx-auto px-4 py-6 md:px-8 md:py-8 space-y-6">
+        <header className="flex flex-col gap-3 md:flex-row md:items-baseline md:justify-between border-b border-white/[0.08] pb-5">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+              Academic Planner
             </h1>
-            <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-2xl">
-              Map out your academic journey and track your module requirements.
+            <p className="text-xs text-zinc-400">
+              Plan your 4-year semester timeline and test degree prerequisites.
             </p>
           </div>
+
           {session?.user?.name && (
-            <div className="rounded-xl bg-white/80 px-5 py-3 shadow-sm dark:bg-zinc-900/80 md:mt-1 md:text-right">
-              <p className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-                Welcome back, {session.user.name}!
-              </p>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Ready to plan your semester?
-              </p>
+            <div className="text-xs text-zinc-400">
+              Signed in as <span className="font-semibold text-zinc-200">{session.user.name}</span>
             </div>
           )}
         </header>
+
         <PlannerWorkspace
           mods={mods}
           initialSession={session}
           initialPlannedModules={initialPlannedModules}
         >
-          <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">Degree Presets</h2>
+          <section className="bg-[#1c202e]/65 backdrop-blur-md border border-white/[0.08] rounded-xl p-5 shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 mb-3">Degree Presets</h2>
             <DegreePresetPicker />
           </section>
         </PlannerWorkspace>

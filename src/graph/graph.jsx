@@ -1,4 +1,4 @@
-import { ReactFlow, Background, Controls, useReactFlow } from "@xyflow/react";
+import { ReactFlow, Controls, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import ModeToggle from "./modeToggle";
@@ -323,7 +323,6 @@ export default function Graph({
               selectionOnDrag={true}
               panOnDrag={false}
             >
-              <Background />
               <Controls />
             </ReactFlow>
           </div>

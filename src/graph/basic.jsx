@@ -1,4 +1,4 @@
-import { ReactFlow, Background, Controls } from "@xyflow/react";
+import { ReactFlow, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMemo, useEffect, useState } from "react";
 import isPrecluded from "@/graph/isPreclusion";
@@ -194,7 +194,6 @@ export default function Basic({
           elementsSelectable={true}
           fitView
         >
-          <Background />
           <Controls />
         </ReactFlow>
       </div>
