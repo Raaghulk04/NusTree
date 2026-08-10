@@ -28,8 +28,6 @@ export default function buildTree(
   nodesResult, // any[]
   nodePositions, // position map
 ) {
-  console.log("allModsIds", allModIds);
-
   if (!tree) return;
 
   // BASE CASE: It's a string module name (e.g., "CS1010S")
@@ -73,7 +71,7 @@ export default function buildTree(
         edgeIds,
         "and",
         nodesResult,
-        nodePositions, // <-- Pass it down
+        nodePositions,
       ),
     );
   }
@@ -100,7 +98,6 @@ export default function buildTree(
       );
       return;
     }
-    // Generate a STABLE ID based on children to prevent infinite re-renders
     const childIds = tree.or
       .map((c) =>
         typeof c === "string" ? c.split(":")[0].replace("%", "") : "nested",
@@ -109,7 +106,6 @@ export default function buildTree(
       .join("-");
     const junctionId = `junction-or-${targetId}-${childIds}`;
 
-    // --- NEW: DYNAMIC POSITIONING LOGIC ---
     let junctionPosition = { x: 0, y: 0 };
 
     if (nodePositions && nodePositions[targetId]) {
@@ -123,7 +119,6 @@ export default function buildTree(
         .filter((id) => id && nodePositions[id]);
 
       if (childModuleIds.length > 0) {
-        // Calculate average positions of the prerequisites
         const avgX =
           childModuleIds.reduce((sum, id) => sum + nodePositions[id].x, 0) /
           childModuleIds.length;
@@ -131,24 +126,20 @@ export default function buildTree(
           childModuleIds.reduce((sum, id) => sum + nodePositions[id].y, 0) /
           childModuleIds.length;
 
-        // Place junction exactly halfway between prerequisites and target
         junctionPosition = {
           x: (avgX + targetPos.x) / 2,
-          y: avgY, // Keeps it vertically aligned with its branch track
+          y: avgY,
         };
       } else {
-        // Fallback: Offset slightly to the left of the target node
         junctionPosition = { x: targetPos.x - 100, y: targetPos.y };
       }
     }
-    // --------------------------------------
 
-    // Create the virtual node object for ReactFlow
-    if (nodesResult) {
+    if (nodesResult && !nodesResult.some((node) => node.id === junctionId)) {
       nodesResult.push({
         id: junctionId,
         type: "default",
-        position: junctionPosition, // <-- Applied calculated position
+        position: junctionPosition,
         data: { label: "OR" },
         style: {
           width: 35,
@@ -177,7 +168,6 @@ export default function buildTree(
       });
     }
 
-    // Redirect children to plug into our new junction node
     tree.or.forEach((child) =>
       buildTree(
         child,
@@ -187,7 +177,7 @@ export default function buildTree(
         edgeIds,
         "or",
         nodesResult,
-        nodePositions, // <-- Pass it down
+        nodePositions,
       ),
     );
   }

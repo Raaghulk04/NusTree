@@ -9,7 +9,6 @@ import {
 } from "@xyflow/react";
 
 export default function ModuleNode({ id, data }) {
-  console.log("data", data);
   const [menuPos, setMenuPos] = useState(null);
   const nodeRef = useRef(null);
   const { setNodes } = useReactFlow();

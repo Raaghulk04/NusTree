@@ -193,6 +193,5 @@ export const getModuleNeighborhood = (selectedId, mods, extraIds = []) => {
   getPrerequisiteClosure(selectedId, modMap).forEach((id) => ids.add(id));
   getDirectDependents(selectedId, mods).forEach((id) => ids.add(id));
 
-  console.log("ids", ids);
   return ids;
 };

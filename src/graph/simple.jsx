@@ -144,35 +144,19 @@ export default function Simple({
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
+      try {
+        const data = JSON.parse(
+          event.dataTransfer.getData("application/reactflow"),
+        );
 
-      const data = JSON.parse(
-        event.dataTransfer.getData("application/reactflow"),
-      );
-
-      // check if the dropped element is valid
-      if (!data.id) {
-        return;
+        if (data?.id) {
+          void handleNewAddModule(data.id);
+        }
+      } catch {
+        // Ignore malformed data from external drag sources.
       }
-
-      const mod = modMap.get(data.id);
-      console.log("mod", mod);
-      //setPlannerMods((nds) => nds.concat(mod));
-      void handleNewAddModule(data.id);
-      // details: https://reactflow.dev/whats-new/2023-11-10
-      // const position = {
-      //   x: 0,
-      //   y: 0,
-      // };
-      // const newNode = {
-      //   id: data.id,
-      //   type: "moduleNodeType",
-      //   position,
-      //   data: { label: data.id },
-      // };
-
-      // setBaseNodes((nds) => nds.concat(newNode));
     },
-    [modMap, handleNewAddModule],
+    [handleNewAddModule],
   );
 
   const highlightNode = useCallback((nodeId) => {
@@ -418,6 +402,7 @@ export default function Simple({
         code: 0,
         id: m,
       }));
+      const compulsoryIdSet = new Set(compulsoryMods || []);
       const takenIds = (takenMods || []).map((m) => ({ code: 1, id: m.id }));
       const takenIdSet = new Set(takenIds.map((m) => m.id));
       const plannerTakenIds = [...plannerStatus.takenIds].map((id) => ({
@@ -447,8 +432,6 @@ export default function Simple({
       }
       const finalNodes = [...uniques.values()];
 
-      const compulsoryIdSet = new Set(compulsoryMods || []);
-
       const availableNodes = showEligible
         ? finalNodes
         : finalNodes.filter(
@@ -471,10 +454,8 @@ export default function Simple({
       setCustomPositions({});
 
       const flowNodes = availableNodes.map((mod) => {
-        const modObj = modMap.get(mod.id); // O(1) instead of filter()
-        const isCompulsory = compulsoryIds
-          .map((obj) => obj.id)
-          .includes(mod.id);
+        const modObj = modMap.get(mod.id);
+        const isCompulsory = compulsoryIdSet.has(mod.id);
 
         return {
           id: mod.id,
@@ -488,7 +469,7 @@ export default function Simple({
             title: modObj?.title,
             description: modObj?.description,
             onCompleted: (moduleId) => handleModuleCompleted(moduleId),
-            code: mod.code, // store code so useMemo can use it for styling
+            code: mod.code,
             showAsterisk: isCompulsory,
             state: mod.code,
             term: selectedTerm,
@@ -510,6 +491,7 @@ export default function Simple({
     handleModuleCompleted,
     plannerMods,
     setCustomPositions,
+    selectedTerm,
   ]);
 
   const inGraph = useMemo(
@@ -517,7 +499,6 @@ export default function Simple({
     [baseNodes],
   );
 
-  console.log("inGraph", inGraph);
   // Selection styling is pure derivation — no async, no rebuild
   const { nodes, edges } = useMemo(() => {
     // Determine if we are in focus mode

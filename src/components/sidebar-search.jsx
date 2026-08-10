@@ -3,6 +3,18 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+const matchesSearch = (option, search) => {
+  if (!option) return false;
+
+  const normalizedSearch = search.toLowerCase();
+  return [option.id, option.title].some((value) =>
+    String(value ?? "").toLowerCase().includes(normalizedSearch),
+  );
+};
+
+const filterOptions = (options, search) =>
+  options.filter((option) => matchesSearch(option, search)).slice(0, 5);
+
 export function SidebarSearch({
   dataOptions = [],
   inGraph,
@@ -11,55 +23,14 @@ export function SidebarSearch({
 }) {
   const [search, setSearch] = React.useState("");
   const [open, setOpen] = React.useState(false);
-  console.log("inGraph", inGraph);
-  let safeOptions = Array.isArray(dataOptions) ? dataOptions : [];
-  const safeInGraph = safeOptions.filter((opt) => inGraph.has(opt.id));
-  safeOptions = safeOptions.filter((opt) => !inGraph.has(opt.id));
-
-  //safeOptions = safeOptions.map((mod) => mod.id);
-  const filteredOptions = safeOptions
-    .filter((opt) => {
-      if (!opt) return false;
-
-      const normalizedSearch = search.toLowerCase();
-
-      const optId =
-        opt.id !== undefined && opt.id !== null
-          ? String(opt.id).toLowerCase()
-          : "";
-      const optTitle =
-        opt.title !== undefined && opt.title !== null
-          ? String(opt.title).toLowerCase()
-          : "";
-
-      return (
-        optId.includes(normalizedSearch) || optTitle.includes(normalizedSearch)
-      );
-    })
-    .slice(0, 5);
-
-  console.log("safeInGraph", safeInGraph);
-  const filteredGraph = safeInGraph
-    .filter((opt) => {
-      if (!opt) return false;
-
-      const normalizedSearch = search.toLowerCase();
-
-      const optId =
-        opt.id !== undefined && opt.id !== null
-          ? String(opt.id).toLowerCase()
-          : "";
-
-      const optTitle =
-        opt.title !== undefined && opt.title !== null
-          ? String(opt.title).toLowerCase()
-          : "";
-
-      return (
-        optId.includes(normalizedSearch) || optTitle.includes(normalizedSearch)
-      );
-    })
-    .slice(0, 5);
+  const options = Array.isArray(dataOptions) ? dataOptions : [];
+  const graphModuleIds = inGraph instanceof Set ? inGraph : new Set();
+  const graphOptions = options.filter((option) => graphModuleIds.has(option?.id));
+  const availableOptions = options.filter(
+    (option) => !graphModuleIds.has(option?.id),
+  );
+  const filteredGraph = filterOptions(graphOptions, search);
+  const filteredOptions = filterOptions(availableOptions, search);
 
   return (
     <div className="w-full">

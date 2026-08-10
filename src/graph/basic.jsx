@@ -161,7 +161,6 @@ export default function Basic({
 
     setFinalEntries((prev) => {
       if (prev.find((n) => n.id === mod.id)) {
-        console.log("found");
         return prev;
       }
       return [...prev, newNode];
