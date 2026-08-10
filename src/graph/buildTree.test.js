@@ -172,6 +172,20 @@ describe("buildTree", () => {
     );
   });
 
+  it("does not duplicate a junction node when traversing the same branch twice", () => {
+    const result = [];
+    const edgeIds = new Set();
+    const nodesResult = [];
+    const tree = { or: ["CS2030S:D", "CS2040S:D"] };
+    const visibleIds = new Set(["CS2030S", "CS2040S", "CS2103"]);
+
+    buildTree(tree, "CS2103", visibleIds, result, edgeIds, "and", nodesResult, {});
+    buildTree(tree, "CS2103", visibleIds, result, edgeIds, "and", nodesResult, {});
+
+    expect(nodesResult).toHaveLength(1);
+    expect(result).toHaveLength(3);
+  });
+
   it("collapses an OR branch with one visible child into a direct edge", () => {
     const result = [];
     const edgeIds = new Set();

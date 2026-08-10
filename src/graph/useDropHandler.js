@@ -18,8 +18,8 @@ export default function useDropHandler(handleNewNodeDrop) {
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
 
       handleNewNodeDrop(mod, position);
-    } catch (error) {
-      console.log("Failed parsing node drop", error);
+    } catch {
+      // Ignore malformed data from external drag sources.
     }
   };
 

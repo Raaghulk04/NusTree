@@ -8,7 +8,6 @@ import findEdgeType from "@/graph/findEdgeType";
 import { computeNodePositions, extractMods } from "@/graph/layoutUtils";
 import Sidebar from "@/components/sideBar";
 import ModuleNode from "@/components/ModuleNode";
-import checkPrereqComplexity from "./complexitycheck";
 import { DEFAULT_TERM, getNextPlannerTerm } from "@/graph/termUtils";
 
 const DEFAULT_NODE_POSITION = { x: 0, y: 0 };
@@ -121,8 +120,6 @@ export default function Graph({
     () => allMods.filter((mod) => isUndergradLevelModule(mod.id)),
     [allMods],
   );
-  console.log("mods", mods);
-
   const graphTakenMods = useMemo(
     () => (takenMods || []).filter((mod) => isUndergradLevelModule(mod.id)),
     [takenMods],
@@ -221,8 +218,7 @@ export default function Graph({
         extractMods(module.prereqTree || null).includes(selectedNode),
       );
       const position = nodePositions[module.id] || DEFAULT_NODE_POSITION;
-      const isCompulsory = compulsoryMods.includes(module.id);
-      console.log("compulsory mods", compulsoryMods);
+      const isCompulsory = graphCompulsoryMods.includes(module.id);
       return {
         id: module.id,
         position,
@@ -254,35 +250,17 @@ export default function Graph({
     takenIds,
     nodePositions,
     calculatedJunctionNodes,
-    compulsoryMods,
+    graphCompulsoryMods,
   ]);
 
   const handleNodeClick = (_, node) => {
     setSelectedNode((prev) => (prev === node.id ? null : node.id));
   };
 
-  const inGraph = new Set(
-    allMods.map((mod) => ({
-      id: mod.id,
-      title: mod.title,
-    })),
+  const sideBarInGraph = useMemo(
+    () => new Set(allMods.map((mod) => mod.id)),
+    [allMods],
   );
-
-  const sideBarInGraph = new Set(allMods.map((mod) => mod.id));
-
-  // pre computes the mod to its prereqTree
-  const prereqMap = useMemo(() => {
-    const map = new Map();
-    mods.forEach((mod) => {
-      if (!mod.prereqTree) {
-        map.set(mod.id, new Set());
-        return;
-      }
-      console.log(mod.prereqTree);
-      map.set(mod.id, mod.prereqTree);
-    });
-    return map;
-  }, [mods]);
 
   return (
     <div
