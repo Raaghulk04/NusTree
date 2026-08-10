@@ -8,7 +8,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect, startTransition, useRef } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
@@ -40,16 +40,10 @@ export function LoginForm({ className, ...props }) {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const passwordInputRef = useRef(null);
-
   useEffect(() => {
     // Prefetch planner page assets in advance for instant navigation after login
     router?.prefetch?.("/planner");
-
-    if (email && passwordInputRef.current) {
-      passwordInputRef.current.focus();
-    }
-  }, [router, email]);
+  }, [router]);
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
@@ -159,7 +153,6 @@ export function LoginForm({ className, ...props }) {
             </div>
             <div className="relative">
               <Input
-                ref={passwordInputRef}
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"

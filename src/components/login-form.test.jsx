@@ -59,6 +59,18 @@ describe("LoginForm Component", () => {
     expect(getByRole(container, "button", { name: /login/i })).toBeInTheDocument();
   });
 
+  it("keeps focus in the email field while its value changes", async () => {
+    renderLoginForm();
+
+    const emailInput = getByLabelText(container, /email/i);
+    emailInput.focus();
+    fireEvent.change(emailInput, { target: { value: "r" } });
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(emailInput);
+    });
+  });
+
   it("successfully redirects to /planner on correct credentials", async () => {
     authClient.signIn.email.mockResolvedValue({
       data: { success: true },
