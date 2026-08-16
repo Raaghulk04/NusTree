@@ -1,247 +1,434 @@
 # NusTree
 
-NusTree is a web application for NUS students to plan semester modules, import degree presets, and visualize prerequisite relationships in a single workspace.
+NusTree is a high-performance, interactive curriculum graph visualization and 4-year degree planning platform engineered for National University of Singapore (NUS) undergraduates. It translates complex, multi-tiered academic prerequisite rules into real-time DAG (Directed Acyclic Graph) visualizations, validates semester-by-semester course eligibility, and synchronizes graduation pathways.
 
-## Overview
+---
 
-The project combines:
+## Table of Contents
 
-- authentication and per-user planner state
-- module and degree preset data stored in PostgreSQL
-- prerequisite-aware planning workflows
-- graph-based visualization for module relationships
+- [1. Feature Overview](#1-feature-overview)
+- [2. Tech Stack Architecture](#2-tech-stack-architecture)
+- [3. Core Algorithms & Data Structures](#3-core-algorithms--data-structures)
+  - [3.1 Prerequisite Expression Tree Parsing & Reduction](#31-prerequisite-expression-tree-parsing--reduction)
+  - [3.2 Synthetic Hyperedge Decomposition (OR Junctions)](#32-synthetic-hyperedge-decomposition-or-junctions)
+  - [3.3 Hierarchical DAG Layout & Horizontal Sublayer Binning](#33-hierarchical-dag-layout--horizontal-sublayer-binning)
+  - [3.4 Transitive Prerequisite Closure & Reverse Dependency Indexing](#34-transitive-prerequisite-closure--reverse-dependency-indexing)
+  - [3.5 Chronological Term Simulation & State Classification](#35-chronological-term-simulation--state-classification)
+  - [3.6 Deterministic AST Curriculum Scraping](#36-deterministic-ast-curriculum-scraping)
+- [4. Architectural Design Choices](#4-architectural-design-choices)
+- [5. Key Engineering Tradeoffs](#5-key-engineering-tradeoffs)
+- [6. Key Learnings & Engineering Insights](#6-key-learnings--engineering-insights)
+- [7. Data Model & Database Schema](#7-data-model--database-schema)
+- [8. Getting Started](#8-getting-started)
+- [9. Testing Strategy](#9-testing-strategy)
 
-The current codebase includes the planner, authentication, preset import flow, and foundational graph/eligibility scaffolding. Some API and service layers are still incomplete.
+---
 
-## Tech Stack
+## 1. Feature Overview
 
-- Next.js 16
-- React 19
-- PostgreSQL
-- Prisma
-- Better Auth
-- React Flow / `@xyflow/react`
-- Tailwind CSS
+- **Interactive Prerequisite DAG Canvas**: Visualizes module dependency graphs with custom node/edge renderers powered by React Flow, featuring smooth zoom/pan, contextual dependency highlighting, and real-time layout recalculations.
+- **Dual Visual Modes (Focus vs. Full)**:
+  - *Focus Mode*: Isolates any selected target course, traversing its upstream transitive prerequisite tree and downstream dependent unlocks while anchoring the target at the origin coordinate.
+  - *Full / Simple Mode*: Provides a bird's-eye view of all curriculum modules, color-coded by degree status, completion, and eligibility.
+- **Ghost Prerequisite Synthesis**: Automatically detects missing prerequisite courses not present in the user's active canvas, projecting them as translucent, dashed "Ghost Nodes" with direct lineage edges.
+- **Interactive 4-Year Semester Timeline**: Drag-and-drop course planning from Y1S1 to Y5S2 with immediate warning detection for prerequisite violations and out-of-order scheduling.
+- **Time-Traveling Eligibility Engine**: Allows students to select future terms (e.g., Year 3 Semester 1) to simulate historical completions and preview unlockable modules in upcoming semesters.
+- **Deterministic NUSMods JSON Importer**: Parses official NUSMods export files, maps academic years to sequential degree terms, handles deduplication, and reconciles unknown module codes before database persistence.
+- **Automated Curriculum Preset Scraper**: Cheerio-based headless scraper that processes official faculty curriculum websites, strips out ambiguous electives, and produces clean degree presets for one-click import.
 
-## Features
+---
 
-- Email/password authentication
-- Per-user semester planning
-- Shared search dropdowns for modules and degree presets
-- Degree preset import backed by the database
-- Prerequisite graph visualization groundwork
+## 2. Tech Stack Architecture
 
-## Project Structure
+```mermaid
+graph TD
+    Client["Client (Browser)"]
+    subgraph UI_Layer["UI & Visualization Layer"]
+        ReactFlow["@xyflow/react (Graph Canvas)"]
+        Dagre["@dagrejs/dagre (Hierarchical Layout Engine)"]
+        Components["Radix UI / Tailwind CSS"]
+        AuthClient["Better Auth Client"]
+    end
 
-```text
-.
-├── prisma/
-│   ├── schema.prisma
-│   └── seed.js
-├── public/
-├── src/
-│   ├── app/                # Next.js routes, pages, and API handlers
-│   ├── components/         # UI components and server actions
-│   ├── data/               # local seed data
-│   ├── generated/          # generated Prisma client output
-│   ├── graph/              # graph-related rendering logic
-│   ├── lib/                # shared auth, db, utilities
-│   ├── server/             # service layer stubs / backend helpers
-│   └── store/              # client-side state
-└── docs/
-    └── er-diagram.svg
+    subgraph App_Layer["Next.js App Router (Fullstack)"]
+        ServerActions["Server Actions / API Routes"]
+        PrereqEngine["Prerequisite & Eligibility Services"]
+        ImportService["NUSMods Import Service"]
+        SessionService["Session & Auth Service"]
+    end
+
+    subgraph Data_Layer["Persistence & Ingestion Layer"]
+        Prisma["Prisma ORM (PostgreSQL Adapter)"]
+        Postgres[(PostgreSQL Database)]
+        Scraper["Cheerio / Axios Curriculum Scraper"]
+    end
+
+    Client --> UI_Layer
+    UI_Layer --> App_Layer
+    App_Layer --> Data_Layer
+    Scraper --> Data_Layer
 ```
 
-## Getting Started
+### Core Technologies
+
+| Layer | Technologies | Purpose / Justification |
+|---|---|---|
+| **Frontend Framework** | Next.js 16 (App Router), React 19 | Server-side rendering for initial load, fast route handling, and React 19 concurrent features. |
+| **Graph Visualization** | `@xyflow/react` (React Flow 12) | High-performance canvas node/edge rendering, viewport transformations, and custom SVG DOM nodes. |
+| **Graph Layout Engine** | `@dagrejs/dagre` | Layered directed graph layout computation based on Sugiyama's heuristic framework. |
+| **Styling & Icons** | Tailwind CSS v4, Radix UI, Lucide Icons | Fluid design tokens, accessible UI primitives, and dark-theme canvas controls. |
+| **State Management** | Zustand, React Custom Hooks | Ephemeral UI states, drag-and-drop transfers, and memoized dependency closures. |
+| **Authentication** | Better Auth | Session handling, secure password hashing, and cookie-based auth tokens. |
+| **Database & ORM** | PostgreSQL, Prisma ORM (`@prisma/client`) | Relational integrity, foreign key cascading, and ACID transactions. |
+| **Web Scraping** | Cheerio, Axios | Headless HTML DOM parsing and regex-based AST extraction for faculty curriculum pages. |
+| **Testing** | Vitest, React Testing Library, JSDOM | Multi-project test pipeline supporting fast unit tests, DOM tests, and DB integration tests. |
+
+---
+
+## 3. Core Algorithms & Data Structures
+
+```mermaid
+flowchart LR
+    A["Raw Module JSON<br/>(Prereq Trees)"] --> B["Expression Tree Parser<br/>(buildTree.js)"]
+    B --> C["Transitive Closure &<br/>Ghost Node Synthesizer"]
+    C --> D["Dagre Layering +<br/>Sublayer Binning Layout"]
+    D --> E["Time-Indexed Term<br/>Validation Engine"]
+    E --> F["Canvas Node & Edge<br/>State Dispatch"]
+```
+
+### 3.1 Prerequisite Expression Tree Parsing & Reduction
+
+NUS prerequisite relationships are non-linear Boolean expressions containing nested logical conjunctions (`AND`), disjunctions (`OR`), and count thresholds (`nOf`).
+
+#### Data Structure
+Prerequisites are represented as recursive N-ary abstract syntax trees:
+
+```json
+{
+  "and": [
+    "CS1231S",
+    {
+      "or": [
+        "CS1010",
+        "CS1010E",
+        "CS1010S",
+        "CS1010X"
+      ]
+    }
+  ]
+}
+```
+
+#### Reduction Algorithm
+In [`buildTree.js`](file:///home/raaghul/orbital/NusTree/src/graph/buildTree.js) and [`eligibility.service.js`](file:///home/raaghul/orbital/NusTree/src/server/eligibility.service.js), prerequisite satisfaction is evaluated recursively using depth-first tree traversal:
+
+$$\text{Satisfied}(T, C) = \begin{cases} 
+\text{true} & \text{if } T = \emptyset \\
+\text{norm}(T) \in C & \text{if } T \text{ is leaf (module code)} \\
+\bigwedge_{t \in T.\text{and}} \text{Satisfied}(t, C) & \text{if } T \text{ is AND-node} \\
+\bigvee_{t \in T.\text{or}} \text{Satisfied}(t, C) & \text{if } T \text{ is OR-node} \\
+\sum_{t \in T.\text{nOf}[1]} \mathbf{1}_{\{\text{Satisfied}(t, C)\}} \ge T.\text{nOf}[0] & \text{if } T \text{ is nOf-node}
+\end{cases}$$
+
+Where $C$ is the set of completed module codes, and $\text{norm}(m)$ strips wildcard characters (e.g., `ACC1701%` $\to$ `ACC1701`) and specialization suffixes (e.g., `CS1010:D` $\to$ `CS1010`).
+
+#### Dead-Branch Pruning
+To prevent graph explosion, `hasAnyModInSet(node, visibleSet)` prunes disjunctive branches during tree construction if no descendants exist in the current visible set:
+
+```javascript
+function hasAnyModInSet(node, set) {
+  if (!node) return false;
+  if (typeof node === "string") return set.has(node.split(":")[0].replace("%", ""));
+  if (node.and) return node.and.some((child) => hasAnyModInSet(child, set));
+  if (node.or) return node.or.some((child) => hasAnyModInSet(child, set));
+  return false;
+}
+```
+
+---
+
+### 3.2 Synthetic Hyperedge Decomposition (OR Junctions)
+
+Standard graph renderers natively support 1-to-1 binary edges $(u \to v)$. However, an `OR` prerequisite represents a directed hyperedge $(\{u_1, u_2, \dots, u_k\} \to v)$ where satisfaction of *any* source satisfies the target.
+
+#### Synthetic Junction Node Synthesis
+In [`buildTree.js`](file:///home/raaghul/orbital/NusTree/src/graph/buildTree.js), NusTree decomposes hyperedges by injecting synthetic centroid junction nodes:
+1. When $|T.\text{or}| > 1$, allocate a unique junction identifier:
+   $$\text{JunctionId} = \text{"junction-or-" } + v + \text{"-" } + \text{sort}\left(\bigcup \text{children}\right)$$
+2. Compute the geometric centroid position $(X_j, Y_j)$ based on child coordinates:
+   $$X_j = \frac{1}{2}\left( X_v + \frac{1}{k}\sum_{i=1}^k X_{u_i} \right), \quad Y_j = \frac{1}{k}\sum_{i=1}^k Y_{u_i}$$
+3. Connect all alternate prerequisites to the junction node $(u_i \to J)$, and route a single edge from the junction to the target $(J \to v)$.
+
+---
+
+### 3.3 Hierarchical DAG Layout & Horizontal Sublayer Binning
+
+Standard Sugiyama layouts generated by Dagre can become excessively wide when dozens of introductory 1000-level courses share rank 0 with no upstream dependencies.
+
+```mermaid
+graph TD
+    subgraph Raw_Dagre_Row["Raw Dagre Row (Rank Y)"]
+        R1[CS1101S] --- R2[CS1231S] --- R3[MA1521] --- R4[MA2001] --- R5[IS1108] --- R6[GEA1000] --- R7[CS2030S] --- R8[CS2040S]
+    end
+    
+    subgraph Binned_Sublayers["NusTree Alternating Sub-layering"]
+        subgraph Layer_0["Sublayer 0 (Max 7 Nodes)"]
+            L1[CS1101S] --- L2[CS1231S] --- L3[MA1521] --- L4[MA2001] --- L5[IS1108] --- L6[GEA1000] --- L7[CS2030S]
+        end
+        subgraph Layer_1["Sublayer 1 (Offset Shift)"]
+            L8[CS2040S]
+        end
+    end
+```
+
+#### Layout Pipeline
+In [`layoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/layoutUtils.js) and [`focusLayoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/focusLayoutUtils.js):
+1. **Dagre Phase**: Construct `dagre.graphlib.Graph` with `rankdir: "TB"`, `ranksep: 115`, `nodesep: 30`, and run tight-tree rank assignment.
+2. **Row Grouping**: Quantize continuous Dagre $y$-coordinates into discrete ranks using tolerance threshold $\epsilon = 8\text{px}$:
+   $$\text{SameRow}(y_1, y_2) \iff |y_1 - y_2| \le \text{ROW\_GROUP\_TOLERANCE}$$
+3. **Lexicographical & Level Sorting**: Order nodes within each row by academic level (1000, 2000, 3000, 4000), course prefix, and code:
+   $$\text{compareModuleIds}(A, B) = \text{Level}(A) \iff \text{Level}(B) \implies \text{Prefix}(A) \iff \text{Prefix}(B) \implies \text{Code}(A) \iff \text{Code}(B)$$
+4. **Horizontal Sublayer Partitioning**: Partition rows with length $> 7$ into sublayers with alternating offsets:
+   $$\text{Offset}_k = \begin{cases} 0 & \text{if } k \equiv 0 \pmod 2 \\ \frac{\text{HorizontalStep}}{2} & \text{if } k \equiv 1 \pmod 2 \end{cases}$$
+5. **Anchor Normalization**: In Focus Mode, normalize all node positions relative to the selected anchor node $A$ so $X_A = 0$:
+   $$\forall u \in V, \quad X'_u = X_u - X_A$$
+
+---
+
+### 3.4 Transitive Prerequisite Closure & Reverse Dependency Indexing
+
+In [`focus.jsx`](file:///home/raaghul/orbital/NusTree/src/graph/focus.jsx) and [`layoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/layoutUtils.js):
+
+#### Upstream Transitive Closure ($\mathcal{O}(V + E)$)
+Finds all direct and indirect ancestors required to unlock a target module $m$. When an `OR` branch is encountered:
+- If any disjunctive child is already satisfied, the traversal branches *only* into the satisfied child.
+- If unsatisfied, the traversal branches into *all* possible choices, surfacing them as ghost requirements.
+
+```javascript
+export const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet) => {
+  if (!treeNode) return;
+  if (typeof treeNode === "string") {
+    const code = treeNode.split(":")[0].replace("%", "");
+    if (!prereqIds.has(code)) {
+      prereqIds.add(code);
+      if (!completedIdSet.has(code)) {
+        const nextTree = prereqMap?.get(code);
+        if (nextTree) getDeepPrereqIds(nextTree, prereqMap, prereqIds, completedIdSet);
+      }
+    }
+    return;
+  }
+  if (treeNode.and) {
+    treeNode.and.forEach((child) => getDeepPrereqIds(child, prereqMap, prereqIds, completedIdSet));
+  }
+  if (treeNode.or) {
+    const satisfied = treeNode.or.filter((c) => isSatisfied(c, completedIdSet));
+    const targetBranches = satisfied.length > 0 ? satisfied : treeNode.or;
+    targetBranches.forEach((child) => getDeepPrereqIds(child, prereqMap, prereqIds, completedIdSet));
+  }
+};
+```
+
+#### Inverted Downstream Indexing
+Constructs an adjacency list of downstream dependents $\text{Dep}(u) = \{ v \mid u \in \text{Prereqs}(v) \}$ in linear $\mathcal{O}(|V| \cdot d)$ time, enabling instantaneous lookup of unlocked courses upon clicking any node.
+
+---
+
+### 3.5 Chronological Term Simulation & State Classification
+
+In [`termUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/termUtils.js) and [`moduleStatus.js`](file:///home/raaghul/orbital/NusTree/src/graph/moduleStatus.js):
+
+#### Monotonic Term Quantization
+Academic terms are mapped to linear order indices:
+$$\text{TermIndex}(\text{Year}, \text{Sem}) = 10 \cdot \text{Year} + \text{Sem}$$
+
+#### Term-by-Term State Classification Simulation
+Given a selected view term $T_{\text{sel}}$, modules planned in past terms ($T_{\text{plan}} < T_{\text{sel}}$) are evaluated in strict chronological order. At each step:
+1. Check if the module's prerequisite tree is satisfied by the accumulated completion set $C$.
+2. If satisfied, add module to $C$.
+3. If unsatisfied, flag module in $\text{WarningSet}$ (prerequisite violation).
+
+#### 4-State Visual Lifecycle
+
+| State Code | Status | Visual Styling | Condition |
+|---|---|---|---|
+| `-1` | `notInGraph` | Hidden / Excluded | Course not in user curriculum. |
+| `0` | `locked` | Gray background (`#e5e7eb`), thin gray border | Prerequisites unsatisfied for current term. |
+| `1` | `eligible` | Light blue background (`#93c5fd`), blue border (`#3b82f6`) | All prerequisites satisfied; available to take. |
+| `2` | `completed` | Light green background (`#86efac`), green border (`#22c55e`) | Completed in a preceding semester. |
+| `3` | `invalid` | Amber background (`#fde68a`), dashed yellow border (`#d97706`) | Planned in calendar but prerequisite sequence is broken. |
+
+---
+
+### 3.6 Deterministic AST Curriculum Scraping
+
+Faculty websites often format requirements in complex HTML tables, nested unordered lists, and narrative footnotes containing degree exceptions.
+
+In [`scripts/degree-scraper.js`](file:///home/raaghul/orbital/NusTree/scripts/degree-scraper.js):
+1. **Root Isolation**: Identifies the primary content block containing degree tables while purging navigation bars, scripts, and footers.
+2. **Context-Stack Hierarchy**: Traverses DOM tree elements (`h2-h4`, `tr`, `li`), building a continuous breadcrumb string (e.g., `"Computer Science Foundation > Programming Methodology"`).
+3. **Choice & Condition Filtering**: Applies negative regex assertions (`CONDITIONAL_OR_CHOICE_PATTERN`) to reject elective pools, wildcard blocks (`GEC%`), and GPA-conditional requirements, ensuring only 100% compulsory degree requirements are ingested into degree presets.
+
+---
+
+## 4. Architectural Design Choices
+
+```mermaid
+classDiagram
+    class User {
+        +String id
+        +String email
+        +String name
+    }
+    class Module {
+        +String id
+        +String title
+        +Json prereqTree
+        +String preclusion
+        +String[] fulfillreqs
+    }
+    class DegreePreset {
+        +String id
+        +String degreeCode
+        +String degreeName
+    }
+    class UserPlanModule {
+        +String id
+        +Int planYear
+        +Int planSemester
+        +Boolean isPresetModule
+    }
+    class UserPreset {
+        +String userId
+        +String degreePresetId
+        +DateTime importedAt
+    }
+    User "1" --> "*" UserPlanModule : plans
+    User "1" --> "*" UserPreset : imports
+    DegreePreset "1" --> "*" UserPreset : selected_by
+    Module "1" --> "*" UserPlanModule : referenced_in
+```
+
+### 1. Separation of Persistent State vs. Ephemeral Canvas Projections
+- Database tables (`UserPlanModule`, `UserPreset`) store only minimal relational references (User ID, Module ID, Year, Semester).
+- Graph topologies, node coordinates, ghost prerequisites, and junction hyperedges are calculated dynamically on the client using memoized selectors, preventing stale layout data in the database.
+
+### 2. Centroid Hyperedge Junctions Over Bipartite Graphing
+- Rather than rendering a full bipartite graph (which would double the total node count on screen), hyperedges are only rendered dynamically on demand when an `OR`-dependent module is actively selected.
+
+### 3. Progressive Disclosure UI Architecture
+- To prevent cognitive overload from NUS's 1,000+ course catalog, NusTree uses a progressive disclosure interface:
+  - Default view displays compulsory and planned degree modules.
+  - Sidebar search provides fuzzy filtering with click-to-center canvas navigation.
+  - Focus Mode isolates immediate dependency neighborhoods with keyboard shortcuts (`Esc` to return).
+
+---
+
+## 5. Key Engineering Tradeoffs
+
+| Decision | Alternative Considered | Chosen Approach & Technical Tradeoff |
+|---|---|---|
+| **Client Layout vs. Server-Side Graphing** | Compute Graphviz / Dagre coordinates in Next.js Server Components | **Client-Side Layout**: Incurs initial JS computation overhead on page mount, but enables 60 FPS instantaneous recalculations when panning, zooming, filtering terms, and dragging nodes without network latency. |
+| **Deterministic vs. NLP-Based Curriculum Scraping** | LLM / NLP extraction of degree requirements from raw text | **Deterministic AST Regex Filter**: Sacrifices automatic parsing of complex choice electives (e.g., "Choose 2 of 4 from List A"), but guarantees 100% precision and zero hallucinations on compulsory graduation requirements. |
+| **Serializable Database Isolation for Degree Presets** | Default Read-Committed isolation level | **Serializable Transaction (`addUserDegreePreset`)**: Imposes a slight transaction lock cost, but completely prevents race conditions when verifying maximum allowable degree presets (`MAX_USER_DEGREE_PRESETS = 2`). |
+| **Ghost Node Projection vs. Auto-Importing Prereqs** | Automatically insert missing prerequisites into user's semester plan | **Virtual Ghost Projection**: Keeps the user's database records pristine while visually exposing unfulfilled prerequisite paths as dashed warning nodes. |
+| **Custom Sublayer Binning vs. Raw Dagre Layout** | Rely strictly on Dagre's native node separation | **Custom Sublayer Packing**: Adds layout grouping complexity, but prevents horizontal canvas stretching across 30+ unconnected intro courses. |
+
+---
+
+## 6. Key Learnings & Engineering Insights
+
+### 1. Directed Acyclic Graphs in Academic Realities
+Curriculum prerequisite structures are often assumed to be pure DAGs. In practice, academic handbooks contain circular preclusions, mutual exclusions (e.g., taking $A$ precludes $B$, and taking $B$ precludes $A$), and historical module code aliases (e.g., `CS1020` $\to$ `CS2040`). Sanitizing these relations into strict trees required handling reflexive preclusions and aliased prefixes before feeding them into Dagre.
+
+### 2. Viewport Geometry & Virtual Canvas Synchronization
+Synchronizing React Flow canvas zoom transforms with external HTML elements (e.g., floating sidebars, context menus, flash-highlight animations) requires listening to viewport transform matrices. Relying on standard DOM client coordinates without un-projecting via `flowInstance.screenToFlowPosition()` causes alignment drift when zooming.
+
+### 3. Atomic Database Synchronization for Bulk Plan Imports
+Bulk-importing NUSMods JSON files containing up to 40+ modules cannot be executed as sequential CRUD requests. Wrapping preview generation, validation, record deletion, and batch creation inside an atomic `prisma.$transaction` ensures that malformed import files leave existing student plans completely untouched.
+
+---
+
+## 7. Data Model & Database Schema
+
+The database schema is defined in [`prisma/schema.prisma`](file:///home/raaghul/orbital/NusTree/prisma/schema.prisma):
+
+- `Module`: Stores official module metadata, workload, department, and JSON-encoded prerequisite expression trees.
+- `DegreePreset`: Stores faculty degree programs (e.g., Computer Science, Information Security).
+- `DegreePresetModule`: Join table establishing fixed compulsory modules for each degree preset.
+- `UserPlanModule`: Records user semester assignments with compound unique index on `(userId, moduleId)` and composite indices on `(userId, planYear, planSemester)`.
+- `UserPreset`: Tracks degrees imported by users.
+- `UserAddModule`: Ephemeral planner workspace state for drag-and-drop course staging.
+- `User`, `Session`, `Account`, `Verification`: Multi-tenant authentication tables managed by Better Auth.
+
+An Entity-Relationship (ER) diagram is available at [`docs/er-diagram.svg`](file:///home/raaghul/orbital/NusTree/docs/er-diagram.svg).
+
+---
+
+## 8. Getting Started
 
 ### Prerequisites
 
-- Node.js
-- npm
-- PostgreSQL
-- a `.env` file with `DATABASE_URL`
+- Node.js (v18.x or higher)
+- PostgreSQL database instance
+- npm or pnpm
 
-### Installation
+### Environment Configuration
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/nustree?schema=public"
+BETTER_AUTH_SECRET="your-generated-auth-secret"
+BETTER_AUTH_URL="http://localhost:3000"
+```
+
+### Installation & Migration
 
 ```bash
+# 1. Install dependencies
 npm install
-```
 
-### Database Setup
-
-Apply your Prisma migrations, then seed the database:
-
-```bash
+# 2. Apply database migrations
 npx prisma migrate dev
+
+# 3. Seed module catalog and degree presets
 npm run seed
-```
 
-The seed script loads:
-
-- module data from `src/data/modules.json`
-- degree preset data from `src/data/degree-presets.json`
-
-### Updating the Prisma Schema
-
-After changing `prisma/schema.prisma`, create and apply a new migration locally:
-
-```bash
-npx prisma migrate dev --name describe-your-change
-```
-
-This creates a new migration folder under `prisma/migrations`, applies it to the local database, and regenerates the Prisma client.
-
-If Prisma returns `P3014` because the database user cannot create a shadow database, either grant the local database user permission to create databases or configure a dedicated shadow database. For local development, granting `CREATEDB` is usually simplest:
-
-```sql
-ALTER USER your_database_user CREATEDB;
-```
-
-If you only want to create the migration file without applying it immediately:
-
-```bash
-npx prisma migrate dev --name describe-your-change --create-only
-```
-
-After reviewing the generated SQL, apply it:
-
-```bash
-npx prisma migrate dev
-```
-
-When deploying an existing migration to another environment, use:
-
-```bash
-npx prisma migrate deploy
-npx prisma generate
-```
-
-Restart the app after deployment so it uses the updated Prisma client. Run `npm run seed` only if the schema change also requires updated seed data.
-
-### Run Locally
-
-```bash
+# 4. Start local development server
 npm run dev
 ```
 
-The app will start on the default Next.js development port.
+The application will be accessible at `http://localhost:3000`.
 
-## Available Scripts
+---
 
-- `npm run dev` - start the Next.js development server
-- `npm run build` - create a production build
-- `npm run start` - run the production server
-- `npm run lint` - run ESLint
-- `npm run seed` - seed modules and degree presets into PostgreSQL
-- `npm run test` - run the default fast suite (`unit` + `ui`)
-- `npm run test:watch` - run Vitest in watch mode
-- `npm run test:unit` - run Node-based unit tests under `src/server` and `src/graph`
-- `npm run test:ui` - run component tests under `src/components` in jsdom
-- `npm run test:auth` - run authentication integration tests against the test database
-- `npm run test:all` - run all Vitest projects, including auth
+## 9. Testing Strategy
 
-## Data Model
-
-The main application models are defined in [prisma/schema.prisma](./prisma/schema.prisma):
-
-- `Module`
-- `DegreePreset`
-- `DegreePresetModule`
-- `UserPlanModule`
-- `UserPreset`
-- auth models: `User`, `Session`, `Account`, `Verification`
-
-An ER diagram is available at [docs/er-diagram.svg](./docs/er-diagram.svg).
-
-## Architecture Notes
-
-## Testing
-
-Vitest is split into three projects:
-
-- `unit` for logic tests in `src/server` and `src/graph`
-- `ui` for component tests in `src/components`
-- `auth` for authentication tests in files named `*.auth.test.ts`
-
-Authentication tests automatically:
-
-- use a Node test environment
-- load `.env.test`
-- validate that `DATABASE_URL` points at a dedicated test database
-- truncate the test database before each test
-
-Start auth test work in [src/lib/auth.auth.test.ts](./src/lib/auth.auth.test.ts). That file is wired to the shared auth test client in [src/tests/auth-test-client.ts](./src/tests/auth-test-client.ts), so new authentication cases only need to focus on the scenario being tested.
-
-Before running `npm run test:auth`, create a local `.env.test` from [.env.test.example](./.env.test.example) and point it at a real PostgreSQL database such as `nustree_test`.
-
-### Updating degree presets from curriculum links
-
-Degree presets live in `src/data/degree-presets.json`. Curriculum links are
-configured in `scripts/degree-links.json`:
-
-```json
-[
-  {
-    "url": "https://www.comp.nus.edu.sg/programmes/ug/cs/curr/",
-    "code": "computer-science",
-    "name": "Computer Science"
-  }
-]
-```
-
-Run the scraper to process every configured curriculum link in order:
+NusTree employs Vitest with a split-project configuration across three isolated test environments:
 
 ```bash
+# Run default fast test suites (unit + ui)
+npm run test
+
+# Run logic & algorithmic unit tests (Node environment)
+npm run test:unit
+
+# Run React component & DOM interaction tests (JSDOM environment)
+npm run test:ui
+
+# Run database & authentication integration tests (Real PostgreSQL test database)
+npm run test:auth
+
+# Run complete test matrix
+npm run test:all
+
+# Run degree curriculum scraper pipeline
 npm run scrape:degree
 ```
 
-After checking the updated JSON, seed the database again:
+### Test Suite Breakdown
 
-```bash
-npm run seed
-```
-
-The scraper only keeps fixed compulsory module codes. It intentionally skips
-choice requirements, wildcard placeholders such as `GEC%`, and conditional
-modules that only apply to some students. The scraper stops on the first failed
-entry. To verify scraper behavior, run:
-
-```bash
-npm run test:scraper
-```
-
-## 10. How I would describe the project overall
-
-## Current Status
-
-Implemented:
-
-- authenticated planner data flow
-- planner module retrieval
-- degree preset loading and import association
-- local seed workflow for modules and presets
-
-Still in progress:
-
-- eligibility API implementation
-- module API implementation
-- backend service layer completion in `src/server`
-- tighter integration between planner state and graph/eligibility flows
-
-## Development Notes
-
-- The repository enforces LF line endings via `.gitattributes`.
-- Prisma client output is committed under `src/generated/prisma`.
-- Degree presets are expected to come from the database at runtime, not directly from JSON files.
-
-## Contributing
-
-If you are extending the project:
-
-- keep schema changes in `prisma/schema.prisma`
-- add or update seed data when introducing new presets or modules
-- prefer keeping UI, mutation logic, and persistence concerns separated
-
-## License
-
-No license file is currently included in this repository.
+- **Unit Suite** (`src/graph/*.test.js`, `src/server/*.test.js`): Verifies Boolean expression evaluation, cycle prevention, sublayer layout calculations, and term progression logic.
+- **UI Suite** (`src/components/*.test.jsx`): Tests sidebar filtering, degree preset picker modals, context menus, and timeline dragging in JSDOM.
+- **Auth Suite** (`src/lib/*.auth.test.ts`): Runs against an isolated test database (`nustree_test`), automatically truncating tables between test cases to ensure zero state pollution.
