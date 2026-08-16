@@ -41,26 +41,27 @@ NusTree is a high-performance, interactive curriculum graph visualization and 4-
 ## 2. Tech Stack Architecture
 
 ```mermaid
-graph TD
+flowchart TD
     Client["Client (Browser)"]
+    
     subgraph UI_Layer["UI & Visualization Layer"]
         ReactFlow["@xyflow/react (Graph Canvas)"]
-        Dagre["@dagrejs/dagre (Hierarchical Layout Engine)"]
-        Components["Radix UI / Tailwind CSS"]
+        Dagre["@dagrejs/dagre (Layout Engine)"]
+        Components["Radix UI & Tailwind CSS"]
         AuthClient["Better Auth Client"]
     end
 
     subgraph App_Layer["Next.js App Router (Fullstack)"]
-        ServerActions["Server Actions / API Routes"]
+        ServerActions["Server Actions / Route Handlers"]
         PrereqEngine["Prerequisite & Eligibility Services"]
         ImportService["NUSMods Import Service"]
         SessionService["Session & Auth Service"]
     end
 
     subgraph Data_Layer["Persistence & Ingestion Layer"]
-        Prisma["Prisma ORM (PostgreSQL Adapter)"]
-        Postgres[(PostgreSQL Database)]
-        Scraper["Cheerio / Axios Curriculum Scraper"]
+        Prisma["Prisma ORM (@prisma/client)"]
+        Postgres[("PostgreSQL Database")]
+        Scraper["Cheerio Curriculum Scraper"]
     end
 
     Client --> UI_Layer
@@ -90,9 +91,9 @@ graph TD
 ```mermaid
 flowchart LR
     A["Raw Module JSON<br/>(Prereq Trees)"] --> B["Expression Tree Parser<br/>(buildTree.js)"]
-    B --> C["Transitive Closure &<br/>Ghost Node Synthesizer"]
-    C --> D["Dagre Layering +<br/>Sublayer Binning Layout"]
-    D --> E["Time-Indexed Term<br/>Validation Engine"]
+    B --> C["Transitive Closure &<br/>Ghost Synthesizer"]
+    C --> D["Dagre Layout +<br/>Sublayer Binning"]
+    D --> E["Term-Indexed<br/>Simulation Engine"]
     E --> F["Canvas Node & Edge<br/>State Dispatch"]
 ```
 
@@ -101,7 +102,7 @@ flowchart LR
 NUS prerequisite relationships are non-linear Boolean expressions containing nested logical conjunctions (`AND`), disjunctions (`OR`), and count thresholds (`nOf`).
 
 #### Data Structure
-Prerequisites are represented as recursive N-ary abstract syntax trees:
+Prerequisites are stored and processed as recursive N-ary abstract syntax trees:
 
 ```json
 {
@@ -119,21 +120,18 @@ Prerequisites are represented as recursive N-ary abstract syntax trees:
 }
 ```
 
-#### Reduction Algorithm
+#### Evaluation Rules
 In [`buildTree.js`](file:///home/raaghul/orbital/NusTree/src/graph/buildTree.js) and [`eligibility.service.js`](file:///home/raaghul/orbital/NusTree/src/server/eligibility.service.js), prerequisite satisfaction is evaluated recursively using depth-first tree traversal:
 
-$$\text{Satisfied}(T, C) = \begin{cases} 
-\text{true} & \text{if } T = \emptyset \\
-\text{norm}(T) \in C & \text{if } T \text{ is leaf (module code)} \\
-\bigwedge_{t \in T.\text{and}} \text{Satisfied}(t, C) & \text{if } T \text{ is AND-node} \\
-\bigvee_{t \in T.\text{or}} \text{Satisfied}(t, C) & \text{if } T \text{ is OR-node} \\
-\sum_{t \in T.\text{nOf}[1]} \mathbf{1}_{\{\text{Satisfied}(t, C)\}} \ge T.\text{nOf}[0] & \text{if } T \text{ is nOf-node}
-\end{cases}$$
+- **Leaf Node (Module Code)**: Satisfied if `normalize(code)` exists in the completed set $C$.
+- **AND Node**: Satisfied if **all** child nodes evaluate to `true`.
+- **OR Node**: Satisfied if **at least one** child node evaluates to `true`.
+- **nOf Node**: Satisfied if at least $N$ child nodes evaluate to `true`.
 
-Where $C$ is the set of completed module codes, and $\text{norm}(m)$ strips wildcard characters (e.g., `ACC1701%` $\to$ `ACC1701`) and specialization suffixes (e.g., `CS1010:D` $\to$ `CS1010`).
+Where `normalize(m)` strips wildcard characters (e.g., `ACC1701%` $\to$ `ACC1701`) and specialization suffixes (e.g., `CS1010:D` $\to$ `CS1010`).
 
 #### Dead-Branch Pruning
-To prevent graph explosion, `hasAnyModInSet(node, visibleSet)` prunes disjunctive branches during tree construction if no descendants exist in the current visible set:
+To prevent canvas clutter and unnecessary node rendering, `hasAnyModInSet(node, visibleSet)` prunes disjunctive branches during tree construction if no descendants exist in the current visible set:
 
 ```javascript
 function hasAnyModInSet(node, set) {
@@ -149,35 +147,38 @@ function hasAnyModInSet(node, set) {
 
 ### 3.2 Synthetic Hyperedge Decomposition (OR Junctions)
 
-Standard graph renderers natively support 1-to-1 binary edges $(u \to v)$. However, an `OR` prerequisite represents a directed hyperedge $(\{u_1, u_2, \dots, u_k\} \to v)$ where satisfaction of *any* source satisfies the target.
+Standard graph renderers natively support 1-to-1 binary directed edges $(u \to v)$. However, an `OR` prerequisite represents a directed hyperedge $(\{u_1, u_2, \dots, u_k\} \to v)$ where satisfaction of *any* source satisfies the target.
 
 #### Synthetic Junction Node Synthesis
 In [`buildTree.js`](file:///home/raaghul/orbital/NusTree/src/graph/buildTree.js), NusTree decomposes hyperedges by injecting synthetic centroid junction nodes:
-1. When $|T.\text{or}| > 1$, allocate a unique junction identifier:
-   $$\text{JunctionId} = \text{"junction-or-" } + v + \text{"-" } + \text{sort}\left(\bigcup \text{children}\right)$$
+1. When $|T.\text{or}| > 1$, allocate a deterministic junction identifier:
+   `junctionId = "junction-or-" + targetId + "-" + sortedChildIds`
 2. Compute the geometric centroid position $(X_j, Y_j)$ based on child coordinates:
-   $$X_j = \frac{1}{2}\left( X_v + \frac{1}{k}\sum_{i=1}^k X_{u_i} \right), \quad Y_j = \frac{1}{k}\sum_{i=1}^k Y_{u_i}$$
-3. Connect all alternate prerequisites to the junction node $(u_i \to J)$, and route a single edge from the junction to the target $(J \to v)$.
+   - $X_j = \frac{1}{2} \cdot \left( X_{\text{target}} + \frac{1}{k}\sum_{i=1}^k X_{u_i} \right)$
+   - $Y_j = \frac{1}{k}\sum_{i=1}^k Y_{u_i}$
+3. Connect all alternative prerequisite courses to the junction node $(u_i \to J)$, and route a single edge from the junction to the target $(J \to v)$.
 
 ---
 
 ### 3.3 Hierarchical DAG Layout & Horizontal Sublayer Binning
 
-Standard Sugiyama layouts generated by Dagre can become excessively wide when dozens of introductory 1000-level courses share rank 0 with no upstream dependencies.
+Standard Sugiyama layouts generated by Dagre can become excessively wide when dozens of introductory 1000-level courses share topological rank 0 with no upstream dependencies.
 
 ```mermaid
-graph TD
-    subgraph Raw_Dagre_Row["Raw Dagre Row (Rank Y)"]
-        R1[CS1101S] --- R2[CS1231S] --- R3[MA1521] --- R4[MA2001] --- R5[IS1108] --- R6[GEA1000] --- R7[CS2030S] --- R8[CS2040S]
+flowchart TD
+    subgraph Raw_Dagre["Raw Dagre Layout"]
+        R1["CS1101S"] --> R2["CS1231S"] --> R3["MA1521"] --> R4["MA2001"] --> R5["IS1108"]
     end
     
-    subgraph Binned_Sublayers["NusTree Alternating Sub-layering"]
+    subgraph NusTree_Binning["NusTree Alternating Sub-layering"]
+        direction TB
         subgraph Layer_0["Sublayer 0 (Max 7 Nodes)"]
-            L1[CS1101S] --- L2[CS1231S] --- L3[MA1521] --- L4[MA2001] --- L5[IS1108] --- L6[GEA1000] --- L7[CS2030S]
+            L1["CS1101S"] --- L2["CS1231S"] --- L3["MA1521"] --- L4["MA2001"]
         end
         subgraph Layer_1["Sublayer 1 (Offset Shift)"]
-            L8[CS2040S]
+            L5["IS1108"] --- L6["GEA1000"]
         end
+        Layer_0 -.-> Layer_1
     end
 ```
 
@@ -185,13 +186,10 @@ graph TD
 In [`layoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/layoutUtils.js) and [`focusLayoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/focusLayoutUtils.js):
 1. **Dagre Phase**: Construct `dagre.graphlib.Graph` with `rankdir: "TB"`, `ranksep: 115`, `nodesep: 30`, and run tight-tree rank assignment.
 2. **Row Grouping**: Quantize continuous Dagre $y$-coordinates into discrete ranks using tolerance threshold $\epsilon = 8\text{px}$:
-   $$\text{SameRow}(y_1, y_2) \iff |y_1 - y_2| \le \text{ROW\_GROUP\_TOLERANCE}$$
-3. **Lexicographical & Level Sorting**: Order nodes within each row by academic level (1000, 2000, 3000, 4000), course prefix, and code:
-   $$\text{compareModuleIds}(A, B) = \text{Level}(A) \iff \text{Level}(B) \implies \text{Prefix}(A) \iff \text{Prefix}(B) \implies \text{Code}(A) \iff \text{Code}(B)$$
-4. **Horizontal Sublayer Partitioning**: Partition rows with length $> 7$ into sublayers with alternating offsets:
-   $$\text{Offset}_k = \begin{cases} 0 & \text{if } k \equiv 0 \pmod 2 \\ \frac{\text{HorizontalStep}}{2} & \text{if } k \equiv 1 \pmod 2 \end{cases}$$
-5. **Anchor Normalization**: In Focus Mode, normalize all node positions relative to the selected anchor node $A$ so $X_A = 0$:
-   $$\forall u \in V, \quad X'_u = X_u - X_A$$
+   $|y_1 - y_2| \le \text{ROW\_GROUP\_TOLERANCE}$
+3. **Lexicographical & Level Sorting**: Order nodes within each row by academic level (1000, 2000, 3000, 4000), course prefix, and alphanumeric code.
+4. **Horizontal Sublayer Partitioning**: Partition rows with length $> 7$ into sublayers with alternating horizontal offset shifts.
+5. **Anchor Normalization**: In Focus Mode, normalize all node positions relative to the selected anchor node $A$ so $X_A = 0$.
 
 ---
 
@@ -199,7 +197,7 @@ In [`layoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/layoutUtils
 
 In [`focus.jsx`](file:///home/raaghul/orbital/NusTree/src/graph/focus.jsx) and [`layoutUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/layoutUtils.js):
 
-#### Upstream Transitive Closure ($\mathcal{O}(V + E)$)
+#### Upstream Transitive Closure ($O(V + E)$)
 Finds all direct and indirect ancestors required to unlock a target module $m$. When an `OR` branch is encountered:
 - If any disjunctive child is already satisfied, the traversal branches *only* into the satisfied child.
 - If unsatisfied, the traversal branches into *all* possible choices, surfacing them as ghost requirements.
@@ -230,7 +228,7 @@ export const getDeepPrereqIds = (treeNode, prereqMap, prereqIds, completedIdSet)
 ```
 
 #### Inverted Downstream Indexing
-Constructs an adjacency list of downstream dependents $\text{Dep}(u) = \{ v \mid u \in \text{Prereqs}(v) \}$ in linear $\mathcal{O}(|V| \cdot d)$ time, enabling instantaneous lookup of unlocked courses upon clicking any node.
+Constructs an adjacency list of downstream dependents $\text{Dep}(u) = \{ v \mid u \in \text{Prereqs}(v) \}$ in linear $O(|V| \cdot d)$ time, enabling instantaneous lookup of unlocked courses upon clicking any node.
 
 ---
 
@@ -240,7 +238,7 @@ In [`termUtils.js`](file:///home/raaghul/orbital/NusTree/src/graph/termUtils.js)
 
 #### Monotonic Term Quantization
 Academic terms are mapped to linear order indices:
-$$\text{TermIndex}(\text{Year}, \text{Sem}) = 10 \cdot \text{Year} + \text{Sem}$$
+$$\text{TermIndex}(\text{Year}, \text{Sem}) = 10 \times \text{Year} + \text{Sem}$$
 
 #### Term-by-Term State Classification Simulation
 Given a selected view term $T_{\text{sel}}$, modules planned in past terms ($T_{\text{plan}} < T_{\text{sel}}$) are evaluated in strict chronological order. At each step:
@@ -262,7 +260,7 @@ Given a selected view term $T_{\text{sel}}$, modules planned in past terms ($T_{
 
 ### 3.6 Deterministic AST Curriculum Scraping
 
-Faculty websites often format requirements in complex HTML tables, nested unordered lists, and narrative footnotes containing degree exceptions.
+Faculty websites often format requirements in complex HTML tables, nested lists, and narrative footnotes.
 
 In [`scripts/degree-scraper.js`](file:///home/raaghul/orbital/NusTree/scripts/degree-scraper.js):
 1. **Root Isolation**: Identifies the primary content block containing degree tables while purging navigation bars, scripts, and footers.
@@ -274,39 +272,37 @@ In [`scripts/degree-scraper.js`](file:///home/raaghul/orbital/NusTree/scripts/de
 ## 4. Architectural Design Choices
 
 ```mermaid
-classDiagram
-    class User {
-        +String id
-        +String email
-        +String name
+erDiagram
+    User ||--o{ UserPlanModule : "plans"
+    User ||--o{ UserPreset : "imports"
+    DegreePreset ||--o{ UserPreset : "selected_by"
+    DegreePreset ||--o{ DegreePresetModule : "contains"
+    Module ||--o{ DegreePresetModule : "part_of"
+    Module ||--o{ UserPlanModule : "referenced_in"
+
+    User {
+        string id PK
+        string email
+        string name
     }
-    class Module {
-        +String id
-        +String title
-        +Json prereqTree
-        +String preclusion
-        +String[] fulfillreqs
+    Module {
+        string id PK
+        string title
+        json prereqTree
+        string preclusion
     }
-    class DegreePreset {
-        +String id
-        +String degreeCode
-        +String degreeName
+    DegreePreset {
+        string id PK
+        string degreeCode
+        string degreeName
     }
-    class UserPlanModule {
-        +String id
-        +Int planYear
-        +Int planSemester
-        +Boolean isPresetModule
+    UserPlanModule {
+        string id PK
+        string userId FK
+        string moduleId FK
+        int planYear
+        int planSemester
     }
-    class UserPreset {
-        +String userId
-        +String degreePresetId
-        +DateTime importedAt
-    }
-    User "1" --> "*" UserPlanModule : plans
-    User "1" --> "*" UserPreset : imports
-    DegreePreset "1" --> "*" UserPreset : selected_by
-    Module "1" --> "*" UserPlanModule : referenced_in
 ```
 
 ### 1. Separation of Persistent State vs. Ephemeral Canvas Projections
