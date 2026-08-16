@@ -76,7 +76,7 @@ export default function Simple({
   allMods,
   isSideBarOpen,
   setIsSideBarOpen,
-  prereqMap,
+  prereqMap: passedPrereqMap,
   selectedTerm = DEFAULT_TERM,
 }) {
   const { fitView, setCenter, getNode, getZoom } = useReactFlow();
@@ -133,8 +133,24 @@ export default function Simple({
     [session],
   );
 
-  const modMap = useMemo(() => new Map(mods.map((m) => [m.id, m])), [mods]);
-  const modIds = useMemo(() => new Set(mods.map((m) => m.id)), [mods]);
+  const modMap = useMemo(() => new Map((mods || []).map((m) => [m.id, m])), [mods]);
+  const modIds = useMemo(() => new Set((mods || []).map((m) => m.id)), [mods]);
+
+  const prereqMap = useMemo(() => {
+    if (passedPrereqMap) return passedPrereqMap;
+    const map = new Map();
+    (mods || []).forEach((mod) => {
+      if (mod?.id) {
+        map.set(mod.id, mod.prereqTree || null);
+      }
+    });
+    (allMods || []).forEach((mod) => {
+      if (mod?.id && !map.has(mod.id)) {
+        map.set(mod.id, mod.prereqTree || null);
+      }
+    });
+    return map;
+  }, [passedPrereqMap, mods, allMods]);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();

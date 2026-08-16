@@ -258,9 +258,24 @@ export default function Graph({
   };
 
   const sideBarInGraph = useMemo(
-    () => new Set(allMods.map((mod) => mod.id)),
+    () => new Set((allMods || []).map((mod) => mod.id)),
     [allMods],
   );
+
+  const prereqMap = useMemo(() => {
+    const map = new Map();
+    (mods || []).forEach((mod) => {
+      if (mod?.id) {
+        map.set(mod.id, mod.prereqTree || null);
+      }
+    });
+    (allMods || []).forEach((mod) => {
+      if (mod?.id && !map.has(mod.id)) {
+        map.set(mod.id, mod.prereqTree || null);
+      }
+    });
+    return map;
+  }, [mods, allMods]);
 
   return (
     <div

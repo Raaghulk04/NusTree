@@ -184,4 +184,33 @@ describe("Basic Graph Integration Tests", () => {
     // assert that the correct prerequisite edge (CS1010 -> CS2040S) renders
     expect(queryByText(container, "CS1010 -> CS2040S")).toBeInTheDocument();
   });
+
+  it("renders without error in Simple mode", async () => {
+    const mockMods = [
+      {
+        id: "CS1010",
+        title: "Programming Methodology",
+      },
+      {
+        id: "CS2040S",
+        title: "Data Structures and Algorithms",
+        prereqTree: { and: ["CS1010"] },
+      },
+    ];
+
+    expect(() => {
+      act(() => {
+        root.render(
+          <Graph
+            mods={mockMods}
+            allMods={mockMods}
+            takenMods={[]}
+            completedMods={[]}
+            compulsoryMods={[]}
+            initialMode="Simple"
+          />,
+        );
+      });
+    }).not.toThrow();
+  });
 });
